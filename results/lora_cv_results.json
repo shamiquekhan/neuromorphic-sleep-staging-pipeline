@@ -1,4 +1,11 @@
 {
+  "validation_performance": {
+    "description": "LoRA r=8 validation accuracy during training (20% of training data, early stopping by val kappa)",
+    "best_val_accuracy": 0.8727,
+    "best_val_kappa": 0.7175,
+    "best_epoch": 4,
+    "note": "Validation performance is NOT the final CV result. Final CV uses held-out subjects."
+  },
   "summary": {
     "frozen": {
       "acc": {
