@@ -1,24 +1,20 @@
-"""Hypnogram visualization for sleep-night explorer."""
+"""Plotly hypnogram visualization — Swiss Style."""
 
 from typing import Any
 
-import numpy as np
-
-from ..config import STAGE_COLORS, STAGE_NAMES
+SWISS_FONT = "Inter, Helvetica Neue, Arial, sans-serif"
 
 
 def create_hypnogram(
-    predictions: list[int],
-    stage_names: dict[int, str] | None = None,
-    epoch_seconds: int = 30,
+    stage_indices: list[int],
+    stage_names: dict[int, str],
     title: str = "Predicted Hypnogram",
 ) -> dict[str, Any]:
-    """Create a Plotly hypnogram figure from a sequence of predictions.
+    """Create a Plotly hypnogram figure.
 
     Args:
-        predictions: List of integer stage indices (0–4).
-        stage_names: Mapping from index to name.
-        epoch_seconds: Duration of each epoch.
+        stage_indices: List of integer stage indices for each epoch.
+        stage_names: Mapping from index to stage name.
         title: Plot title.
 
     Returns:
@@ -26,33 +22,38 @@ def create_hypnogram(
     """
     import plotly.graph_objects as go
 
-    if stage_names is None:
-        stage_names = STAGE_NAMES
+    epochs = list(range(len(stage_indices)))
+    stage_labels = [stage_names.get(i, "?") for i in stage_indices]
 
-    n_epochs = len(predictions)
-    times = np.arange(n_epochs) * epoch_seconds / 60.0  # minutes
-    stages_numeric = np.array(predictions)
-
-    colors = [STAGE_COLORS.get(STAGE_NAMES[p], "#888") for p in predictions]
+    stage_to_y = {name: idx for idx, name in sorted(stage_names.items())}
+    y_values = [stage_to_y.get(s, 0) for s in stage_labels]
 
     fig = go.Figure()
-
     fig.add_trace(go.Scatter(
-        x=times,
-        y=stages_numeric,
-        mode="lines+markers",
-        marker=dict(size=4, color=colors),
-        line=dict(color="#555", width=1),
-        hovertemplate="Time: %{x:.1f} min<br>Stage: %{text}<extra></extra>",
-        text=[stage_names.get(p, "?") for p in predictions],
+        x=epochs,
+        y=y_values,
+        mode="lines",
+        line=dict(color="#111111", width=1),
+        text=stage_labels,
+        hovertemplate="Epoch %{x}<br>%{text}<extra></extra>",
     ))
 
     fig.update_layout(
-        title=dict(text=title, font=dict(size=14)),
-        xaxis_title="Time (min)",
+        title=dict(
+            text=title,
+            font=dict(family=SWISS_FONT, size=13, color="#111"),
+        ),
+        xaxis=dict(
+            title="Epoch",
+            tickfont=dict(family=SWISS_FONT, size=10, color="#999"),
+            titlefont=dict(family=SWISS_FONT, size=10, color="#999"),
+            showgrid=False,
+        ),
         yaxis=dict(
-            tickvals=list(STAGE_NAMES.keys()),
-            ticktext=list(STAGE_NAMES.values()),
+            tickvals=list(stage_to_y.values()),
+            ticktext=list(stage_to_y.keys()),
+            tickfont=dict(family=SWISS_FONT, size=10, color="#555"),
+            showgrid=False,
             autorange="reversed",
         ),
         height=300,
