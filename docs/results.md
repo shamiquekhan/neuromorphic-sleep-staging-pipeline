@@ -100,6 +100,43 @@
 
 ---
 
+## LoRA Adaptation Results
+
+**LoRA r=8 achieved 90.66% ± 3.59% held-out-subject test accuracy and κ = 0.8092 ± 0.0663 across four folds, with only 552 trainable parameters (0.55% of the 99,477-parameter base model). Validation accuracy used for checkpoint selection peaked at 87.27% (κ = 0.7175).**
+
+| Method | Trainable | Accuracy | κ | Macro F1 | Weighted F1 |
+|---|---:|---:|---:|---:|---:|
+| Frozen Base | 0 | 79.92% ± 5.65% | 0.5001 ± 0.1329 | 0.4106 ± 0.0775 | 0.7462 ± 0.0689 |
+| Full Fine-Tuning | 99,477 | 93.04% ± 0.87% | 0.8595 ± 0.0092 | 0.7379 ± 0.0390 | 0.9243 ± 0.0106 |
+| **LoRA r=8** | **552** | **90.66% ± 3.59%** | **0.8092 ± 0.0663** | **0.6464 ± 0.0603** | **0.8927 ± 0.0387** |
+
+### Per-Class F1 (Frozen vs LoRA r=8)
+
+| Class | Frozen F1 | LoRA F1 | Δ |
+|---|---:|---:|---:|
+| Wake | 0.8883 | 0.9771 | +0.0888 |
+| N1 | 0.0000 | 0.0000 | 0.0000 |
+| N2 | 0.6115 | 0.8437 | +0.2322 |
+| N3 | 0.5531 | 0.8320 | +0.2788 |
+| REM | 0.0000 | 0.5759 | +0.5759 |
+
+### Engineering Verification
+
+| Metric | Value |
+|---|---|
+| Base latency | 6.25 ms/batch |
+| LoRA unmerged | 5.66 ms/batch |
+| LoRA merged | 5.62 ms/batch |
+| Merge diff | 0.00e+00 (PASS) |
+| Adapter reload | 0.00e+00 (PASS) |
+
+### Terminology
+
+- **Validation accuracy (87.27%)**: Used for early stopping/checkpoint selection during training on 20% of training data. Not the final result.
+- **4-fold held-out-subject CV test accuracy (90.66% ± 3.59%)**: Final result on held-out subjects. This is the reported metric.
+
+---
+
 ## Exhibition Presentation
 
 ### Primary Result Block

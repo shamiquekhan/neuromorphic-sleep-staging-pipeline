@@ -20,6 +20,52 @@ The final model (Improved Student, 99,477 parameters) is designed for edge deplo
 
 ---
 
+## LoRA Adapter Deployment
+
+### Adapter Properties
+
+| Property | Value |
+|----------|-------|
+| Adapter rank | 8 |
+| Trainable parameters | 552 |
+| Adapter size (FP32) | ~2.2 KB |
+| Base + adapter size | ~402 KB |
+| Latency overhead | ~0 ms (negligible) |
+
+### Deployment Options
+
+**Option 1: Unmerged (adapter loaded at runtime)**
+```
+Base model (400 KB) + Adapter (2.2 KB) = 402 KB
+Latency: 5.66 ms/batch
+```
+
+**Option 2: Merged (adapter baked into base)**
+```
+Merged model (400 KB)
+Latency: 5.62 ms/batch
+```
+
+Both options produce identical predictions (verified: merge diff = 0.00e+00).
+
+### Adapter Reload Verification
+
+```python
+from sleep_staging.adaptation import load_adapter
+
+# Save adapter
+save_adapter(model, "artifacts/lora/head_r8")
+
+# Load into fresh base
+model = ImprovedStudent(config)
+model.load_state_dict(base_checkpoint)
+model = apply_lora(model, lora_config)
+load_adapter(model, "artifacts/lora/head_r8")
+# Predictions match original (verified: diff = 0.00e+00)
+```
+
+---
+
 ## Deployment Pipeline
 
 ```

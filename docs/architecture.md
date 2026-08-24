@@ -300,6 +300,45 @@ The project targets edge/MCU deployment. A sub-100K parameter model:
 
 ---
 
+## LoRA Adaptation
+
+The base model supports parameter-efficient adaptation via LoRA (Low-Rank Adaptation).
+
+### LoRA Configuration
+
+| Property | Value |
+|----------|-------|
+| Target module | `head` (Linear 64→5) |
+| Rank | 8 |
+| Alpha | 16 |
+| Scaling | 2.0 |
+| Dropout | 0.05 |
+| Trainable parameters | 552 (0.55%) |
+
+### How LoRA Works
+
+```
+Input x → frozen head.original → h_orig
+                ↓
+           x @ lora_A.T → x @ lora_A.T @ lora_B.T × scaling → Δh
+                ↓
+           h_orig + Δh → output
+```
+
+The base model weights are frozen. Only the low-rank matrices A (8×64) and B (5×8) are trained.
+
+### 4-Fold CV Results
+
+| Method | Trainable | κ | Macro F1 |
+|---|---:|---:|---:|
+| Frozen Base | 0 | 0.5001 ± 0.1329 | 0.4106 ± 0.0775 |
+| Full Fine-Tuning | 99,477 | 0.8595 ± 0.0092 | 0.7379 ± 0.0390 |
+| **LoRA r=8** | **552** | **0.8092 ± 0.0663** | **0.6464 ± 0.0603** |
+
+LoRA r=8 achieves **94.2%** of full fine-tuning's κ with **0.55%** of the parameters.
+
+---
+
 ## Architecture Variants (Historical)
 
 The final architecture evolved through these stages:

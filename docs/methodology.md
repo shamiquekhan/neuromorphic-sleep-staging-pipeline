@@ -38,7 +38,14 @@ This project follows a systematic engineering methodology for developing an auto
 │  ├── Knowledge distillation                                    │
 │  └── Checkpoint selection                                      │
 │                                                                 │
-│  Phase 5: Evaluation & Deployment                              │
+│  Phase 5: LoRA Adaptation                                      │
+│  ├── Rank sweep (r=2, r=4, r=8)                               │
+│  ├── 4-fold held-out-subject CV                                │
+│  ├── Multi-seed confirmation                                   │
+│  ├── Latency & merge verification                              │
+│  └── Parameter-efficiency analysis                             │
+│                                                                 │
+│  Phase 6: Evaluation & Deployment                              │
 │  ├── Test set evaluation                                       │
 │  ├── Official result documentation                             │
 │  ├── Edge deployment preparation                               │

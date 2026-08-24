@@ -49,7 +49,7 @@ docs/
 
 ## Quick Reference
 
-### Official Result
+### Official Result (Frozen Base)
 
 ```
 Improved Student
@@ -57,6 +57,15 @@ Improved Student
 Cohen's κ = 0.7551
 99,477 Parameters
 8.5 ms/batch CPU latency
+```
+
+### LoRA Adaptation Result
+
+```
+LoRA r=8
+90.66% ± 3.59% Held-Out-Subject CV Test Accuracy
+Cohen's κ = 0.8092 ± 0.0663
+552 Trainable Parameters (0.55%)
 ```
 
 ### Model Checkpoint
@@ -68,20 +77,20 @@ artifacts/student_improved_best.pt
 ### Run Commands
 
 ```bash
-# Prepare dataset
-python scripts/prepare_dataset.py
+# Verify model
+python scripts/verify_model.py
 
-# Train model
-python scripts/train.py --config configs/training.yaml
+# LoRA cross-validation
+python scripts/run_lora_cv.py
 
-# Evaluate
-python scripts/evaluate.py --checkpoint artifacts/student_improved_best.pt
+# Train LoRA adapter
+python scripts/train_lora_adapter.py --rank 8 --alpha 16 --output artifacts/lora/head_r8
 
-# Inference
-python scripts/infer.py --checkpoint artifacts/student_improved_best.pt --input demo/sample_inputs/sample_epoch.npz
+# Evaluate LoRA adapter
+python scripts/evaluate_lora_adapter.py --adapter artifacts/lora/head_r8
 
-# Demo
-streamlit run demo/demo.py
+# Dashboard
+streamlit run app/streamlit_app.py
 
 # Tests
 python -m pytest tests/ -v

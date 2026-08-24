@@ -124,6 +124,18 @@ Raw PSG Signals (EEG + EOG + EMG)
 
 ---
 
+## LoRA Adaptation
+
+**LoRA r=8 achieved 90.66% ± 3.59% held-out-subject test accuracy and κ = 0.8092 ± 0.0663 across four folds, with only 552 trainable parameters (0.55% of the 99,477-parameter base model). Validation accuracy used for checkpoint selection peaked at 87.27% (κ = 0.7175).**
+
+| Method | Trainable | κ | Macro F1 |
+|---|---:|---:|---:|
+| Frozen Base | 0 | 0.5001 ± 0.1329 | 0.4106 ± 0.0775 |
+| Full Fine-Tuning | 99,477 | 0.8595 ± 0.0092 | 0.7379 ± 0.0390 |
+| **LoRA r=8** | **552** | **0.8092 ± 0.0663** | **0.6464 ± 0.0603** |
+
+---
+
 ## Team
 
 | Member | Role |

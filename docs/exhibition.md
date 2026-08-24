@@ -208,6 +208,21 @@ PARAMETERS
 
 ---
 
+### Section G: LoRA Adaptation
+
+**Parameter-Efficient Adaptation:**
+
+```
+LoRA r=8: 552 trainable params (0.55%)
+    → κ = 0.8092 (94.2% of full fine-tuning)
+    → Merge diff: 0.00e+00
+    → Adapter reload: 0.00e+00
+```
+
+**Key message:** "The same 99K-parameter backbone can be adapted to new subjects using only 552 trainable parameters — less than 1% of the full model."
+
+---
+
 ### Section G: Deployment
 
 ```
