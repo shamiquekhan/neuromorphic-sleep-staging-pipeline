@@ -91,7 +91,7 @@ def plot_probabilities(probs, preds):
     ax.legend(loc="upper right")
     ax.set_xticks(x)
     ax.set_xticklabels([f"E{i+1}" for i in range(len(preds))])
-    plt.tight_layout())
+    plt.tight_layout()
     return fig
 
 
