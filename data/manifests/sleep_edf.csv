@@ -1,0 +1,5 @@
+subject_id,night,psg,hypnogram,split
+SC4001,0,/home/shamique/projects/sleep/data/raw/sleep_edf/SC4001E0-PSG.edf,/home/shamique/projects/sleep/data/raw/sleep_edf/SC4001EC-Hypnogram.edf,train
+SC4002,0,/home/shamique/projects/sleep/data/raw/sleep_edf/SC4002E0-PSG.edf,/home/shamique/projects/sleep/data/raw/sleep_edf/SC4002EC-Hypnogram.edf,train
+SC4011,0,/home/shamique/projects/sleep/data/raw/sleep_edf/SC4011E0-PSG.edf,/home/shamique/projects/sleep/data/raw/sleep_edf/SC4011EH-Hypnogram.edf,train
+SC4012,0,/home/shamique/projects/sleep/data/raw/sleep_edf/SC4012E0-PSG.edf,/home/shamique/projects/sleep/data/raw/sleep_edf/SC4012EC-Hypnogram.edf,train

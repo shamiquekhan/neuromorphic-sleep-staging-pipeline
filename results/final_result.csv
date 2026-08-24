@@ -1,0 +1,2 @@
+model,parameters,test_accuracy,cohen_kappa,macro_f1,weighted_f1,macro_gmean,cpu_latency_ms_per_batch,f1_wake,f1_n1,f1_n2,f1_n3,f1_rem
+Improved Student,99477,0.8734,0.7551,0.6259,0.8653,0.5371,8.5,0.9693,0.2006,0.8162,0.7849,0.3586

@@ -1,0 +1,62 @@
+[
+  {
+    "Model": "Baseline Teacher",
+    "Parameters": 303789,
+    "Kappa": 0.6233,
+    "Accuracy": 0.7912,
+    "Macro_F1": 0.5263,
+    "Weighted_F1": 0.7992,
+    "MGm": 0.4485,
+    "CPU_Lat_ms": 5.09,
+    "F1_Wake": 0.8938,
+    "F1_N1": 0.1877,
+    "F1_N2": 0.8081,
+    "F1_N3": 0.4319,
+    "F1_REM": 0.31
+  },
+  {
+    "Model": "Improved Teacher",
+    "Parameters": 193197,
+    "Kappa": 0.6019,
+    "Accuracy": 0.7928,
+    "Macro_F1": 0.5545,
+    "Weighted_F1": 0.7846,
+    "MGm": 0.3556,
+    "CPU_Lat_ms": 3.58,
+    "F1_Wake": 0.8908,
+    "F1_N1": 0.0294,
+    "F1_N2": 0.702,
+    "F1_N3": 0.7231,
+    "F1_REM": 0.4274
+  },
+  {
+    "Model": "Baseline Student",
+    "Parameters": 567749,
+    "Kappa": 0.8123,
+    "Accuracy": 0.9025,
+    "Macro_F1": 0.642,
+    "Weighted_F1": 0.8821,
+    "MGm": 0.5546,
+    "CPU_Lat_ms": 4.01,
+    "F1_Wake": 0.9872,
+    "F1_N1": 0.374,
+    "F1_N2": 0.8572,
+    "F1_N3": 0.7787,
+    "F1_REM": 0.213
+  },
+  {
+    "Model": "Improved Student",
+    "Parameters": 99477,
+    "Kappa": 0.7551,
+    "Accuracy": 0.8734,
+    "Macro_F1": 0.6259,
+    "Weighted_F1": 0.8647,
+    "MGm": 0.5371,
+    "CPU_Lat_ms": 8.32,
+    "F1_Wake": 0.9693,
+    "F1_N1": 0.2006,
+    "F1_N2": 0.8162,
+    "F1_N3": 0.7849,
+    "F1_REM": 0.3586
+  }
+]

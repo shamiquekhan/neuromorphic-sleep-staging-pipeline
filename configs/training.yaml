@@ -1,0 +1,39 @@
+training:
+  seed: 42
+  model: "ImprovedStudent"
+  sequence:
+    length: 10
+    stride: 5
+  training:
+    epochs: 20
+    batch_size: 16
+    learning_rate: 3.0e-4
+    weight_decay: 1.0e-4
+    grad_clip: 1.0
+  distillation:
+    temperature: 4.0
+    alpha_ce: 1.0
+    alpha_kl: 1.0
+    alpha_feat: 0.5
+  loss: "focal"
+  focal_gamma: 1.5
+  scheduler: "cosine-warmup"
+  warmup_fraction: 0.1
+  checkpoint_metric: "val_kappa"
+  device: "auto"
+
+architecture:
+  n_channels: 4
+  n_classes: 5
+  fs: 100
+  gru_hidden: 64
+  gru_layers: 2
+  stem_width: 10
+  encoder_channels: [32, 32]
+  gabor_n_filters: 8
+  gabor_out_dim: 32
+
+artifacts:
+  checkpoint_dir: "artifacts"
+  checkpoint_name: "student_improved_best.pt"
+  results_dir: "results"

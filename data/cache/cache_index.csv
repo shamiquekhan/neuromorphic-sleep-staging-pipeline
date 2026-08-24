@@ -1,0 +1,5 @@
+subject_id,night,split,n_epochs,n_flagged,cache_path
+SC4001,0,train,2650,2580,/home/shamique/projects/sleep/data/cache/SC4001_night0.npz
+SC4002,0,train,2829,2424,/home/shamique/projects/sleep/data/cache/SC4002_night0.npz
+SC4011,0,train,2802,2705,/home/shamique/projects/sleep/data/cache/SC4011_night0.npz
+SC4012,0,train,2848,2637,/home/shamique/projects/sleep/data/cache/SC4012_night0.npz
