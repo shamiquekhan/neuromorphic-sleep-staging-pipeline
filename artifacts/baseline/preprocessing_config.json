@@ -1,0 +1,13 @@
+{
+  "bandpass_low": 0.5,
+  "bandpass_high": 35.0,
+  "bandpass_order": 4,
+  "notch_freq": 50.0,
+  "notch_quality": 30.0,
+  "normalization": "z-score",
+  "sampling_rate": 100,
+  "epoch_seconds": 30,
+  "seq_len": 10,
+  "seq_stride": 5,
+  "label_mapping": {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}
+}

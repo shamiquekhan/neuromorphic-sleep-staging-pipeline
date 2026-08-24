@@ -1,0 +1,14 @@
+{
+  "metrics": ["accuracy", "cohen_kappa", "macro_f1", "weighted_f1", "mgm"],
+  "mgm_type": "geometric_mean",
+  "per_class_metrics": ["recall", "f1"],
+  "zero_division": 0,
+  "subject_level_cv": true,
+  "n_folds": 4,
+  "folds": {
+    "fold_1": {"train": ["SC4002", "SC4011", "SC4012"], "test": "SC4001"},
+    "fold_2": {"train": ["SC4001", "SC4011", "SC4012"], "test": "SC4002"},
+    "fold_3": {"train": ["SC4001", "SC4002", "SC4012"], "test": "SC4011"},
+    "fold_4": {"train": ["SC4001", "SC4002", "SC4011"], "test": "SC4012"}
+  }
+}

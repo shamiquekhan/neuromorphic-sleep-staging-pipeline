@@ -1,0 +1,20 @@
+{
+  "official_result": {
+    "model": "Improved Student",
+    "parameters": 99477,
+    "test_accuracy": 0.8734,
+    "cohen_kappa": 0.7551,
+    "macro_f1": 0.6259,
+    "weighted_f1": 0.8653,
+    "macro_gmean": 0.5371,
+    "cpu_latency_ms_per_batch": 8.5
+  },
+  "frozen_base_sc4012": {
+    "accuracy": 0.7183,
+    "cohen_kappa": 0.3096,
+    "macro_f1": 0.3343,
+    "weighted_f1": 0.6492,
+    "mgm": 0.0,
+    "per_class_accuracy": {"Wake": 1.0, "N1": 0.0, "N2": 0.2929, "N3": 0.2632, "REM": 0.0}
+  }
+}
