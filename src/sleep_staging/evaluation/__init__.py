@@ -30,8 +30,9 @@ def compute_all_metrics(
     weighted_f1 = float(f1_score(y_true, y_pred, average="weighted", zero_division=0))
 
     cm = confusion_matrix(y_true, y_pred, labels=list(range(len(stage_names))))
-    per_class_acc = cm.diagonal() / cm.sum(axis=1).clip(min=1)
-    mgm = float(np.mean(per_class_acc))
+    recalls = cm.diagonal() / cm.sum(axis=1).clip(min=1)
+    per_class_acc = recalls
+    mgm = float(np.prod(np.clip(recalls, 1e-12, 1.0)) ** (1.0 / len(stage_names)))
 
     return {
         "accuracy": acc,
