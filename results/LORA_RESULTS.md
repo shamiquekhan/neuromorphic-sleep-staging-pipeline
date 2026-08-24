@@ -1,10 +1,14 @@
 # LoRA Adaptation Results
 
+## Abstract
+
+**LoRA r=8 achieved 90.66% ± 3.59% held-out-subject test accuracy and κ = 0.8092 ± 0.0663 across four folds, with only 552 trainable parameters (0.55% of the 99,477-parameter base model). Validation accuracy used for checkpoint selection peaked at 87.27% (κ = 0.7175).**
+
 ## Training & Validation
 
-The LoRA r=8 adapter was trained with 20% of the training data held out for validation. Early stopping used validation kappa.
+The LoRA r=8 adapter was trained with 20% of the training data held out for validation. Early stopping used validation kappa. This validation set is used **only** for checkpoint selection — it is not the final evaluation.
 
-**Validation performance during training:**
+**Validation performance during training (checkpoint selection):**
 
 | Epoch | Val Accuracy | Val κ |
 |------:|-------------:|------:|
@@ -20,7 +24,7 @@ The LoRA r=8 adapter was trained with 20% of the training data held out for vali
 
 ## Held-Out Subject Cross-Validation (Final Result)
 
-The final evaluation uses subject-level held-out cross-validation: train on 3 subjects, test on 1. This is the scientifically reported result.
+The final evaluation uses 4-fold held-out-subject cross-validation: train on 3 subjects, test on 1. Each subject is held out exactly once. This is the scientifically reported result.
 
 ### 4-Fold CV Summary
 
@@ -65,7 +69,7 @@ The final evaluation uses subject-level held-out cross-validation: train on 3 su
 
 **LoRA r=8 achieves 94.2% of full fine-tuning's κ (0.8099 vs 0.8595) while training only 0.55% of the parameters (552 vs 99,477).**
 
-## Important Distinction
+## Terminology
 
-- **Validation accuracy (87.27%)**: Used for early stopping during training on 20% of training data.
-- **CV test accuracy (90.66% ± 3.59%)**: Final result on held-out subjects. This is the reported metric.
+- **Validation accuracy (87.27%)**: Used for early stopping/checkpoint selection during training on 20% of training data. Not the final result.
+- **4-fold held-out-subject cross-validation test accuracy (90.66% ± 3.59%)**: Final result on held-out subjects. This is the reported metric.
