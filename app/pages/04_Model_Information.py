@@ -117,6 +117,23 @@ if lora_dir.exists():
             unsafe_allow_html=True,
         )
 
+st.markdown(
+    """
+    <div class="swiss-section-title">LoRA on Expanded Dataset (15 Subjects)</div>
+    <table class="swiss-table" style="max-width:500px;">
+        <tr><th>Config</th><th>Accuracy</th><th>Kappa</th><th>Macro F1</th><th>N1 F1</th></tr>
+        <tr><td>LoRA r=2</td><td>90.2% &plusmn; 3.2%</td><td>0.803</td><td>0.658</td><td>0.024</td></tr>
+        <tr><td>LoRA r=4</td><td>90.2% &plusmn; 3.2%</td><td>0.803</td><td>0.660</td><td>0.034</td></tr>
+        <tr><td><strong>LoRA r=8</strong></td><td><strong>90.2% &plusmn; 3.1%</strong></td><td><strong>0.803</strong></td><td><strong>0.672</strong></td><td><strong>0.097</strong></td></tr>
+        <tr><td>Full Model</td><td>87.5% &plusmn; 3.2%</td><td>0.763</td><td>0.721</td><td>0.720</td></tr>
+    </table>
+    <div style="margin-top:0.5rem; font-family:'Inter',sans-serif; font-size:0.8rem; color:#888;">
+        LoRA cannot learn N1 even with 15 subjects. N1 F1 = 0.097 (LoRA) vs 0.720 (full model).
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
 # ── Official Results ────────────────────────────────────────────────────
 st.markdown('<div class="swiss-divider"></div>', unsafe_allow_html=True)
 st.markdown(

@@ -50,8 +50,19 @@
 |---|---:|---:|---:|---:|
 | Frozen Base | 0 | 79.92% ± 5.65% | 0.5001 ± 0.1329 | 0.4106 ± 0.0775 |
 | Full Fine-Tuning | 99,477 | 93.04% ± 0.87% | 0.8595 ± 0.0092 | 0.7379 ± 0.0390 |
-| **LoRA r=8** | **552** | **90.66% ± 3.59%** | **0.8092 ± 0.0663** | **0.6464 ± 0.0603** |
-| **Expanded (15 subj)** | **99,477** | **87.5% ± 3.2%** | **0.763 ± 0.043** | **0.721 ± 0.050** |
+| **LoRA r=8 (4 subj)** | **552** | **90.66% ± 3.59%** | **0.8092 ± 0.0663** | **0.6464 ± 0.0603** |
+| **LoRA r=8 (15 subj)** | **552** | **90.2% ± 3.1%** | **0.803 ± 0.043** | **0.672 ± 0.032** |
+| **Full FT (15 subj)** | **99,477** | **87.5% ± 3.2%** | **0.763 ± 0.043** | **0.721 ± 0.050** |
+
+### LoRA on Expanded Dataset (15 Subjects)
+
+| Config | Accuracy | κ | Macro F1 | N1 F1 | Trainable |
+|--------|----------|---|----------|-------|-----------|
+| LoRA r=2 | 90.2% ± 3.2% | 0.803 ± 0.044 | 0.658 ± 0.029 | 0.024 ± 0.021 | 138 (0.14%) |
+| LoRA r=4 | 90.2% ± 3.2% | 0.803 ± 0.044 | 0.660 ± 0.029 | 0.034 ± 0.020 | 276 (0.28%) |
+| **LoRA r=8** | **90.2% ± 3.1%** | **0.803 ± 0.043** | **0.672 ± 0.032** | **0.097 ± 0.060** | **552 (0.55%)** |
+
+**Key finding:** LoRA cannot learn N1 even with 15 subjects. N1 F1 = 0.097 (LoRA) vs 0.720 (full model). LoRA's limited capacity (552 params) is the bottleneck for N1.
 
 ## Project Overview
 
@@ -145,4 +156,4 @@ python scripts/preprocess_sleep_edf_expanded.py  # Preprocess all
 
 ## License
 
-MIT
+CC-BY-4.0 (Creative Commons Attribution 4.0 International)

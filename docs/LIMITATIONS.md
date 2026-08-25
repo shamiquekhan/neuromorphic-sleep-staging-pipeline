@@ -274,27 +274,28 @@ REM        1.3%  11.7%  11.4%   0.1%  75.5%
 
 ### 6.4 LoRA Limitations
 - LoRA adapts only the classification head (552 params, 0.55% of total).
-- Insufficient capacity for N1 discrimination.
+- Insufficient capacity for N1 discrimination — even with 15 subjects.
 - Cannot learn encoder-level features needed for subtle stage boundaries.
+- **Expanded dataset confirms:** LoRA N1 F1 = 0.097 vs full model 0.720.
 
 ---
 
 ## 7. Dataset Limitations
 
-### 7.1 Small Subject Pool
+### 7.1 Original Dataset
 - Only 4 subjects (SC4001, SC4002, SC4011, SC4012).
 - All from the same Sleep-EDF subset.
 - Limited demographic diversity.
 
-### 7.2 Class Imbalance
+### 7.2 Expanded Dataset (Current)
+- 15 subjects from Sleep-EDF Expanded.
+- Still limited to healthy adults.
+- N1 epochs increased from 318 to 1,388 (4.4x).
+
+### 7.3 Class Imbalance
 - Wake = 67.9%, N1 = 2.9%. Ratio of 23:1.
 - Standard cross-entropy loss is dominated by Wake.
 - Class weighting helps marginally but destroys overall calibration.
-
-### 7.3 N1 Scarcity
-- Only 318 N1 epochs across all subjects.
-- N1 appears as a training target in ~3% of sequences.
-- Insufficient N1 diversity for robust feature learning.
 
 ### 7.4 QC Flag Rate
 - 92.96% of all epochs are QC-flagged (potential artifacts).
