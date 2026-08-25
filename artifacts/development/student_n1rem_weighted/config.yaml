@@ -1,0 +1,51 @@
+# NeuroSleep Development Baseline Configuration
+# Frozen: 2026-08-25
+# Status: Development baseline — do not overwrite
+
+model:
+  name: Improved Student
+  parameters: 99477
+  architecture: LiteMultiResolutionStem + DepthwiseSeparableCNN + ParametricGaborFEB + GRU + Head
+  input_shape: [1, 10, 4, 3000]
+  output_shape: [1, 10, 5]
+  n_channels: 4
+  n_classes: 5
+  seq_len: 10
+  epoch_seconds: 30
+  sampling_rate: 100
+
+training:
+  supervision: all_position
+  n1_weight: 2.0
+  rem_weight: 2.0
+  optimizer: AdamW
+  lr: 3e-4
+  weight_decay: 1e-2
+  scheduler: CosineAnnealingLR
+  max_epochs: 10
+  early_stopping_patience: 3
+  early_stopping_metric: macro_f1
+  batch_size: 16
+
+dataset:
+  name: Sleep-EDF (4 subjects)
+  subjects: [SC4001, SC4002, SC4011, SC4012]
+  split: held_out_subject_cv
+  n_folds: 4
+  seq_stride: 5
+
+evaluation:
+  metrics: [accuracy, kappa, macro_f1, weighted_f1, per_class_f1]
+  n_seeds: 3
+  seeds: [42, 43, 44]
+
+results:
+  accuracy: 0.9096
+  kappa: 0.8244
+  macro_f1: 0.7304
+  per_class:
+    Wake: {f1: 0.984, recall: 0.971, precision: 0.998}
+    N1:   {f1: 0.324, recall: 0.405, precision: 0.307}
+    N2:   {f1: 0.851, recall: 0.797, precision: 0.918}
+    N3:   {f1: 0.835, recall: 0.953, precision: 0.753}
+    REM:  {f1: 0.658, recall: 0.708, precision: 0.629}

@@ -7,9 +7,13 @@ from typing import Dict
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CHECKPOINT_PATH = PROJECT_ROOT / "artifacts" / "student_improved_best.pt"
+IMPROVED_CHECKPOINT_PATH = PROJECT_ROOT / "artifacts" / "full_model_trained" / "student_full_trained.pt"
 CACHE_DIR = PROJECT_ROOT / "data" / "cache"
+SLEEP_EDF_CACHE_DIR = PROJECT_ROOT / "data" / "cache" / "sleep_edf"
+SHHS_CACHE_DIR = PROJECT_ROOT / "data" / "cache" / "shhs"
 RAW_DIR = PROJECT_ROOT / "data" / "raw" / "sleep_edf"
 MANIFEST_PATH = PROJECT_ROOT / "data" / "manifests" / "sleep_edf.csv"
+EXPANDED_MANIFEST_PATH = PROJECT_ROOT / "data" / "manifests" / "sleep_edf_expanded.json"
 
 STAGE_NAMES = {0: "Wake", 1: "N1", 2: "N2", 3: "N3", 4: "REM"}
 STAGE_LIST = ["Wake", "N1", "N2", "N3", "REM"]
