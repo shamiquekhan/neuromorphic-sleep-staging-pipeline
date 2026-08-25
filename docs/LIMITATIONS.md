@@ -274,9 +274,22 @@ REM        1.3%  11.7%  11.4%   0.1%  75.5%
 
 ### 6.4 LoRA Limitations
 - LoRA adapts only the classification head (552 params, 0.55% of total).
-- Insufficient capacity for N1 discrimination — even with 15 subjects.
-- Cannot learn encoder-level features needed for subtle stage boundaries.
-- **Expanded dataset confirms:** LoRA N1 F1 = 0.097 vs full model 0.720.
+- **Critical finding:** LoRA is ACTIVE DESTRUCTIVE to N1 — frozen base has N1 F1=0.586, LoRA head-only has N1 F1=0.340.
+- Even selective LoRA targets (Gabor projection, CNN projection) do not restore N1.
+- Full fine-tuning (99,477 params) achieves N1 F1=0.817 — 2.4x better than best LoRA.
+
+#### Selective LoRA Experiment (15 Subjects, 4-Fold CV)
+
+| Config | Trainable | Accuracy | Macro F1 | N1 F1 | REM F1 |
+|--------|-----------|----------|----------|-------|--------|
+| Frozen Base | 0 | 83.0% | 0.644 | **0.586** | 0.825 |
+| LoRA Head Only | 552 | 89.1% | 0.686 | 0.340 | 0.883 |
+| LoRA Gabor+Head | 744 | 89.0% | 0.686 | 0.343 | 0.893 |
+| LoRA CNN+Head | 552 | 89.1% | 0.692 | 0.375 | 0.889 |
+| LoRA Gabor+CNN+Head | 744 | 89.0% | 0.689 | 0.362 | 0.890 |
+| **Full FT** | **99,477** | **89.7%** | **0.783** | **0.817** | **0.922** |
+
+**Key insight:** LoRA in ALL configurations is WORSE than frozen base for N1. The frozen base already has N1 capability (0.586) that LoRA destroys (0.340). This suggests LoRA's low-rank updates interfere with the existing N1 representation.
 
 ---
 

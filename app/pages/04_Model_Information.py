@@ -119,16 +119,18 @@ if lora_dir.exists():
 
 st.markdown(
     """
-    <div class="swiss-section-title">LoRA on Expanded Dataset (15 Subjects)</div>
-    <table class="swiss-table" style="max-width:500px;">
-        <tr><th>Config</th><th>Accuracy</th><th>Kappa</th><th>Macro F1</th><th>N1 F1</th></tr>
-        <tr><td>LoRA r=2</td><td>90.2% &plusmn; 3.2%</td><td>0.803</td><td>0.658</td><td>0.024</td></tr>
-        <tr><td>LoRA r=4</td><td>90.2% &plusmn; 3.2%</td><td>0.803</td><td>0.660</td><td>0.034</td></tr>
-        <tr><td><strong>LoRA r=8</strong></td><td><strong>90.2% &plusmn; 3.1%</strong></td><td><strong>0.803</strong></td><td><strong>0.672</strong></td><td><strong>0.097</strong></td></tr>
-        <tr><td>Full Model</td><td>87.5% &plusmn; 3.2%</td><td>0.763</td><td>0.721</td><td>0.720</td></tr>
+    <div class="swiss-section-title">Selective LoRA Experiment (15 Subjects, 4-Fold CV)</div>
+    <table class="swiss-table" style="max-width:600px;">
+        <tr><th>Config</th><th>Params</th><th>Accuracy</th><th>Macro F1</th><th>N1 F1</th><th>REM F1</th></tr>
+        <tr><td>Frozen Base</td><td>0</td><td>83.0%</td><td>0.644</td><td><strong>0.586</strong></td><td>0.825</td></tr>
+        <tr><td>LoRA Head</td><td>552</td><td>89.1%</td><td>0.686</td><td>0.340</td><td>0.883</td></tr>
+        <tr><td>LoRA Gabor+Head</td><td>744</td><td>89.0%</td><td>0.686</td><td>0.343</td><td>0.893</td></tr>
+        <tr><td>LoRA CNN+Head</td><td>552</td><td>89.1%</td><td>0.692</td><td>0.375</td><td>0.889</td></tr>
+        <tr><td>LoRA All+Head</td><td>744</td><td>89.0%</td><td>0.689</td><td>0.362</td><td>0.890</td></tr>
+        <tr><td><strong>Full FT</strong></td><td><strong>99,477</strong></td><td><strong>89.7%</strong></td><td><strong>0.783</strong></td><td><strong>0.817</strong></td><td><strong>0.922</strong></td></tr>
     </table>
     <div style="margin-top:0.5rem; font-family:'Inter',sans-serif; font-size:0.8rem; color:#888;">
-        LoRA cannot learn N1 even with 15 subjects. N1 F1 = 0.097 (LoRA) vs 0.720 (full model).
+        LoRA is ACTIVE DESTRUCTIVE to N1. Frozen base (0.586) outperforms all LoRA configs (0.340-0.375). Full FT is required for strong N1.
     </div>
     """,
     unsafe_allow_html=True,

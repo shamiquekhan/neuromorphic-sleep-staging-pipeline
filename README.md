@@ -62,7 +62,18 @@
 | LoRA r=4 | 90.2% ± 3.2% | 0.803 ± 0.044 | 0.660 ± 0.029 | 0.034 ± 0.020 | 276 (0.28%) |
 | **LoRA r=8** | **90.2% ± 3.1%** | **0.803 ± 0.043** | **0.672 ± 0.032** | **0.097 ± 0.060** | **552 (0.55%)** |
 
-**Key finding:** LoRA cannot learn N1 even with 15 subjects. N1 F1 = 0.097 (LoRA) vs 0.720 (full model). LoRA's limited capacity (552 params) is the bottleneck for N1.
+### Selective LoRA Experiment (15 Subjects, 4-Fold CV)
+
+| Config | Trainable | Accuracy | Macro F1 | N1 F1 | REM F1 |
+|--------|-----------|----------|----------|-------|--------|
+| Frozen Base | 0 | 83.0% | 0.644 | **0.586** | 0.825 |
+| LoRA Head Only | 552 | 89.1% | 0.686 | 0.340 | 0.883 |
+| LoRA Gabor+Head | 744 | 89.0% | 0.686 | 0.343 | 0.893 |
+| LoRA CNN+Head | 552 | 89.1% | 0.692 | 0.375 | 0.889 |
+| LoRA Gabor+CNN+Head | 744 | 89.0% | 0.689 | 0.362 | 0.890 |
+| **Full FT** | **99,477** | **89.7%** | **0.783** | **0.817** | **0.922** |
+
+**Critical finding:** LoRA is ACTIVE DESTRUCTIVE to N1 — frozen base has N1 F1=0.586, LoRA head-only has N1 F1=0.340. Even selective targets (Gabor, CNN projection) do not restore N1. Full fine-tuning is the only way to achieve strong N1 (0.817).
 
 ## Project Overview
 
