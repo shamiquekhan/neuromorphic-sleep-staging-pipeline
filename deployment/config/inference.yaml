@@ -1,0 +1,33 @@
+model:
+  name: Improved Student
+  parameters: 99477
+  checkpoint: student_full_finetuned.pt
+
+input:
+  sequence_length: 10
+  channels: 4
+  samples_per_epoch: 3000
+  sampling_rate: 100
+  epoch_seconds: 30
+  context_seconds: 300
+
+channels:
+  - Fpz-Cz
+  - Pz-Oz
+  - EOG
+  - EMG
+
+classes:
+  - Wake
+  - N1
+  - N2
+  - N3
+  - REM
+
+results:
+  accuracy: 0.930
+  accuracy_std: 0.010
+  kappa: 0.861
+  kappa_std: 0.027
+  macro_f1: 0.794
+  macro_f1_std: 0.036

@@ -1,20 +1,19 @@
-"""Signal Viewer page — interactive PSG waveform display."""
+"""Signal Viewer — Interactive PSG waveform display."""
 
 import sys
 from pathlib import Path
 
 _repo = Path(__file__).resolve().parents[2]
+if str(_repo) not in sys.path:
+    sys.path.insert(0, str(_repo))
 if str(_repo / "src") not in sys.path:
     sys.path.insert(0, str(_repo / "src"))
 
 import streamlit as st
 
 from app.components import (
-    inject_swiss_css,
-    header,
-    prediction_block,
-    probability_bars,
-    qc_panel,
+    inject_swiss_css, header, section_title,
+    prediction_block, probability_bars, qc_panel,
 )
 from app.state import get_predictor, init_session
 from sleep_staging.config import CACHE_DIR
@@ -28,42 +27,38 @@ header()
 init_session()
 predictor = get_predictor()
 
-st.markdown('<div class="swiss-divider-thick"></div>', unsafe_allow_html=True)
+st.markdown('<div class="divider-thick"></div>', unsafe_allow_html=True)
 
-# ── Controls ─────────────────────────────────────────────────────────────
 subjects = available_subjects()
 if not subjects:
     st.warning("No cached data found. Run Notebook 02 first.")
     st.stop()
 
-st.markdown(
-    '<div class="swiss-section-title">Signal Selection</div>',
-    unsafe_allow_html=True,
-)
+section_title("Signal Selection")
 
-ctrl1, ctrl2, ctrl3 = st.columns(3)
-with ctrl1:
+c1, c2, c3 = st.columns(3)
+with c1:
     subject = st.selectbox("Subject", subjects)
-with ctrl2:
+with c2:
     data = load_cached_subject(subject)
     n_epochs = data["epochs"].shape[0]
     epoch_idx = st.slider("Epoch", 0, n_epochs - 1, value=min(50, n_epochs - 1))
-with ctrl3:
+with c3:
     channel = st.selectbox("Channel", CHANNEL_NAMES, index=0)
 
-# ── Display waveform ─────────────────────────────────────────────────────
+# ── Waveform ────────────────────────────────────────────────────────────
 epoch_data = data["epochs"][epoch_idx]
-fig = create_signal_figure(epoch_data, CHANNEL_NAMES, title=f"Subject {subject} — Epoch {epoch_idx}")
+fig = create_signal_figure(epoch_data, CHANNEL_NAMES, title=f"{subject} — Epoch {epoch_idx}")
 st.plotly_chart(fig, use_container_width=True)
 
-# ── QC ───────────────────────────────────────────────────────────────────
+# ── QC ──────────────────────────────────────────────────────────────────
 qc = check_epoch_quality(epoch_data, CHANNEL_NAMES)
 qc_panel(qc)
 
-# ── Run prediction ───────────────────────────────────────────────────────
-st.markdown('<div class="swiss-divider"></div>', unsafe_allow_html=True)
+# ── Prediction ──────────────────────────────────────────────────────────
+st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
-if st.button("RUN PREDICTION", type="primary", use_container_width=True):
+if st.button("Run Prediction", type="primary", use_container_width=True):
     try:
         seq = get_contiguous_sequence(data["epochs"], epoch_idx, seq_len=10)
         result = predictor.predict(seq, target_epoch=9)
@@ -71,10 +66,7 @@ if st.button("RUN PREDICTION", type="primary", use_container_width=True):
 
         prediction_block(result)
 
-        st.markdown(
-            '<div class="swiss-section-title">Probability Distribution</div>',
-            unsafe_allow_html=True,
-        )
+        section_title("Probability Distribution")
         probability_bars(result.probabilities)
 
     except Exception as exc:

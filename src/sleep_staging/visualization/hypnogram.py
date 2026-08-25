@@ -44,9 +44,8 @@ def create_hypnogram(
             font=dict(family=SWISS_FONT, size=13, color="#111"),
         ),
         xaxis=dict(
-            title="Epoch",
+            title=dict(text="Epoch", font=dict(family=SWISS_FONT, size=10, color="#999")),
             tickfont=dict(family=SWISS_FONT, size=10, color="#999"),
-            titlefont=dict(family=SWISS_FONT, size=10, color="#999"),
             showgrid=False,
         ),
         yaxis=dict(

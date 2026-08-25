@@ -1,8 +1,0 @@
-{
-  "rank": 4,
-  "alpha": 8.0,
-  "scaling": 2.0,
-  "target_modules": [
-    "head"
-  ]
-}

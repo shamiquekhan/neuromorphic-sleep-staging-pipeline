@@ -6,8 +6,9 @@ from typing import Dict
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-CHECKPOINT_PATH = PROJECT_ROOT / "artifacts" / "student_improved_best.pt"
-IMPROVED_CHECKPOINT_PATH = PROJECT_ROOT / "artifacts" / "full_model_trained" / "student_full_trained.pt"
+CHECKPOINT_PATH = PROJECT_ROOT / "artifacts" / "final" / "student_full_finetuned.pt"
+FALLBACK_CHECKPOINT_PATH = PROJECT_ROOT / "artifacts" / "student_improved_best.pt"
+RESULTS_PATH = PROJECT_ROOT / "results" / "final" / "final_metrics.json"
 CACHE_DIR = PROJECT_ROOT / "data" / "cache"
 SLEEP_EDF_CACHE_DIR = PROJECT_ROOT / "data" / "cache" / "sleep_edf"
 SHHS_CACHE_DIR = PROJECT_ROOT / "data" / "cache" / "shhs"

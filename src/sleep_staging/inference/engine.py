@@ -22,18 +22,20 @@ class SleepStagePredictor:
 
     Args:
         checkpoint_path: Path to ``.pt`` checkpoint.
-        device: ``"cpu"`` or ``"cuda"``.
+        device: ``"auto"`` (default), ``"cpu"``, or ``"cuda"``.
         config: Model configuration.
     """
 
     def __init__(
         self,
         checkpoint_path: str | Path | None = None,
-        device: str = "cpu",
+        device: str = "auto",
         config: StudentConfig | None = None,
         adapter_path: str | Path | None = None,
         lora_config: LoRAConfig | None = None,
     ):
+        if device == "auto":
+            device = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = torch.device(device)
         self.config = config or StudentConfig()
 

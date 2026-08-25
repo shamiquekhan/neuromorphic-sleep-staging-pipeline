@@ -68,7 +68,7 @@ def create_signal_figure(
             showgrid=False,
             zeroline=False,
             tickfont=dict(family=SWISS_FONT, size=10, color="#999"),
-            titlefont=dict(family=SWISS_FONT, size=10, color="#999"),
+            title=dict(text="Time (s)", font=dict(family=SWISS_FONT, size=10, color="#999")),
         ),
         yaxis=dict(showticklabels=False, showgrid=False, zeroline=False),
         height=380,
@@ -113,7 +113,7 @@ def create_probability_figure(probabilities: dict[str, float]) -> dict[str, Any]
         xaxis=dict(
             range=[0, 1.05],
             tickfont=dict(family=SWISS_FONT, size=10, color="#999"),
-            titlefont=dict(family=SWISS_FONT, size=10, color="#999"),
+            title=dict(text="Probability", font=dict(family=SWISS_FONT, size=10, color="#999")),
         ),
         yaxis=dict(
             tickfont=dict(family=SWISS_FONT, size=11, color="#111"),

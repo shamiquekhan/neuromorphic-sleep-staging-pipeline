@@ -1,0 +1,75 @@
+# Canonical Benchmark Configuration
+# ================================
+# This is the ONLY configuration allowed for final reported results.
+# All experiments must use these exact settings.
+
+dataset:
+  name: sleep_edf_expanded
+  source: physionet
+  subjects: 15
+  cache_dir: data/cache/sleep_edf
+
+sequence:
+  length: 10
+  epoch_seconds: 30
+  stride: 5
+
+sampling_rate: 100
+n_channels: 4
+channels:
+  - Fpz-Cz
+  - Pz-Oz
+  - EOG
+  - EMG
+
+classes:
+  Wake: 0
+  N1: 1
+  N2: 2
+  N3: 3
+  REM: 4
+
+architecture:
+  name: ImprovedStudent
+  n_classes: 5
+  gru_hidden: 64
+  gru_layers: 2
+  stem_width: 10
+  encoder_channels: [32, 32]
+  gabor_n_filters: 8
+  gabor_out_dim: 32
+
+evaluation:
+  subject_level: true
+  folds: 4
+  checkpoint_metric: val_kappa
+
+metrics:
+  - accuracy
+  - kappa
+  - macro_f1
+  - weighted_f1
+  - mgm
+  - per_class_f1
+  - per_class_recall
+  - confusion_matrix
+
+training:
+  seed: 42
+  epochs: 20
+  batch_size: 16
+  learning_rate: 3.0e-4
+  weight_decay: 1.0e-4
+  grad_clip: 1.0
+  loss: weighted_cross_entropy
+  class_weights:
+    N1: 2.0
+    REM: 2.0
+  scheduler: cosine-warmup
+  warmup_fraction: 0.1
+  device: auto  # Will use CUDA if available
+
+checkpoint:
+  base_path: artifacts/student_improved_best.pt
+  base_hash: e0dfaa30eae0f767eee48803226e5c0053e80ef5826b25b9b192672ba8d1922f
+  expected_params: 99477  # Verified 2026-08-25

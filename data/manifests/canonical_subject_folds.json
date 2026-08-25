@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0",
+  "description": "Canonical 4-fold subject-level splits for Sleep-EDF Expanded (15 subjects)",
+  "dataset": "sleep_edf_expanded",
+  "n_subjects": 15,
+  "n_folds": 4,
+  "split_method": "subject_level",
+  "subjects": [
+    "SC4001", "SC4002", "SC4011", "SC4012", "SC4022",
+    "SC4031", "SC4032", "SC4041", "SC4042", "SC4051",
+    "SC4052", "SC4061", "SC4062", "SC4071", "SC4072"
+  ],
+  "folds": {
+    "fold_1": {
+      "test": ["SC4001"],
+      "validation": ["SC4002", "SC4011"],
+      "train": ["SC4012", "SC4022", "SC4031", "SC4032", "SC4041", "SC4042", "SC4051", "SC4052", "SC4061", "SC4062", "SC4071", "SC4072"]
+    },
+    "fold_2": {
+      "test": ["SC4002"],
+      "validation": ["SC4011", "SC4012"],
+      "train": ["SC4001", "SC4022", "SC4031", "SC4032", "SC4041", "SC4042", "SC4051", "SC4052", "SC4061", "SC4062", "SC4071", "SC4072"]
+    },
+    "fold_3": {
+      "test": ["SC4011"],
+      "validation": ["SC4012", "SC4022"],
+      "train": ["SC4001", "SC4002", "SC4031", "SC4032", "SC4041", "SC4042", "SC4051", "SC4052", "SC4061", "SC4062", "SC4071", "SC4072"]
+    },
+    "fold_4": {
+      "test": ["SC4012"],
+      "validation": ["SC4022", "SC4031"],
+      "train": ["SC4001", "SC4002", "SC4011", "SC4032", "SC4041", "SC4042", "SC4051", "SC4052", "SC4061", "SC4062", "SC4071", "SC4072"]
+    }
+  }
+}

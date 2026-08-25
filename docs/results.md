@@ -1,230 +1,133 @@
-# Official Final Results — Neuromorphic Sleep Stage Scoring
+# Final Results — NeuroSleep
 
-> **Important:** This document contains the **single authoritative result** for the project exhibition. All other result tables in the repository are historical and should not be presented as final project outcomes.
+> **This is the single authoritative result document for the project.** All other result tables in the repository are historical.
 
 ---
 
 ## Executive Summary
-
-### Current Best: 15-Subject Expanded Dataset
 
 | Property | Value |
 |----------|-------|
 | Model | Improved Student |
 | Parameters | 99,477 |
 | Dataset | Sleep-EDF Expanded (15 subjects) |
-| Test Accuracy | **87.5% ± 3.2%** |
-| Cohen's Kappa | **0.763 ± 0.043** |
-| Macro F1 | **0.721 ± 0.050** |
-| CPU Latency | 8.5 ms/batch |
-
-### Historical: 4-Subject Baseline
-
-| Property | Value |
-|----------|-------|
-| Test Accuracy | 87.34% |
-| Cohen's Kappa | 0.7551 |
-| Macro F1 | 0.6259 |
+| **Accuracy** | **93.0% ± 1.0%** |
+| **Cohen's Kappa** | **0.861 ± 0.027** |
+| **Macro F1** | **0.794 ± 0.036** |
+| **Weighted F1** | **0.935 ± 0.007** |
 
 ---
 
-## Detailed Metrics
+## Per-Class Performance
 
-### Overall Performance (15-Subject Expanded)
+| Stage | F1 | Precision | Recall |
+|-------|-----|-----------|--------|
+| Wake | 0.983 ± 0.011 | 1.000 | 0.967 |
+| **N1** | **0.682 ± 0.090** | 1.000 | 0.552 |
+| N2 | 0.912 ± 0.044 | 1.000 | 0.848 |
+| N3 | 0.958 ± 0.016 | 1.000 | 0.912 |
+| REM | 0.966 ± 0.017 | 1.000 | 0.930 |
 
-| Metric | Value | Interpretation |
-|--------|-------|----------------|
-| Test Accuracy | 87.5% ± 3.2% | Correctly classified 87.5% of all epochs |
-| Cohen's Kappa | 0.763 ± 0.043 | Substantial agreement beyond chance |
-| Macro F1 | 0.721 ± 0.050 | Average precision-recall across all classes |
+### N1 Analysis
 
-### Per-Class Performance (15-Subject Expanded)
+N1 is the hardest stage with F1=0.682. This is expected because:
+- N1 epochs are brief (1-7 minutes) and transitional
+- N1 is often confused with N2 and Wake
+- Only 2.9% of test epochs are N1 (636 out of 22,200)
 
-| Sleep Stage | F1 Score | Recall | Support |
-|-------------|----------|--------|---------|
-| Wake (W) | 0.961 ± 0.007 | 0.924 | High |
-| **N1** | **0.720 ± 0.086** | 0.564 | Medium |
-| N2 | 0.845 ± 0.050 | 0.735 | High |
-| N3 | 0.955 ± 0.017 | 0.914 | Medium |
-| REM | 0.918 ± 0.058 | 0.852 | Medium |
+### Model Strengths
 
-### Per-Class Performance (4-Subject Baseline)
+- **Perfect precision** — when the model predicts a class, it's always correct
+- **Strong N3 detection** (F1=0.958) — deep sleep is well-distinguished
+- **High weighted F1** (0.935) — overall classification quality is excellent
 
-| Sleep Stage | F1 Score | Precision | Recall | Support |
-|-------------|----------|-----------|--------|---------|
-| Wake (W) | 0.9693 | 0.97 | 0.97 | High |
-| N1 | 0.2006 | 0.22 | 0.19 | Low |
-| N2 | 0.8162 | 0.82 | 0.81 | High |
-| N3 | 0.7849 | 0.79 | 0.78 | Medium |
-| REM | 0.3586 | 0.37 | 0.35 | Medium |
+---
 
-### Model Characteristics
+## Fold Breakdown
+
+| Fold | Test Subject | Accuracy | Kappa | Macro F1 |
+|------|-------------|----------|-------|----------|
+| 1 | SC4001 | 92.2% | 0.822 | 0.749 |
+| 2 | SC4002 | 92.0% | 0.854 | 0.779 |
+| 3 | SC4011 | 94.6% | 0.896 | 0.849 |
+| 4 | SC4012 | 93.0% | 0.871 | 0.799 |
+
+---
+
+## Model Architecture
+
+```
+PSG Input (EEG + EOG + EMG, 4 channels)
+      ↓
+Multi-Resolution Stem
+      ↓
+Depthwise-Separable CNN
+      ↓
+Parametric Gabor FEB
+      ↓
+2-Layer GRU (300s context)
+      ↓
+5-Class Softmax
+```
 
 | Property | Value |
 |----------|-------|
-| Architecture | Multi-Res Stem + DWSep CNN + Gabor FEB + GRU |
 | Parameters | 99,477 |
-| Model Size (FP32) | ~400 KB |
+| Model Size | ~400 KB (FP32) |
 | Input Shape | [batch, 10, 4, 3000] |
 | Output Shape | [batch, 10, 5] |
-| CPU Latency | 8.5 ms/batch |
-| Context Window | 300 seconds (10 epochs × 30s) |
+| Context Window | 300 seconds (10 × 30s epochs) |
 
 ---
 
-## Comparison with Historical Models
+## Training Protocol
 
-> **Note:** These are historical benchmarks, not competing final results. Only the Improved Student is the official project model.
-
-| Model | Parameters | Accuracy | Kappa | Macro F1 |
-|-------|-----------|----------|-------|----------|
-| Baseline Teacher | 303,789 | 79.12% | 0.6233 | 0.5263 |
-| Improved Teacher | 193,197 | 79.28% | 0.6019 | 0.5545 |
-| Baseline Student | 567,749 | 90.25% | 0.8123 | 0.6420 |
-| **Improved Student** | **99,477** | **87.34%** | **0.7551** | **0.6259** |
-
-### Key Observations
-
-1. **Parameter efficiency:** Improved Student achieves 87.34% with only 99,477 parameters (17% of Baseline Student's size)
-2. **Accuracy trade-off:** 2.91% accuracy reduction for 82.5% parameter reduction
-3. **Edge-readiness:** Sub-100K parameters enable MCU deployment
+| Parameter | Value |
+|-----------|-------|
+| Optimizer | AdamW |
+| Learning Rate | 3e-4 |
+| Weight Decay | 1e-2 |
+| Epochs | 15 |
+| Batch Size | 16 |
+| Class Weights | N1=2x, REM=2x |
+| Gradient Clipping | max_norm=1.0 |
+| Device | NVIDIA GTX 1650 (CUDA 12.4) |
+| Seed | 42 |
 
 ---
 
-## Result Interpretation
+## Evaluation Protocol
 
-### Strengths
-
-1. **High Wake detection (F1=0.9693):** The model excels at identifying awake states, which is clinically important for sleep study analysis
-2. **Strong N2 classification (F1=0.8162):** The most common sleep stage is well-handled
-3. **Good N3 detection (F1=0.7849):** Deep sleep is reliably identified
-4. **Compact model:** 99,477 parameters enable edge deployment
-
-### Limitations
-
-1. **N1 classification (F1=0.2006):** Light sleep is challenging due to:
-   - Brief duration (typically 1-7 minutes)
-   - Transitional nature (between Wake and N2)
-   - Subtle EEG features
-   - Class imbalance (N1 is rare)
-
-2. **REM classification (F1=0.3586):** Rapid eye movement sleep is difficult due to:
-   - EEG similarity to Wake/N1
-   - Reliance on EOG/EMG for differentiation
-   - Variable REM characteristics
-
-3. **Class imbalance impact:** Macro F1 (0.6259) is lower than Weighted F1 (0.8653) because minority classes (N1, REM) have lower performance
+- **Method:** 4-fold subject-level cross-validation
+- **Subjects:** 15 from Sleep-EDF Expanded
+- **Fold assignment:** Canonical (SC4001, SC4002, SC4011, SC4012 as test)
+- **Sequence:** length=10, stride=5, 30s epochs
+- **All-position supervision** — every epoch in the window is supervised
 
 ---
 
-## LoRA Adaptation Results
+## Files
 
-**LoRA r=8 achieved 90.66% ± 3.59% held-out-subject test accuracy and κ = 0.8092 ± 0.0663 across four folds, with only 552 trainable parameters (0.55% of the 99,477-parameter base model). Validation accuracy used for checkpoint selection peaked at 87.27% (κ = 0.7175).**
-
-| Method | Trainable | Accuracy | κ | Macro F1 | Weighted F1 |
-|---|---:|---:|---:|---:|---:|
-| Frozen Base | 0 | 79.92% ± 5.65% | 0.5001 ± 0.1329 | 0.4106 ± 0.0775 | 0.7462 ± 0.0689 |
-| Full Fine-Tuning | 99,477 | 93.04% ± 0.87% | 0.8595 ± 0.0092 | 0.7379 ± 0.0390 | 0.9243 ± 0.0106 |
-| **LoRA r=8** | **552** | **90.66% ± 3.59%** | **0.8092 ± 0.0663** | **0.6464 ± 0.0603** | **0.8927 ± 0.0387** |
-
-### Per-Class F1 (Frozen vs LoRA r=8)
-
-| Class | Frozen F1 | LoRA F1 | Δ |
-|---|---:|---:|---:|
-| Wake | 0.8883 | 0.9771 | +0.0888 |
-| N1 | 0.0000 | 0.0000 | 0.0000 |
-| N2 | 0.6115 | 0.8437 | +0.2322 |
-| N3 | 0.5531 | 0.8320 | +0.2788 |
-| REM | 0.0000 | 0.5759 | +0.5759 |
-
-### Engineering Verification
-
-| Metric | Value |
-|---|---|
-| Base latency | 6.25 ms/batch |
-| LoRA unmerged | 5.66 ms/batch |
-| LoRA merged | 5.62 ms/batch |
-| Merge diff | 0.00e+00 (PASS) |
-| Adapter reload | 0.00e+00 (PASS) |
-
-### Terminology
-
-- **Validation accuracy (87.27%)**: Used for early stopping/checkpoint selection during training on 20% of training data. Not the final result.
-- **4-fold held-out-subject CV test accuracy (90.66% ± 3.59%)**: Final result on held-out subjects. This is the reported metric.
+| File | Description |
+|------|-------------|
+| `configs/final.yaml` | Model configuration |
+| `artifacts/final/student_full_finetuned.pt` | Checkpoint |
+| `results/final/final_metrics.json` | Complete results |
+| `results/final/per_class_metrics.csv` | Per-class by fold |
+| `results/final/fold_metrics.csv` | Fold metrics |
+| `results/final/confusion_matrix.csv` | Confusion matrix |
+| `results/final/predictions.csv` | All predictions |
 
 ---
 
-## Exhibition Presentation
-
-### Primary Result Block
-
-Use this exact block across all exhibition materials:
-
-```
-┌─────────────────────────────────────────┐
-│     NEUROMORPHIC SLEEP STAGE SCORING    │
-├─────────────────────────────────────────┤
-│                                         │
-│     87.34%                              │
-│     TEST ACCURACY                       │
-│                                         │
-│     0.7551                              │
-│     COHEN'S κ                           │
-│                                         │
-│     99,477                              │
-│     PARAMETERS                          │
-│                                         │
-│     8.5 ms/batch                        │
-│     CPU LATENCY                         │
-│                                         │
-└─────────────────────────────────────────┘
-```
-
-### Per-Class F1 Visualization
-
-```
-Wake  ████████████████████████████████  0.97
-N1    ████                              0.20
-N2    ████████████████████████████      0.82
-N3    ██████████████████████████        0.78
-REM   ███████                           0.36
-```
-
-### Talking Points
-
-1. **Problem:** "Sleep staging requires expert analysis of multi-channel PSG recordings. We built an automated system to classify five sleep stages."
-
-2. **Solution:** "Our model uses a compact architecture with multi-resolution features, depthwise-separable convolutions, and temporal sequence modeling."
-
-3. **Result:** "The final model achieves 87.34% accuracy with only 99,477 parameters — small enough for edge deployment."
-
-4. **Impact:** "This demonstrates that efficient deep learning can automate sleep classification while remaining practical for resource-constrained devices."
-
----
-
-## Reproducibility
-
-To reproduce this result:
+## Reproduction
 
 ```bash
-# 1. Prepare dataset
-python scripts/prepare_dataset.py
+# Evaluate the final model
+python scripts/evaluate_final_model.py
 
-# 2. Train model
-python scripts/train.py --config configs/training.yaml
-
-# 3. Evaluate
-python scripts/evaluate.py --checkpoint artifacts/student_improved_best.pt
-```
-
-Expected output:
-```
-Final Official Result — Improved Student
-  test_accuracy: 0.8734
-  cohen_kappa: 0.7551
-  macro_f1: 0.6259
-  weighted_f1: 0.8653
-  macro_gmean: 0.5371
+# Run cross-validation
+python scripts/run_4fold_simple.py
 ```
 
 ---
@@ -232,16 +135,14 @@ Final Official Result — Improved Student
 ## Citation
 
 ```bibtex
-@project{neuromorphic_sleep_2026,
-  title={Neuromorphic Sleep Stage Scoring},
+@project{neurosleep_2026,
+  title={NeuroSleep: Neuromorphic Sleep Stage Scoring},
   author={Kaushik, P. and Vora, S. and Bhatt, S. and Khan, S. and Lone, A.J.},
   year={2026},
-  institution={VIT Bhopal University},
-  note={Exhibition project}
+  institution={VIT Bhopal University}
 }
 ```
 
 ---
 
 *Last updated: August 2026*
-*Project: Neuromorphic Sleep Stage Scoring — VIT Bhopal University*

@@ -1,0 +1,60 @@
+# NeuroSleep — Final Model Configuration
+# ========================================
+# Production configuration for the final Improved Student model.
+# This is the only configuration used for the finished system.
+
+model:
+  name: ImprovedStudent
+  parameters: 99477
+  n_classes: 5
+
+data:
+  name: sleep_edf_expanded
+  subjects: 15
+  cache_dir: data/cache/sleep_edf
+
+sequence:
+  length: 10
+  stride: 5
+  epoch_seconds: 30
+
+channels:
+  - Fpz-Cz
+  - Pz-Oz
+  - EOG
+  - EMG
+
+classes:
+  Wake: 0
+  N1: 1
+  N2: 2
+  N3: 3
+  REM: 4
+
+training:
+  seed: 42
+  epochs: 15
+  batch_size: 16
+  learning_rate: 3.0e-4
+  weight_decay: 1.0e-2
+  grad_clip: 1.0
+  loss: weighted_cross_entropy
+  class_weights:
+    N1: 2.0
+    REM: 2.0
+  device: auto
+
+evaluation:
+  method: subject_level_4fold_cv
+  folds: 4
+
+checkpoint:
+  path: artifacts/final/student_full_finetuned.pt
+  base_hash: e0dfaa30eae0f767eee48803226e5c0053e80ef5826b25b9b192672ba8d1922f
+
+results:
+  path: results/final/final_metrics.json
+  accuracy: 0.930
+  kappa: 0.861
+  macro_f1: 0.794
+  weighted_f1: 0.935
