@@ -106,10 +106,26 @@ scoring_mapping: R&K → AASM canonical
 data/
 ├── raw/
 │   └── sleep_edf/           # Raw EDF files (from PhysioNet)
+│       ├── SC4001E0-PSG.edf  # 16 PSG files downloaded
+│       ├── SC4002E0-PSG.edf
+│       ├── ...
+│       └── *-Hypnogram.edf   # Hypnogram annotations
 ├── cache/
-│   ├── sleep_edf/           # Processed NPZ files (Sleep-EDF)
+│   ├── sleep_edf/           # Processed NPZ files (15 subjects)
+│   │   ├── SC4001_night0.npz
+│   │   ├── SC4002_night0.npz
+│   │   ├── ...
+│   │   └── checksums.json
 │   └── shhs/                # Processed NPZ files (SHHS, future)
 ├── manifests/
 │   ├── sleep_edf.csv        # Original 4-subject manifest
-│   └── sleep_edf_expanded.json  # Full 183-subject manifest
+│   └── sleep_edf_expanded.json  # 15-subject manifest
 ```
+
+#### Current State
+
+- **16 PSG files** downloaded from PhysioNet (Sleep-EDF Expanded)
+- **15 subjects** successfully preprocessed and cached as NPZ
+- **1 subject** (SC4021) failed preprocessing (channel mismatch)
+- **41,037 total epochs** across all cached subjects
+- **N1 distribution:** 1,388 epochs (3.4%) — 4.4x increase from original 318

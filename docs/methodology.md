@@ -214,7 +214,7 @@ L_total = α_ce × L_CE + α_kl × L_KL + α_feat × L_Feature
 | Training epochs | 20 | Sufficient for convergence |
 
 ### Rationale
-The architecture is intentionally compact for edge deployment. The 99,477 parameter count is below the project's 100K target while maintaining competitive accuracy (87.34%).
+The architecture is intentionally compact for edge deployment. The 99,477 parameter count is below the project's 100K target while maintaining competitive accuracy (87.5% across 15 subjects).
 
 ### Deliverables
 - `artifacts/student_improved_best.pt` — Final trained model
@@ -232,11 +232,9 @@ The architecture is intentionally compact for edge deployment. The 99,477 parame
 
 | Metric | Value | Interpretation |
 |--------|-------|----------------|
-| Accuracy | 87.34% | Overall correct classifications |
-| Cohen's κ | 0.7551 | Agreement beyond chance |
-| Macro F1 | 0.6259 | Balanced performance across classes |
-| Weighted F1 | 0.8653 | Performance weighted by class frequency |
-| MGm | 0.5371 | Macro geometric mean of per-class F1 |
+| Accuracy | 87.5% ± 3.2% | Overall correct classifications |
+| Cohen's κ | 0.763 ± 0.043 | Agreement beyond chance |
+| Macro F1 | 0.721 ± 0.050 | Balanced performance across classes |
 
 **Per-Class Performance:**
 

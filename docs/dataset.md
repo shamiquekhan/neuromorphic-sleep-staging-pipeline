@@ -225,7 +225,7 @@ The pipeline performs these validation steps:
 
 ## Dataset Limitations
 
-1. **Small development subset:** The current pipeline uses 4 subjects. Full deployment requires 78 subjects.
+1. **Development subset expanded:** The pipeline now uses 15 subjects from Sleep-EDF Expanded. Full deployment requires 183 subjects.
 2. **Healthy subjects only:** No pathological sleep patterns (apnea, narcolepsy, etc.)
 3. **Single night per subject:** Limited intra-subject variability
 4. **Class imbalance:** N1 and REM are underrepresented

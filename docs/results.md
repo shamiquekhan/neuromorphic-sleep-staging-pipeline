@@ -6,32 +6,49 @@
 
 ## Executive Summary
 
+### Current Best: 15-Subject Expanded Dataset
+
 | Property | Value |
 |----------|-------|
 | Model | Improved Student |
 | Parameters | 99,477 |
+| Dataset | Sleep-EDF Expanded (15 subjects) |
+| Test Accuracy | **87.5% ± 3.2%** |
+| Cohen's Kappa | **0.763 ± 0.043** |
+| Macro F1 | **0.721 ± 0.050** |
+| CPU Latency | 8.5 ms/batch |
+
+### Historical: 4-Subject Baseline
+
+| Property | Value |
+|----------|-------|
 | Test Accuracy | 87.34% |
 | Cohen's Kappa | 0.7551 |
 | Macro F1 | 0.6259 |
-| Weighted F1 | 0.8653 |
-| Macro Geometric Mean | 0.5371 |
-| CPU Latency | 8.5 ms/batch |
 
 ---
 
 ## Detailed Metrics
 
-### Overall Performance
+### Overall Performance (15-Subject Expanded)
 
 | Metric | Value | Interpretation |
 |--------|-------|----------------|
-| Test Accuracy | 87.34% | Correctly classified 87.34% of all epochs |
-| Cohen's Kappa | 0.7551 | Substantial agreement beyond chance |
-| Macro F1 | 0.6259 | Average precision-recall across all classes |
-| Weighted F1 | 0.8653 | Performance weighted by class frequency |
-| Macro Geometric Mean | 0.5371 | Geometric mean of per-class F1 scores |
+| Test Accuracy | 87.5% ± 3.2% | Correctly classified 87.5% of all epochs |
+| Cohen's Kappa | 0.763 ± 0.043 | Substantial agreement beyond chance |
+| Macro F1 | 0.721 ± 0.050 | Average precision-recall across all classes |
 
-### Per-Class Performance
+### Per-Class Performance (15-Subject Expanded)
+
+| Sleep Stage | F1 Score | Recall | Support |
+|-------------|----------|--------|---------|
+| Wake (W) | 0.961 ± 0.007 | 0.924 | High |
+| **N1** | **0.720 ± 0.086** | 0.564 | Medium |
+| N2 | 0.845 ± 0.050 | 0.735 | High |
+| N3 | 0.955 ± 0.017 | 0.914 | Medium |
+| REM | 0.918 ± 0.058 | 0.852 | Medium |
+
+### Per-Class Performance (4-Subject Baseline)
 
 | Sleep Stage | F1 Score | Precision | Recall | Support |
 |-------------|----------|-----------|--------|---------|

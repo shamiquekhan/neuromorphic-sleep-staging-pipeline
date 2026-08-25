@@ -296,7 +296,7 @@ Sleep stages are temporally dependent. Classifying an isolated epoch (especially
 The project targets edge/MCU deployment. A sub-100K parameter model:
 - Fits on microcontrollers with limited RAM
 - Enables on-device inference without cloud connectivity
-- Demonstrates that compact models can achieve competitive accuracy (87.34%)
+- Demonstrates that compact models can achieve competitive accuracy (87.5% across 15 subjects)
 
 ---
 
@@ -348,7 +348,8 @@ The final architecture evolved through these stages:
 | Baseline Teacher | 303,789 | 79.12% | Historical |
 | Improved Teacher | 193,197 | 79.28% | Historical |
 | Baseline Student | 567,749 | 90.25% | Historical |
-| **Improved Student** | **99,477** | **87.34%** | **Final** |
+| Improved Student (4 subj) | 99,477 | 87.34% | Historical |
+| **Improved Student (15 subj)** | **99,477** | **87.5% ± 3.2%** | **Final** |
 
 The Improved Student is the only model used for exhibition and deployment.
 

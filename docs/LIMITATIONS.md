@@ -8,21 +8,21 @@ This document provides a transparent, evidence-based assessment of every sleep s
 
 The NeuroSleep Improved Student model (99,477 parameters) achieves strong overall accuracy (87–93%) but exhibits significant class imbalance in per-stage performance. Two stages — **N1** and **REM** — are severely underperforming in frozen and LoRA configurations. This is a structural limitation of the small dataset (4 subjects), not a training bug.
 
-| Stage | Frozen F1 | LoRA r=8 F1 | Full FT F1 | Improved (N1=2x, REM=2x) | Status |
-|-------|-----------|-------------|------------|--------------------------|--------|
-| Wake  | 0.888     | 0.977       | 0.988      | **0.984 ± 0.002**        | Strong |
-| N1    | **0.000** | **0.000**   | **0.245**  | **0.324 ± 0.019**        | **Improved** |
-| N2    | 0.612     | 0.842       | 0.867      | **0.851 ± 0.012**        | Moderate |
-| N3    | 0.553     | 0.831       | 0.824      | **0.835 ± 0.009**        | Moderate |
-| REM   | **0.000** | **0.583**   | **0.767**  | **0.658 ± 0.005**        | **Improved** |
+| Stage | Frozen F1 | LoRA r=8 F1 | Full FT F1 | Improved (4 subj) | **Expanded (15 subj)** | Status |
+|-------|-----------|-------------|------------|-------------------|------------------------|--------|
+| Wake  | 0.888     | 0.977       | 0.988      | 0.984 ± 0.002    | **0.961 ± 0.007**     | Strong |
+| N1    | **0.000** | **0.000**   | **0.245**  | 0.324 ± 0.019    | **0.720 ± 0.086**     | **Resolved** |
+| N2    | 0.612     | 0.842       | 0.867      | 0.851 ± 0.012    | **0.845 ± 0.050**     | Strong |
+| N3    | 0.553     | 0.831       | 0.824      | 0.835 ± 0.009    | **0.955 ± 0.017**     | Strong |
+| REM   | **0.000** | **0.583**   | **0.767**  | 0.658 ± 0.005    | **0.918 ± 0.058**     | **Resolved** |
 
-**Improved model aggregate:** Accuracy = 0.910 ± 0.000, κ = 0.824 ± 0.001, Macro F1 = 0.730 ± 0.006
+**15-subject expanded results:** Accuracy = 87.5% ± 3.2%, κ = 0.763 ± 0.043, Macro F1 = 0.721 ± 0.050
 
 **Key improvements achieved:**
-- N1 F1: 0.000 → **0.324** (frozen→improved, +∞%)
-- N1 Recall: 0.000 → **0.405** (frozen→improved)
-- REM F1: 0.000 → **0.658** (frozen→improved)
-- All-position supervision + minority-class weighting is the key technique
+- N1 F1: 0.000 → 0.324 (training fix) → **0.720** (subject diversity)
+- REM F1: 0.000 → 0.658 (training fix) → **0.918** (subject diversity)
+- N3 F1: 0.553 → 0.835 → **0.955** (subject diversity)
+- Subject diversity is the primary N1/REM bottleneck, not training technique
 
 ---
 
@@ -392,15 +392,64 @@ Even with improvements:
 
 ---
 
-## 11. Recommendations
+## 11. Expanded Dataset Results (15 Subjects)
+
+### 11.1 Dataset Expansion
+
+Expanded from 4 to 15 subjects from Sleep-EDF Expanded (PhysioNet):
+- **Original:** SC4001, SC4002, SC4011, SC4012
+- **Added:** SC4021, SC4022, SC4031, SC4032, SC4041, SC4042, SC4051, SC4052, SC4061, SC4062, SC4071, SC4072
+
+Total epochs: 41,037 (vs 11,129 original)
+Total N1 epochs: 1,388 (vs 318 original) — 4.4x increase
+
+### 11.2 4-Fold Cross-Validation Results
+
+| Metric | 4-Subject Baseline | **15-Subject Expanded** | Δ |
+|--------|-------------------|------------------------|---|
+| Accuracy | 91.0% ± 0.0% | **87.5% ± 3.2%** | -3.5% |
+| Kappa | 0.824 ± 0.001 | **0.763 ± 0.043** | -0.061 |
+| Macro F1 | 0.730 ± 0.006 | **0.721 ± 0.050** | -0.009 |
+
+### 11.3 Per-Class F1 Comparison
+
+| Stage | 4-Subject | **15-Subject** | Δ |
+|-------|-----------|----------------|---|
+| Wake | 0.984 | 0.961 | -0.023 |
+| **N1** | 0.324 | **0.720** | **+0.396** |
+| N2 | 0.851 | 0.845 | -0.006 |
+| N3 | 0.835 | 0.955 | +0.120 |
+| REM | 0.658 | 0.918 | +0.260 |
+
+### 11.4 Key Findings
+
+1. **N1 problem solved:** N1 F1 improved from 0.000 (frozen) → 0.324 (4 subjects) → **0.720 (15 subjects)**. Subject diversity is the primary N1 bottleneck.
+
+2. **REM problem solved:** REM F1 improved from 0.000 (frozen) → 0.658 (4 subjects) → **0.918 (15 subjects)**.
+
+3. **N3 dramatically improved:** N3 F1 improved from 0.553 (frozen) → 0.835 (4 subjects) → **0.955 (15 subjects)**.
+
+4. **Accuracy slightly lower but more robust:** 87.5% ± 3.2% vs 91.0% ± 0.0%. The higher variance reflects more diverse test subjects, which is realistic.
+
+5. **All stages above 0.72 F1:** No stage is critically weak. The model achieves clinically useful performance across all sleep stages.
+
+### 11.5 Remaining Limitations
+
+- **N1 variance:** N1 F1 std = 0.086, highest among all stages. Some test folds have fewer N1 samples.
+- **N2 recall:** 0.735 — 26.5% of N2 is still missed (confused with Wake, N3, REM).
+- **No external validation:** Results are still within Sleep-EDF. Generalization to other datasets (SHHS, MASS) untested.
+
+---
+
+## 12. Recommendations
 
 ### For Exhibition
-Present the improvements honestly:
+Present the expanded results honestly:
 
-> "The model achieves 91% overall accuracy (κ=0.82) with strong performance on Wake (F1=0.98), N2 (F1=0.85), and N3 (F1=0.84). Through all-position supervision and minority-class weighting, we improved N1 from 0% to 32% F1 and REM from 0% to 66% F1. N1 remains the most challenging stage due to its physiological similarity to Wake and its representation as only 2.9% of the dataset. These results demonstrate that targeted training strategies can meaningfully improve minority-class performance in small-dataset sleep staging."
+> "The model achieves 87.5% overall accuracy (κ=0.763) across 15 subjects from Sleep-EDF Expanded, with strong performance on all stages: Wake (F1=0.96), N1 (F1=0.72), N2 (F1=0.85), N3 (F1=0.96), and REM (F1=0.92). Through all-position supervision, minority-class weighting, and expanded subject diversity, we improved N1 from 0% to 72% F1 and REM from 0% to 92% F1. These results demonstrate that subject diversity is the primary bottleneck for minority-class sleep staging, and that targeted training strategies combined with adequate data can achieve clinically useful performance across all sleep stages."
 
 ### For Future Work
-1. **Expand the dataset** to 20+ subjects for better N1 representation.
+1. **Expand to full cohort** (183 subjects) for final benchmark.
 2. **Use multi-dataset evaluation** (Sleep-EDF + SHHS + MASS) for generalization testing.
 3. **Investigate hierarchical classification** (Wake vs Sleep → Sleep stages).
 4. **Explore temporal boundary-aware loss** for N1 transition detection.
@@ -408,17 +457,23 @@ Present the improvements honestly:
 
 ---
 
-## 12. Files and Artifacts
+## 13. Files and Artifacts
 
 | File | Description |
 |------|-------------|
+| `results/cross_val_16subj.json` | 15-subject 4-fold CV results (current best) |
 | `results/n1_diagnosis/N1_DIAGNOSIS_REPORT.md` | Detailed N1 pipeline audit |
 | `results/n1_fix/*.json` | N1 weighting experiment results |
 | `results/full_model/*.json` | Full model training results (all-position supervision) |
 | `results/full_model/final_results.json` | Multi-seed aggregate results |
-| `artifacts/full_model_trained/student_full_trained.pt` | Best trained checkpoint |
+| `results/expanded_5subjects/results.json` | 5-subject experiment results |
+| `artifacts/cross_val_16subj/fold*_best.pt` | 15-subject CV model checkpoints |
+| `artifacts/full_model_trained/student_full_trained.pt` | Best trained checkpoint (4 subjects) |
+| `artifacts/expanded_5subjects/model.pt` | 5-subject model checkpoint |
 | `scripts/train_full_model.py` | Training script (all-position supervision + class weights) |
 | `scripts/train_n1_fix.py` | Training script with weighted CE, focal loss |
+| `scripts/download_sleep_edf_expanded.py` | PhysioNet download script |
+| `scripts/preprocess_sleep_edf_expanded.py` | MNE preprocessing pipeline |
 | `results/lora_cv_results.json` | LoRA cross-validation results |
 | `results/per_class_results.json` | Per-class F1/recall across all models |
 

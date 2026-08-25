@@ -49,14 +49,24 @@ docs/
 
 ## Quick Reference
 
-### Official Result (Frozen Base)
+### Official Result (15-Subject Expanded)
+
+```
+Improved Student
+87.5% ± 3.2% Test Accuracy
+Cohen's κ = 0.763 ± 0.043
+Macro F1 = 0.721 ± 0.050
+99,477 Parameters
+8.5 ms/batch CPU latency
+```
+
+### Historical Result (4-Subject Baseline)
 
 ```
 Improved Student
 87.34% Test Accuracy
 Cohen's κ = 0.7551
 99,477 Parameters
-8.5 ms/batch CPU latency
 ```
 
 ### LoRA Adaptation Result

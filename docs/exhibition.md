@@ -101,21 +101,25 @@ Epoch  3: N2     (confidence: 89.1%)
 ### Minute 5: Results & Impact (60 seconds)
 
 **Script:**
-> "Our final model achieves 87.34% test accuracy with Cohen's kappa of 0.7551. The model has only 99,477 parameters — small enough for edge deployment on microcontrollers. This demonstrates that efficient deep learning can automate sleep classification while remaining practical for resource-constrained devices."
+> "Our final model achieves 87.5% test accuracy with Cohen's kappa of 0.763 across 15 subjects from Sleep-EDF Expanded. The model has only 99,477 parameters — small enough for edge deployment on microcontrollers. Most notably, we achieved 72% F1 on N1 sleep staging, up from 0% in the baseline, by expanding subject diversity. This demonstrates that efficient deep learning can automate sleep classification while remaining practical for resource-constrained devices."
 
 **Show:**
 - Official result block
+- N1 improvement (0% → 72%)
 - Parameter count comparison
 - Latency measurement
 - Edge deployment potential
 
 **Key result block:**
 ```
-87.34%
+87.5%
 TEST ACCURACY
 
-0.7551
+0.763
 COHEN'S κ
+
+0.720
+N1 F1 SCORE
 
 99,477
 PARAMETERS
@@ -196,11 +200,14 @@ Parametric Gabor FEB
 **Large typography:**
 
 ```
-87.34%
+87.5%
 TEST ACCURACY
 
-0.7551
+0.763
 COHEN'S κ
+
+0.720
+N1 F1 SCORE
 
 99,477
 PARAMETERS

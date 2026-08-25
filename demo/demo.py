@@ -179,8 +179,9 @@ with col1:
         ### Final Result
         | Metric | Value |
         |--------|-------|
-        | Test Accuracy | 87.34% |
-        | Cohen's Kappa | 0.7551 |
+        | Test Accuracy | 87.5% ± 3.2% |
+        | Cohen's Kappa | 0.763 ± 0.043 |
+        | Macro F1 | 0.721 ± 0.050 |
         | Parameters | 99,477 |
 
         ### Team

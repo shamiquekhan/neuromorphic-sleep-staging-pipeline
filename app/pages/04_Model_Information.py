@@ -121,14 +121,27 @@ if lora_dir.exists():
 st.markdown('<div class="swiss-divider"></div>', unsafe_allow_html=True)
 st.markdown(
     """
-    <div class="swiss-section-title">Official Results</div>
+    <div class="swiss-section-title">Official Results (15-Subject Expanded Dataset)</div>
     <table class="swiss-table" style="max-width:500px;">
-        <tr><td>Test Accuracy</td><td><strong>87.34%</strong></td></tr>
-        <tr><td>Cohen's &kappa;</td><td><strong>0.7551</strong></td></tr>
-        <tr><td>Macro F1</td><td>0.6259</td></tr>
-        <tr><td>Weighted F1</td><td>0.8653</td></tr>
-        <tr><td>MGm</td><td>0.5371</td></tr>
+        <tr><td>Test Accuracy</td><td><strong>87.5% &plusmn; 3.2%</strong></td></tr>
+        <tr><td>Cohen's &kappa;</td><td><strong>0.763 &plusmn; 0.043</strong></td></tr>
+        <tr><td>Macro F1</td><td>0.721 &plusmn; 0.050</td></tr>
+        <tr><td>Parameters</td><td>99,477</td></tr>
         <tr><td>CPU Latency</td><td>8.5 ms/batch</td></tr>
+    </table>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    """
+    <div class="swiss-section-title">Per-Class F1 (15-Subject 4-Fold CV)</div>
+    <table class="swiss-table" style="max-width:400px;">
+        <tr><td>Wake</td><td>0.961 &plusmn; 0.007</td></tr>
+        <tr><td>N1</td><td><strong>0.720 &plusmn; 0.086</strong></td></tr>
+        <tr><td>N2</td><td>0.845 &plusmn; 0.050</td></tr>
+        <tr><td>N3</td><td>0.955 &plusmn; 0.017</td></tr>
+        <tr><td>REM</td><td>0.918 &plusmn; 0.058</td></tr>
     </table>
     """,
     unsafe_allow_html=True,
@@ -162,10 +175,11 @@ except ImportError:
 st.markdown(
     """
     <div style="margin-top:1rem; font-family:'Inter',sans-serif; font-size:0.85rem; line-height:1.7; color:#555;">
-        <strong>Dataset:</strong> Sleep-EDF Expanded (PhysioNet)<br>
+        <strong>Dataset:</strong> Sleep-EDF Expanded, 15 subjects (PhysioNet)<br>
         <strong>Training window:</strong> 10 &times; 30 s epochs (300 s context)<br>
         <strong>Final model:</strong> Improved Student (student_improved_best.pt)<br>
-        <strong>Training:</strong> Knowledge distillation from a larger teacher (research only)
+        <strong>Training:</strong> All-position supervision + N1/REM class weighting<br>
+        <strong>Cross-validation:</strong> 4-fold subject-level CV
     </div>
     """,
     unsafe_allow_html=True,

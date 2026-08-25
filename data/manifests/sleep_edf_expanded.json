@@ -1,9 +1,9 @@
 {
   "dataset": "sleep_edf_expanded",
   "version": "1.0.0",
-  "n_subjects": 1,
-  "n_errors": 0,
-  "processing_time_s": 21.0,
+  "n_subjects": 15,
+  "n_errors": 1,
+  "processing_time_s": 261.5,
   "parameters": {
     "sampling_rate": 100,
     "epoch_seconds": 30,
@@ -15,6 +15,82 @@
     "notch": 50.0
   },
   "subjects": [
+    {
+      "subject_id": "SC4001",
+      "n_epochs": 2650,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 1997,
+        "N1": 58,
+        "N2": 250,
+        "N3": 220,
+        "REM": 125,
+        "total": 2650
+      },
+      "load_time_s": 9.8,
+      "preprocess_time_s": 3.09,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4001_night0.npz",
+      "sha256": "24c8d05b9bc14d40"
+    },
+    {
+      "subject_id": "SC4002",
+      "n_epochs": 2829,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 1885,
+        "N1": 59,
+        "N2": 373,
+        "N3": 297,
+        "REM": 215,
+        "total": 2829
+      },
+      "load_time_s": 9.05,
+      "preprocess_time_s": 3.12,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4002_night0.npz",
+      "sha256": "119736d2ee30aeb8"
+    },
+    {
+      "subject_id": "SC4011",
+      "n_epochs": 2802,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 1856,
+        "N1": 109,
+        "N2": 562,
+        "N3": 105,
+        "REM": 170,
+        "total": 2802
+      },
+      "load_time_s": 9.04,
+      "preprocess_time_s": 3.07,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4011_night0.npz",
+      "sha256": "9b3257b6eab4724a"
+    },
+    {
+      "subject_id": "SC4012",
+      "n_epochs": 2848,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 1824,
+        "N1": 92,
+        "N2": 660,
+        "N3": 96,
+        "REM": 176,
+        "total": 2848
+      },
+      "load_time_s": 7.36,
+      "preprocess_time_s": 3.24,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4012_night0.npz",
+      "sha256": "6157e9fbfaea0f1b"
+    },
     {
       "subject_id": "SC4022",
       "n_epochs": 2755,
@@ -29,11 +105,206 @@
         "REM": 179,
         "total": 2755
       },
-      "load_time_s": 11.2,
-      "preprocess_time_s": 3.48,
+      "load_time_s": 7.96,
+      "preprocess_time_s": 3.19,
       "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4022_night0.npz",
       "sha256": "7ae1f8403136f210"
+    },
+    {
+      "subject_id": "SC4031",
+      "n_epochs": 2820,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 2008,
+        "N1": 61,
+        "N2": 485,
+        "N3": 57,
+        "REM": 209,
+        "total": 2820
+      },
+      "load_time_s": 5.93,
+      "preprocess_time_s": 3.18,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4031_night0.npz",
+      "sha256": "e1c61a7aa485ecf0"
+    },
+    {
+      "subject_id": "SC4032",
+      "n_epochs": 2732,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 1957,
+        "N1": 45,
+        "N2": 400,
+        "N3": 131,
+        "REM": 199,
+        "total": 2732
+      },
+      "load_time_s": 10.15,
+      "preprocess_time_s": 3.08,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4032_night0.npz",
+      "sha256": "48f599ee34a501a6"
+    },
+    {
+      "subject_id": "SC4041",
+      "n_epochs": 2569,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 1534,
+        "N1": 166,
+        "N2": 620,
+        "N3": 53,
+        "REM": 196,
+        "total": 2569
+      },
+      "load_time_s": 8.25,
+      "preprocess_time_s": 3.03,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4041_night0.npz",
+      "sha256": "3f06130a193f41c7"
+    },
+    {
+      "subject_id": "SC4042",
+      "n_epochs": 2326,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 1311,
+        "N1": 137,
+        "N2": 514,
+        "N3": 94,
+        "REM": 270,
+        "total": 2326
+      },
+      "load_time_s": 7.37,
+      "preprocess_time_s": 2.52,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4042_night0.npz",
+      "sha256": "31cadd889f109da0"
+    },
+    {
+      "subject_id": "SC4051",
+      "n_epochs": 2722,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 2258,
+        "N1": 44,
+        "N2": 217,
+        "N3": 135,
+        "REM": 68,
+        "total": 2722
+      },
+      "load_time_s": 14.22,
+      "preprocess_time_s": 3.26,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4051_night0.npz",
+      "sha256": "3bdc7760badd6dba"
+    },
+    {
+      "subject_id": "SC4052",
+      "n_epochs": 2804,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 1780,
+        "N1": 114,
+        "N2": 616,
+        "N3": 114,
+        "REM": 180,
+        "total": 2804
+      },
+      "load_time_s": 7.35,
+      "preprocess_time_s": 3.08,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4052_night0.npz",
+      "sha256": "23a7c9d47ff63165"
+    },
+    {
+      "subject_id": "SC4061",
+      "n_epochs": 2770,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 2069,
+        "N1": 56,
+        "N2": 407,
+        "N3": 136,
+        "REM": 102,
+        "total": 2770
+      },
+      "load_time_s": 6.52,
+      "preprocess_time_s": 3.15,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4061_night0.npz",
+      "sha256": "31859d7bdf24fc67"
+    },
+    {
+      "subject_id": "SC4062",
+      "n_epochs": 2830,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 2007,
+        "N1": 90,
+        "N2": 417,
+        "N3": 129,
+        "REM": 187,
+        "total": 2830
+      },
+      "load_time_s": 7.22,
+      "preprocess_time_s": 3.13,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4062_night0.npz",
+      "sha256": "72892046d6e84663"
+    },
+    {
+      "subject_id": "SC4071",
+      "n_epochs": 2810,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 1958,
+        "N1": 89,
+        "N2": 403,
+        "N3": 162,
+        "REM": 198,
+        "total": 2810
+      },
+      "load_time_s": 7.54,
+      "preprocess_time_s": 3.12,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4071_night0.npz",
+      "sha256": "9db76677ff66791f"
+    },
+    {
+      "subject_id": "SC4072",
+      "n_epochs": 2770,
+      "n_channels": 4,
+      "samples_per_epoch": 3000,
+      "sampling_rate": 100.0,
+      "class_distribution": {
+        "Wake": 1904,
+        "N1": 84,
+        "N2": 392,
+        "N3": 222,
+        "REM": 168,
+        "total": 2770
+      },
+      "load_time_s": 9.34,
+      "preprocess_time_s": 3.14,
+      "cache_path": "/home/shamique/projects/sleep/data/cache/sleep_edf/SC4072_night0.npz",
+      "sha256": "e278965f29705cdb"
     }
   ],
-  "errors": []
+  "errors": [
+    {
+      "subject_id": "SC4021",
+      "error": "No hypnogram found for SC4021 in /home/shamique/projects/sleep/data/raw/sleep_edf"
+    }
+  ]
 }

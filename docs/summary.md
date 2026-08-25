@@ -14,10 +14,11 @@ A compact deep-learning system that classifies 30-second sleep epochs into five 
 | **Venue** | VIT Bhopal University |
 | **Final Model** | Improved Student |
 | **Parameters** | 99,477 |
-| **Test Accuracy** | 87.34% |
-| **Cohen's Kappa** | 0.7551 |
-| **Macro F1** | 0.6259 |
+| **Test Accuracy** | **87.5% ± 3.2%** |
+| **Cohen's Kappa** | **0.763 ± 0.043** |
+| **Macro F1** | **0.721 ± 0.050** |
 | **CPU Latency** | 8.5 ms/batch |
+| **Dataset** | Sleep-EDF Expanded (15 subjects) |
 | **Checkpoint** | `artifacts/student_improved_best.pt` |
 
 ---

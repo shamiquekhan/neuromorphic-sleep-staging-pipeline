@@ -187,7 +187,7 @@ print("Quantized model saved to artifacts/student_improved_int8.onnx")
 
 | Model | Size | Accuracy | Latency |
 |-------|------|----------|---------|
-| FP32 | ~400 KB | 87.34% | 8.5 ms |
+| FP32 | ~400 KB | 87.5% | 8.5 ms |
 | INT8 | ~100 KB | ~86-87% | ~3-4 ms |
 
 ---
