@@ -1,0 +1,480 @@
+{
+  "config": {
+    "n1_boost": 1.0,
+    "rem_boost": 1.0,
+    "seed": 42
+  },
+  "aggregate": {
+    "accuracy": {
+      "mean": 0.9068820000000001,
+      "std": 0.028948746250917357
+    },
+    "kappa": {
+      "mean": 0.8208592499999999,
+      "std": 0.04079389846763241
+    },
+    "macro_f1": {
+      "mean": 0.72573725,
+      "std": 0.04119881331649613
+    },
+    "weighted_f1": {
+      "mean": 0.91393775,
+      "std": 0.02035527623707178
+    }
+  },
+  "per_class": {
+    "Wake": {
+      "precision": {
+        "mean": 0.9954750000000001,
+        "std": 0.004577321815210294
+      },
+      "recall": {
+        "mean": 0.966,
+        "std": 0.030388402393018328
+      },
+      "f1": {
+        "mean": 0.9802249999999999,
+        "std": 0.014705334916281244
+      }
+    },
+    "N1": {
+      "precision": {
+        "mean": 0.32,
+        "std": 0.14495542418274662
+      },
+      "recall": {
+        "mean": 0.390775,
+        "std": 0.09625087986610824
+      },
+      "f1": {
+        "mean": 0.317225,
+        "std": 0.11518451230525743
+      }
+    },
+    "N2": {
+      "precision": {
+        "mean": 0.890875,
+        "std": 0.018422727132539268
+      },
+      "recall": {
+        "mean": 0.865275,
+        "std": 0.03681748056290653
+      },
+      "f1": {
+        "mean": 0.877025,
+        "std": 0.01114526244643885
+      }
+    },
+    "N3": {
+      "precision": {
+        "mean": 0.793875,
+        "std": 0.08450057322290778
+      },
+      "recall": {
+        "mean": 0.927925,
+        "std": 0.052195946921193025
+      },
+      "f1": {
+        "mean": 0.8533999999999999,
+        "std": 0.05936210912695064
+      }
+    },
+    "REM": {
+      "precision": {
+        "mean": 0.62695,
+        "std": 0.10795009263543964
+      },
+      "recall": {
+        "mean": 0.59275,
+        "std": 0.17303516261153395
+      },
+      "f1": {
+        "mean": 0.6008,
+        "std": 0.13150494287288217
+      }
+    }
+  },
+  "confusion_matrix": [
+    [
+      7270,
+      204,
+      14,
+      10,
+      28
+    ],
+    [
+      14,
+      118,
+      56,
+      7,
+      123
+    ],
+    [
+      0,
+      21,
+      1607,
+      124,
+      93
+    ],
+    [
+      0,
+      0,
+      45,
+      673,
+      0
+    ],
+    [
+      19,
+      194,
+      87,
+      1,
+      385
+    ]
+  ],
+  "per_fold": [
+    {
+      "accuracy": 0.943961,
+      "kappa": 0.868361,
+      "macro_f1": 0.792596,
+      "weighted_f1": 0.946731,
+      "per_class": {
+        "Wake": {
+          "precision": 0.9995,
+          "recall": 0.9794,
+          "f1": 0.9893,
+          "support": 1988,
+          "predicted": 1948,
+          "correct": 1947
+        },
+        "N1": {
+          "precision": 0.3671,
+          "recall": 0.5,
+          "f1": 0.4234,
+          "support": 58,
+          "predicted": 79,
+          "correct": 29
+        },
+        "N2": {
+          "precision": 0.9067,
+          "recall": 0.816,
+          "f1": 0.8589,
+          "support": 250,
+          "predicted": 225,
+          "correct": 204
+        },
+        "N3": {
+          "precision": 0.8226,
+          "recall": 0.9273,
+          "f1": 0.8718,
+          "support": 220,
+          "predicted": 248,
+          "correct": 204
+        },
+        "REM": {
+          "precision": 0.773,
+          "recall": 0.872,
+          "f1": 0.8195,
+          "support": 125,
+          "predicted": 141,
+          "correct": 109
+        }
+      },
+      "confusion_matrix": [
+        [
+          1947,
+          35,
+          1,
+          3,
+          2
+        ],
+        [
+          1,
+          29,
+          3,
+          4,
+          21
+        ],
+        [
+          0,
+          0,
+          204,
+          37,
+          9
+        ],
+        [
+          0,
+          0,
+          16,
+          204,
+          0
+        ],
+        [
+          0,
+          15,
+          1,
+          0,
+          109
+        ]
+      ],
+      "report": "              precision    recall  f1-score   support\n\n        Wake       1.00      0.98      0.99      1988\n          N1       0.37      0.50      0.42        58\n          N2       0.91      0.82      0.86       250\n          N3       0.82      0.93      0.87       220\n         REM       0.77      0.87      0.82       125\n\n    accuracy                           0.94      2641\n   macro avg       0.77      0.82      0.79      2641\nweighted avg       0.95      0.94      0.95      2641\n"
+    },
+    {
+      "accuracy": 0.864184,
+      "kappa": 0.757887,
+      "macro_f1": 0.68115,
+      "weighted_f1": 0.891735,
+      "per_class": {
+        "Wake": {
+          "precision": 1.0,
+          "recall": 0.9136,
+          "f1": 0.9549,
+          "support": 1876,
+          "predicted": 1714,
+          "correct": 1714
+        },
+        "N1": {
+          "precision": 0.0782,
+          "recall": 0.3898,
+          "f1": 0.1303,
+          "support": 59,
+          "predicted": 294,
+          "correct": 23
+        },
+        "N2": {
+          "precision": 0.8868,
+          "recall": 0.882,
+          "f1": 0.8844,
+          "support": 373,
+          "predicted": 371,
+          "correct": 329
+        },
+        "N3": {
+          "precision": 0.9194,
+          "recall": 0.9596,
+          "f1": 0.939,
+          "support": 297,
+          "predicted": 310,
+          "correct": 285
+        },
+        "REM": {
+          "precision": 0.6565,
+          "recall": 0.4,
+          "f1": 0.4971,
+          "support": 215,
+          "predicted": 131,
+          "correct": 86
+        }
+      },
+      "confusion_matrix": [
+        [
+          1714,
+          150,
+          7,
+          0,
+          5
+        ],
+        [
+          0,
+          23,
+          13,
+          1,
+          22
+        ],
+        [
+          0,
+          2,
+          329,
+          24,
+          18
+        ],
+        [
+          0,
+          0,
+          12,
+          285,
+          0
+        ],
+        [
+          0,
+          119,
+          10,
+          0,
+          86
+        ]
+      ],
+      "report": "              precision    recall  f1-score   support\n\n        Wake       1.00      0.91      0.95      1876\n          N1       0.08      0.39      0.13        59\n          N2       0.89      0.88      0.88       373\n          N3       0.92      0.96      0.94       297\n         REM       0.66      0.40      0.50       215\n\n    accuracy                           0.86      2820\n   macro avg       0.71      0.71      0.68      2820\nweighted avg       0.93      0.86      0.89      2820\n"
+    },
+    {
+      "accuracy": 0.918009,
+      "kappa": 0.841144,
+      "macro_f1": 0.721053,
+      "weighted_f1": 0.912699,
+      "per_class": {
+        "Wake": {
+          "precision": 0.9935,
+          "recall": 0.9875,
+          "f1": 0.9905,
+          "support": 1847,
+          "predicted": 1836,
+          "correct": 1824
+        },
+        "N1": {
+          "precision": 0.4643,
+          "recall": 0.2385,
+          "f1": 0.3152,
+          "support": 109,
+          "predicted": 56,
+          "correct": 26
+        },
+        "N2": {
+          "precision": 0.8624,
+          "recall": 0.9146,
+          "f1": 0.8877,
+          "support": 562,
+          "predicted": 596,
+          "correct": 514
+        },
+        "N3": {
+          "precision": 0.7103,
+          "recall": 0.981,
+          "f1": 0.824,
+          "support": 105,
+          "predicted": 145,
+          "correct": 103
+        },
+        "REM": {
+          "precision": 0.6062,
+          "recall": 0.5706,
+          "f1": 0.5879,
+          "support": 170,
+          "predicted": 160,
+          "correct": 97
+        }
+      },
+      "confusion_matrix": [
+        [
+          1824,
+          6,
+          4,
+          1,
+          12
+        ],
+        [
+          11,
+          26,
+          25,
+          1,
+          46
+        ],
+        [
+          0,
+          4,
+          514,
+          39,
+          5
+        ],
+        [
+          0,
+          0,
+          2,
+          103,
+          0
+        ],
+        [
+          1,
+          20,
+          51,
+          1,
+          97
+        ]
+      ],
+      "report": "              precision    recall  f1-score   support\n\n        Wake       0.99      0.99      0.99      1847\n          N1       0.46      0.24      0.32       109\n          N2       0.86      0.91      0.89       562\n          N3       0.71      0.98      0.82       105\n         REM       0.61      0.57      0.59       170\n\n    accuracy                           0.92      2793\n   macro avg       0.73      0.74      0.72      2793\nweighted avg       0.91      0.92      0.91      2793\n"
+    },
+    {
+      "accuracy": 0.901374,
+      "kappa": 0.816045,
+      "macro_f1": 0.70815,
+      "weighted_f1": 0.904586,
+      "per_class": {
+        "Wake": {
+          "precision": 0.9889,
+          "recall": 0.9835,
+          "f1": 0.9862,
+          "support": 1815,
+          "predicted": 1805,
+          "correct": 1785
+        },
+        "N1": {
+          "precision": 0.3704,
+          "recall": 0.4348,
+          "f1": 0.4,
+          "support": 92,
+          "predicted": 108,
+          "correct": 40
+        },
+        "N2": {
+          "precision": 0.9076,
+          "recall": 0.8485,
+          "f1": 0.8771,
+          "support": 660,
+          "predicted": 617,
+          "correct": 560
+        },
+        "N3": {
+          "precision": 0.7232,
+          "recall": 0.8438,
+          "f1": 0.7788,
+          "support": 96,
+          "predicted": 112,
+          "correct": 81
+        },
+        "REM": {
+          "precision": 0.4721,
+          "recall": 0.5284,
+          "f1": 0.4987,
+          "support": 176,
+          "predicted": 197,
+          "correct": 93
+        }
+      },
+      "confusion_matrix": [
+        [
+          1785,
+          13,
+          2,
+          6,
+          9
+        ],
+        [
+          2,
+          40,
+          15,
+          1,
+          34
+        ],
+        [
+          0,
+          15,
+          560,
+          24,
+          61
+        ],
+        [
+          0,
+          0,
+          15,
+          81,
+          0
+        ],
+        [
+          18,
+          40,
+          25,
+          0,
+          93
+        ]
+      ],
+      "report": "              precision    recall  f1-score   support\n\n        Wake       0.99      0.98      0.99      1815\n          N1       0.37      0.43      0.40        92\n          N2       0.91      0.85      0.88       660\n          N3       0.72      0.84      0.78        96\n         REM       0.47      0.53      0.50       176\n\n    accuracy                           0.90      2839\n   macro avg       0.69      0.73      0.71      2839\nweighted avg       0.91      0.90      0.90      2839\n"
+    }
+  ]
+}
