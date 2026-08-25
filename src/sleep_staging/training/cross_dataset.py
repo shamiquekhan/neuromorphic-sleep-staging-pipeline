@@ -214,9 +214,11 @@ def evaluate(model, loader, criterion, device):
         mask = all_labels == i
         if mask.sum() > 0:
             class_preds = all_preds[mask]
-            class_labels = all_labels[mask]
+            # Binary: correct (1) vs incorrect (0) for this class
+            binary_preds = (class_preds == i).astype(int)
+            binary_labels = np.ones_like(binary_preds)
             per_class[name] = {
-                "f1": float(f1_score(class_labels, class_preds, average="binary", zero_division=0)),
+                "f1": float(f1_score(binary_labels, binary_preds, average="binary", zero_division=0)),
                 "recall": float((class_preds == i).sum() / mask.sum()),
                 "support": int(mask.sum()),
             }

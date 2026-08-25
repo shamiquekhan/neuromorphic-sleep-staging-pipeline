@@ -1,0 +1,67 @@
+{
+  "experiment": "expanded_5subjects",
+  "dataset": "Sleep-EDF (5 subjects: SC4001, SC4002, SC4011, SC4012, SC4022)",
+  "training": {
+    "supervision": "all_position",
+    "n1_weight": 2.0,
+    "rem_weight": 2.0,
+    "epochs": 5,
+    "batch_size": 32,
+    "lr": 3e-4,
+    "stride": 10,
+    "device": "cpu"
+  },
+  "splits": {
+    "train": ["SC4022", "SC4011", "SC4001", "SC4012"],
+    "val": ["SC4002"]
+  },
+  "data_stats": {
+    "total_epochs": 13884,
+    "train_epochs": 11055,
+    "val_epochs": 2829,
+    "class_distribution_total": {
+      "Wake": 9433,
+      "N1": 502,
+      "N2": 2247,
+      "N3": 837,
+      "REM": 865
+    }
+  },
+  "results": {
+    "accuracy": 0.811,
+    "kappa": 0.673,
+    "macro_f1": 0.593,
+    "per_class": {
+      "Wake": {"f1": 0.932, "recall": 0.873, "support": 1876},
+      "N1": {"f1": 0.033, "recall": 0.017, "support": 59},
+      "N2": {"f1": 0.611, "recall": 0.440, "support": 373},
+      "N3": {"f1": 0.993, "recall": 0.987, "support": 297},
+      "REM": {"f1": 0.946, "recall": 0.898, "support": 215}
+    }
+  },
+  "comparison_with_baseline": {
+    "baseline_4subjects": {
+      "accuracy": 0.910,
+      "kappa": 0.824,
+      "macro_f1": 0.730,
+      "note": "4 subjects, 10 epochs, stride 5, 10 epochs training"
+    },
+    "expanded_5subjects": {
+      "accuracy": 0.811,
+      "kappa": 0.673,
+      "macro_f1": 0.593,
+      "note": "5 subjects, 5 epochs, stride 10, 5 epochs training"
+    }
+  },
+  "analysis": {
+    "n1_problem": "N1 F1=0.033, only 59 N1 samples in val set. Model cannot learn N1 from 502 total samples across 4 train subjects.",
+    "n3_improvement": "N3 F1=0.993 (up from 0.835) - excellent with only 297 val samples",
+    "rem_stable": "REM F1=0.946 - stable improvement",
+    "data_bottleneck": "5 subjects is still too few. Need 20+ subjects for meaningful N1 learning."
+  },
+  "next_steps": [
+    "Download full Sleep-EDF Expanded (183 subjects)",
+    "Run 4-fold subject-level CV on full dataset",
+    "Expected: N1 F1 should improve with more diverse N1 examples"
+  ]
+}
