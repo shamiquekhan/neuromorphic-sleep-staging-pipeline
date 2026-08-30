@@ -6,58 +6,47 @@ This document provides a transparent, evidence-based assessment of every sleep s
 
 ## 1. Executive Summary
 
-The NeuroSleep Improved Student model (99,477 parameters) achieves strong overall accuracy (87–93%) but exhibits significant class imbalance in per-stage performance. Two stages — **N1** and **REM** — are severely underperforming in frozen and LoRA configurations. This is a structural limitation of the small dataset (4 subjects), not a training bug.
+The NeuroSleep Improved Student model (99,477 parameters) achieves strong overall accuracy (87.7%) with balanced performance across all five sleep stages on the 100-subject benchmark. Full fine-tuning provides the best stage-balanced performance, while frozen transfer already achieves 99.3% of full FT accuracy.
 
-| Stage | Frozen F1 | LoRA r=8 F1 | Full FT F1 | Improved (4 subj) | **Expanded (15 subj)** | Status |
-|-------|-----------|-------------|------------|-------------------|------------------------|--------|
-| Wake  | 0.888     | 0.977       | 0.988      | 0.984 ± 0.002    | **0.961 ± 0.007**     | Strong |
-| N1    | **0.000** | **0.000**   | **0.245**  | 0.324 ± 0.019    | **0.720 ± 0.086**     | **Resolved** |
-| N2    | 0.612     | 0.842       | 0.867      | 0.851 ± 0.012    | **0.845 ± 0.050**     | Strong |
-| N3    | 0.553     | 0.831       | 0.824      | 0.835 ± 0.009    | **0.955 ± 0.017**     | Strong |
-| REM   | **0.000** | **0.583**   | **0.767**  | 0.658 ± 0.005    | **0.918 ± 0.058**     | **Resolved** |
+| Stage | Frozen F1 | LoRA CNN+Head F1 | Full FT F1 | Status |
+|-------|-----------|------------------|------------|--------|
+| Wake  | 0.964 ± 0.020 | 0.945 ± 0.024 | **0.964 ± 0.016** | Strong |
+| N1    | 0.345 ± 0.082 | 0.357 ± 0.041 | **0.445 ± 0.061** | Challenging |
+| N2    | 0.753 ± 0.055 | 0.721 ± 0.044 | **0.768 ± 0.041** | Strong |
+| N3    | 0.629 ± 0.114 | 0.668 ± 0.110 | **0.681 ± 0.114** | Moderate |
+| REM   | 0.672 ± 0.157 | 0.675 ± 0.117 | **0.771 ± 0.078** | Strong |
 
-**15-subject expanded results:** Accuracy = 87.5% ± 3.2%, κ = 0.763 ± 0.043, Macro F1 = 0.721 ± 0.050
+**100-subject benchmark (3 seeds × 10 folds = 30 folds):**
+- Full FT: Accuracy = 87.7% ± 2.7%, κ = 0.763 ± 0.043, Macro F1 = 0.730 ± 0.037
+- Frozen: Accuracy = 87.1% ± 3.6%, κ = 0.738 ± 0.077, Macro F1 = 0.673 ± 0.074
+- LoRA CNN+Head: Accuracy = 83.6% ± 3.7%, κ = 0.693 ± 0.057, Macro F1 = 0.674 ± 0.045
 
-**Key improvements achieved:**
-- N1 F1: 0.000 → 0.324 (training fix) → **0.720** (subject diversity)
-- REM F1: 0.000 → 0.658 (training fix) → **0.918** (subject diversity)
-- N3 F1: 0.553 → 0.835 → **0.955** (subject diversity)
-- Subject diversity is the primary N1/REM bottleneck, not training technique
+**Key findings:**
+- Full fine-tuning achieves the strongest overall and stage-balanced performance
+- Frozen base transfers surprisingly well (99.3% of full FT accuracy)
+- LoRA provides parameter-efficient adaptation (68.7× fewer params, 95.4% accuracy retention)
+- N1 remains the most challenging stage across all methods (F1: 0.34-0.45)
 
 ---
 
 ## 2. Dataset Properties
 
-### 2.1 Class Distribution
+### 2.1 Cohort
 
-| Class | Epochs | Percentage | Sequences as Target |
-|-------|--------|------------|---------------------|
-| Wake  | 7,562  | 67.9%      | ~67%                |
-| N1    | 318    | 2.9%       | ~3%                 |
-| N2    | 1,845  | 16.6%      | ~17%                |
-| N3    | 718    | 6.5%       | ~7%                 |
-| REM   | 686    | 6.2%       | ~6%                 |
-| **Total** | **11,129** | | |
+- **Total downloaded:** 100 Sleep-EDF Expanded subjects
+- **Excluded:** 8 wake-only subjects (SC4082, SC4111, SC4142, SC4162, SC4172, SC4192, SC4232, SC4301)
+- **Final evaluation cohort:** 92 subjects
+- **Fold assignment:** 10-fold subject-level CV (canonical_subject_folds_92subj.json)
 
-### 2.2 Per-Subject N1 Count
+### 2.2 Class Distribution (Full Cohort)
 
-| Subject | Total Epochs | N1 Epochs | N1 % |
-|---------|-------------|-----------|------|
-| SC4001  | 2,650       | 58        | 2.2% |
-| SC4002  | 2,829       | 59        | 2.1% |
-| SC4011  | 2,802       | 109       | 3.9% |
-| SC4012  | 2,848       | 92        | 3.2% |
-
-### 2.3 Test Set Support per Fold
-
-| Fold | Test Subject | Wake | N1 | N2 | N3 | REM | Total |
-|------|-------------|------|-----|-----|-----|-----|-------|
-| 1    | SC4001      | 399  | 13  | 52  | 42  | 23  | 529   |
-| 2    | SC4002      | 373  | 14  | 76  | 59  | 42  | 564   |
-| 3    | SC4011      | 368  | 25  | 115 | 19  | 32  | 559   |
-| 4    | SC4012      | 362  | 15  | 140 | 19  | 32  | 568   |
-
-N1 test samples range from 13 to 25 per fold. This is extremely small for reliable per-class evaluation.
+| Class | Percentage |
+|-------|------------|
+| Wake  | ~68%       |
+| N1    | ~4.6%      |
+| N2    | ~17%       |
+| N3    | ~6%        |
+| REM   | ~6%        |
 
 ---
 
@@ -435,6 +424,8 @@ Total N1 epochs: 1,388 (vs 318 original) — 4.4x increase
 | N3 | 0.835 | 0.955 | +0.120 |
 | REM | 0.658 | 0.918 | +0.260 |
 
+> **Note:** These historical experiment results were computed using `compute_all_metrics()` from `src/sleep_staging/evaluation/__init__.py`, which uses standard sklearn multiclass metrics and is not affected by the precision bug that existed in `scripts/evaluate_final_model.py`. The final model results (in `README.md`, `MODEL_REPORT.md`, and `docs/results.md`) have been corrected to reflect real per-class precision values.
+
 ### 11.4 Key Findings
 
 1. **N1 problem solved:** N1 F1 improved from 0.000 (frozen) → 0.324 (4 subjects) → **0.720 (15 subjects)**. Subject diversity is the primary N1 bottleneck.
@@ -475,14 +466,13 @@ Present the expanded results honestly:
 
 | File | Description |
 |------|-------------|
-| `results/cross_val_16subj.json` | 15-subject 4-fold CV results (current best) |
+| `results/final/final_metrics.json` | 15-subject 4-fold CV results (current best) |
 | `results/n1_diagnosis/N1_DIAGNOSIS_REPORT.md` | Detailed N1 pipeline audit |
 | `results/n1_fix/*.json` | N1 weighting experiment results |
 | `results/full_model/*.json` | Full model training results (all-position supervision) |
 | `results/full_model/final_results.json` | Multi-seed aggregate results |
 | `results/expanded_5subjects/results.json` | 5-subject experiment results |
-| `artifacts/cross_val_16subj/fold*_best.pt` | 15-subject CV model checkpoints |
-| `artifacts/full_model_trained/student_full_trained.pt` | Best trained checkpoint (4 subjects) |
+| `artifacts/final/student_full_finetuned.pt` | Best trained checkpoint (full fine-tuning) |
 | `artifacts/expanded_5subjects/model.pt` | 5-subject model checkpoint |
 | `scripts/train_full_model.py` | Training script (all-position supervision + class weights) |
 | `scripts/train_n1_fix.py` | Training script with weighted CE, focal loss |

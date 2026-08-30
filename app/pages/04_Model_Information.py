@@ -1,5 +1,6 @@
 """Model Information — Architecture, results, and reproducibility."""
 
+import json
 import sys
 from pathlib import Path
 
@@ -12,7 +13,7 @@ if str(_repo / "src") not in sys.path:
 import streamlit as st
 
 from app.components import inject_swiss_css, header, section_title
-from app.state import get_predictor, load_final_metrics
+from app.state import get_predictor
 from sleep_staging.config import CHECKPOINT_PATH
 
 st.set_page_config(page_title="NeuroSleep — Model Information", page_icon=None, layout="wide")
@@ -21,7 +22,13 @@ header()
 
 predictor = get_predictor()
 info = predictor.model_info
-metrics = load_final_metrics()
+
+# Load 100-subject aggregate metrics
+AGGREGATE_PATH = _repo / "results" / "100_subject_adaptation" / "final" / "aggregate_metrics.json"
+metrics_100 = {}
+if AGGREGATE_PATH.exists():
+    with open(AGGREGATE_PATH) as f:
+        metrics_100 = json.load(f)
 
 st.markdown('<div class="divider-thick"></div>', unsafe_allow_html=True)
 
@@ -75,71 +82,99 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ── Official Results ────────────────────────────────────────────────────
-if metrics:
+# ── 100-Subject Benchmark Results ───────────────────────────────────────
+if metrics_100 and "full_finetune" in metrics_100:
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
-    acc = metrics.get("accuracy", {})
-    kappa = metrics.get("cohen_kappa", {})
-    macro = metrics.get("macro_f1", {})
-    weighted = metrics.get("weighted_f1", {})
+    ft = metrics_100["full_finetune"]
+    frozen = metrics_100.get("frozen", {})
+    lora = metrics_100.get("lora_cnn_head", {})
 
-    section_title("Official Results — 15-Subject 4-Fold CV")
+    section_title("100-Subject Benchmark — Full Fine-Tuning (Authoritative)")
 
+    o = ft["overall"]
     st.markdown(
         f'<div class="swiss-grid-4">'
-        f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{acc.get("mean",0):.1%}</div>'
-        f'<div class="sz-caption">&plusmn; {acc.get("std",0):.1%}</div></div>'
-        f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{kappa.get("mean",0):.3f}</div>'
-        f'<div class="sz-caption">&plusmn; {kappa.get("std",0):.3f}</div></div>'
-        f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{macro.get("mean",0):.3f}</div>'
-        f'<div class="sz-caption">&plusmn; {macro.get("std",0):.3f}</div></div>'
-        f'<div><div class="sz-label">Weighted F1</div><div class="sz-display">{weighted.get("mean",0):.3f}</div>'
-        f'<div class="sz-caption">&plusmn; {weighted.get("std",0):.3f}</div></div>'
+        f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{o["accuracy"]["mean"]:.1%}</div>'
+        f'<div class="sz-caption">&plusmn; {o["accuracy"]["std"]:.1%}</div></div>'
+        f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{o["kappa"]["mean"]:.3f}</div>'
+        f'<div class="sz-caption">&plusmn; {o["kappa"]["std"]:.3f}</div></div>'
+        f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{o["macro_f1"]["mean"]:.3f}</div>'
+        f'<div class="sz-caption">&plusmn; {o["macro_f1"]["std"]:.3f}</div></div>'
+        f'<div><div class="sz-label">Weighted F1</div><div class="sz-display">{o["weighted_f1"]["mean"]:.3f}</div>'
+        f'<div class="sz-caption">&plusmn; {o["weighted_f1"]["std"]:.3f}</div></div>'
         f'</div>',
         unsafe_allow_html=True,
     )
 
     # Per-class
-    per_class = metrics.get("per_class", {})
-    if per_class:
-        section_title("Per-Class Performance")
+    if "per_class" in ft:
+        section_title("Per-Class Performance (Full Fine-Tuning)")
         rows = (
             '<table class="swiss-table">'
             '<tr><th>Stage</th><th>F1</th><th>Precision</th><th>Recall</th></tr>'
         )
         for stage in ["Wake", "N1", "N2", "N3", "REM"]:
-            if stage in per_class:
-                s = per_class[stage]
+            if stage in ft["per_class"]:
+                s = ft["per_class"][stage]
                 rows += (
                     f'<tr><td>{stage}</td>'
-                    f'<td>{s["f1_mean"]:.3f} &plusmn; {s["f1_std"]:.3f}</td>'
-                    f'<td>{s["precision_mean"]:.3f}</td>'
-                    f'<td>{s["recall_mean"]:.3f}</td></tr>'
+                    f'<td>{s["f1"]["mean"]:.3f} &plusmn; {s["f1"]["std"]:.3f}</td>'
+                    f'<td>{s["precision"]["mean"]:.3f}</td>'
+                    f'<td>{s["recall"]["mean"]:.3f}</td></tr>'
                 )
         rows += "</table>"
         st.markdown(rows, unsafe_allow_html=True)
 
-    # Fold breakdown
-    fold_metrics = metrics.get("fold_metrics", [])
-    if fold_metrics:
-        section_title("Fold Breakdown")
-        test_subjects = ["SC4001", "SC4002", "SC4011", "SC4012"]
+    # Adaptation comparison
+    if frozen and lora:
+        section_title("Adaptation Method Comparison")
         rows = (
             '<table class="swiss-table">'
-            '<tr><th>Fold</th><th>Test Subject</th><th>Accuracy</th><th>Kappa</th><th>Macro F1</th></tr>'
+            '<tr><th>Model</th><th>Params</th><th>Accuracy</th><th>&kappa;</th><th>Macro F1</th></tr>'
         )
-        for fm in fold_metrics:
-            subj = test_subjects[fm["fold"] - 1]
+        for label, data, params in [
+            ("Frozen", frozen, "0"),
+            ("LoRA CNN+Head", lora, "1,448"),
+            ("Full Fine-Tuning", ft, "99,477"),
+        ]:
+            o = data["overall"]
             rows += (
-                f'<tr><td>{fm["fold"]}</td><td>{subj}</td>'
-                f'<td>{fm["accuracy"]:.1%}</td><td>{fm["kappa"]:.3f}</td>'
-                f'<td>{fm["macro_f1"]:.3f}</td></tr>'
+                f'<tr><td>{label}</td><td>{params}</td>'
+                f'<td>{o["accuracy"]["mean"]:.1%} &plusmn; {o["accuracy"]["std"]:.1%}</td>'
+                f'<td>{o["kappa"]["mean"]:.3f} &plusmn; {o["kappa"]["std"]:.3f}</td>'
+                f'<td>{o["macro_f1"]["mean"]:.3f} &plusmn; {o["macro_f1"]["std"]:.3f}</td></tr>'
             )
         rows += "</table>"
         st.markdown(rows, unsafe_allow_html=True)
+
 else:
-    st.warning("Final metrics not found. Run scripts/evaluate_final_model.py")
+    # Fallback: try loading from results/final/
+    from app.state import load_final_metrics
+    metrics = load_final_metrics()
+    if metrics:
+        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+        acc = metrics.get("accuracy", {})
+        kappa = metrics.get("cohen_kappa", {})
+        macro = metrics.get("macro_f1", {})
+        weighted = metrics.get("weighted_f1", {})
+
+        section_title("Results (Development — 15-Subject 4-Fold CV)")
+        st.markdown(
+            f'<div class="swiss-grid-4">'
+            f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{acc.get("mean",0):.1%}</div>'
+            f'<div class="sz-caption">&plusmn; {acc.get("std",0):.1%}</div></div>'
+            f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{kappa.get("mean",0):.3f}</div>'
+            f'<div class="sz-caption">&plusmn; {kappa.get("std",0):.3f}</div></div>'
+            f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{macro.get("mean",0):.3f}</div>'
+            f'<div class="sz-caption">&plusmn; {macro.get("std",0):.3f}</div></div>'
+            f'<div><div class="sz-label">Weighted F1</div><div class="sz-display">{weighted.get("mean",0):.3f}</div>'
+            f'<div class="sz-caption">&plusmn; {weighted.get("std",0):.3f}</div></div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+    else:
+        st.warning("No results found. Run the benchmark scripts first.")
 
 # ── Reproducibility ─────────────────────────────────────────────────────
 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
@@ -160,11 +195,11 @@ except ImportError:
 
 st.markdown(
     '<div class="sz-body" style="margin-top:1rem;">'
-    "<strong>Dataset:</strong> Sleep-EDF Expanded, 15 subjects (PhysioNet)<br>"
+    "<strong>Dataset:</strong> Sleep-EDF Expanded, 92 subjects (PhysioNet)<br>"
     "<strong>Training window:</strong> 10 &times; 30 s epochs (300 s context)<br>"
-    "<strong>Final model:</strong> Improved Student (Full Fine-Tuning)<br>"
-    "<strong>Training:</strong> All-position supervision + N1/REM class weighting<br>"
-    "<strong>Cross-validation:</strong> 4-fold subject-level CV"
+    "<strong>Final model:</strong> Improved Student (Full Fine-Tuning, 99,477 params)<br>"
+    "<strong>Training:</strong> All-position supervision + N1/REM class weighting (2x)<br>"
+    "<strong>Evaluation:</strong> 10-fold subject-level CV, 3 seeds (42, 43, 44)"
     "</div>",
     unsafe_allow_html=True,
 )

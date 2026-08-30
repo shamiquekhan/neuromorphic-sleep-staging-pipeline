@@ -1,0 +1,4 @@
+Model,Params,accuracy (mean),kappa (mean),macro_f1 (mean),weighted_f1 (mean),mgm (mean),accuracy (std),kappa (std),macro_f1 (std),weighted_f1 (std),mgm (std)
+Frozen,0,0.8706,0.7378,0.6725,0.8708,0.6680,0.0362,0.0773,0.0740,0.0425,0.1025
+LoRA CNN+Head,1448,0.8361,0.6934,0.6736,0.8561,0.7448,0.0366,0.0572,0.0454,0.0323,0.0596
+Full Fine-Tuning,99477,0.8766,0.7632,0.7302,0.8898,0.7960,0.0267,0.0427,0.0367,0.0230,0.0384
