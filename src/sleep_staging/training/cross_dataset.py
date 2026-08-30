@@ -203,25 +203,23 @@ def evaluate(model, loader, criterion, device):
     all_labels = np.concatenate(all_labels)
 
     # Per-class metrics
-    from sklearn.metrics import cohen_kappa_score, f1_score, accuracy_score
+    from sklearn.metrics import cohen_kappa_score, f1_score, accuracy_score, precision_recall_fscore_support
 
     accuracy = accuracy_score(all_labels, all_preds)
     kappa = cohen_kappa_score(all_labels, all_preds, labels=list(range(N_CLASSES)))
     macro_f1 = f1_score(all_labels, all_preds, average="macro", zero_division=0)
 
+    precisions, recalls, f1s, supports = precision_recall_fscore_support(
+        all_labels, all_preds, labels=list(range(N_CLASSES)), zero_division=0,
+    )
     per_class = {}
     for i, name in enumerate(CANONICAL_LIST):
-        mask = all_labels == i
-        if mask.sum() > 0:
-            class_preds = all_preds[mask]
-            # Binary: correct (1) vs incorrect (0) for this class
-            binary_preds = (class_preds == i).astype(int)
-            binary_labels = np.ones_like(binary_preds)
-            per_class[name] = {
-                "f1": float(f1_score(binary_labels, binary_preds, average="binary", zero_division=0)),
-                "recall": float((class_preds == i).sum() / mask.sum()),
-                "support": int(mask.sum()),
-            }
+        per_class[name] = {
+            "precision": float(precisions[i]),
+            "recall": float(recalls[i]),
+            "f1": float(f1s[i]),
+            "support": int(supports[i]),
+        }
 
     return {
         "loss": total_loss / len(loader.dataset),

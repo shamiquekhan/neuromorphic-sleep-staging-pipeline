@@ -41,7 +41,8 @@ def compute_all_metrics(
         "weighted_f1": weighted_f1,
         "mgm": mgm,
         "report": classification_report(
-            y_true, y_pred, target_names=stage_names, zero_division=0,
+            y_true, y_pred, labels=list(range(len(stage_names))),
+            target_names=stage_names, zero_division=0,
         ),
         "confusion_matrix": cm,
         "per_class_accuracy": dict(zip(stage_names, per_class_acc.tolist())),

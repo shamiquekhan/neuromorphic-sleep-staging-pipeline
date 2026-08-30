@@ -1,0 +1,87 @@
+# NeuroSleep — 100-Subject Full Benchmark Configuration
+# ====================================================
+# Full-scale evaluation on 100 Sleep-EDF Expanded subjects.
+# Uses 92 subjects after quality control (8 wake-only excluded).
+# Do NOT overwrite the existing 15-subject benchmark.
+
+model:
+  name: ImprovedStudent
+  parameters: 99477
+  n_classes: 5
+  architecture:
+    gru_hidden: 64
+    gru_layers: 2
+    stem_width: 10
+    encoder_channels: [32, 32]
+    gabor_n_filters: 8
+    gabor_out_dim: 32
+
+data:
+  name: sleep_edf_expanded
+  subjects: 92  # 100 total minus 8 wake-only excluded
+  cache_dir: data/cache/sleep_edf
+  manifest: data/manifests/sleep_edf_expanded.json
+  quality_manifest: results/dataset_audit_100subj/subject_quality_manifest.csv
+  folds_manifest: data/manifests/canonical_subject_folds_92subj.json
+
+sequence:
+  length: 10
+  stride: 5
+  epoch_seconds: 30
+  samples_per_epoch: 3000
+
+channels:
+  - Fpz-Cz
+  - Pz-Oz
+  - EOG
+  - EMG
+
+sampling_rate: 100
+n_channels: 4
+
+classes:
+  Wake: 0
+  N1: 1
+  N2: 2
+  N3: 3
+  REM: 4
+
+training:
+  seed: 42
+  epochs: 20
+  batch_size: 32  # Larger batch with more data
+  learning_rate: 3.0e-4
+  weight_decay: 1.0e-4
+  grad_clip: 1.0
+  loss: weighted_cross_entropy
+  class_weights:
+    N1: 2.0
+    REM: 2.0
+  scheduler: cosine-warmup
+  warmup_fraction: 0.1
+  device: auto
+  mixed_precision: true
+  pin_memory: true
+  num_workers: 4
+
+evaluation:
+  subject_level: true
+  folds: 10
+  checkpoint_metric: val_kappa
+  seeds: [42, 43, 44]
+
+metrics:
+  - accuracy
+  - kappa
+  - macro_f1
+  - weighted_f1
+  - mgm
+  - per_class_f1
+  - per_class_recall
+  - per_class_precision
+  - confusion_matrix
+
+output:
+  results_dir: results/full_100_subject
+  checkpoint_dir: artifacts/full_100_subject
+  per_fold_dir: results/full_100_subject/fold_{fold:02d}

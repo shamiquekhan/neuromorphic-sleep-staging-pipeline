@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-"""Evaluate the final Improved Student checkpoint on the test set."""
+"""Evaluate the final Improved Student checkpoint on the test set.
+
+NOTE: This is an exploratory/legacy script. For authoritative results,
+use `scripts/evaluate_final_model.py` instead.
+"""
 
 import argparse
 from pathlib import Path

@@ -172,6 +172,13 @@ Where:
 - Gabor filters provide joint time-frequency localization
 - Compact parameterization (8 filters × 2 params = 16 learnable params)
 
+**Channel Averaging Design Choice:**
+The Gabor branch averages all 4 raw channels (2 EEG, EOG, EMG) into a single signal before convolution. This is a deliberate trade-off:
+- **Pro:** Reduces parameter count and computation
+- **Pro:** Gabor filters learn frequency patterns common across channels
+- **Con:** Muddies channel-specific features (e.g., EMG artifacts vs EEG alpha)
+- **Alternative:** Per-channel Gabor with channel-wise attention weighting (not implemented)
+
 | Property | Value |
 |----------|-------|
 | Number of filters | 8 |

@@ -96,6 +96,12 @@ class ImprovedStudent(nn.Module):
         cnn = self.pool(e1).flatten(1)
 
         # Gabor features: learnable filter bank → project → 16
+        # Note: We average all 4 channels (2 EEG, EOG, EMG) into a single
+        # signal before Gabor convolution. This is a design trade-off:
+        # - Pro: Reduces parameter count and computation
+        # - Pro: Gabor filters learn frequency patterns common across channels
+        # - Con: Muddies channel-specific features (e.g., EMG artifacts vs EEG alpha)
+        # Alternative: per-channel Gabor with channel-wise attention weighting
         kernel_size = 51
         t_axis = torch.arange(
             -(kernel_size // 2), kernel_size // 2 + 1,

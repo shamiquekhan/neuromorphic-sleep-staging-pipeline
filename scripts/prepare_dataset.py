@@ -1,5 +1,15 @@
 #!/usr/bin/env python
-"""Prepare the Sleep-EDF dataset: download, build manifest, split, and cache."""
+"""DEPRECATED: This script is broken — imports reference non-existent modules.
+
+Use the working preprocessing pipeline instead:
+    python scripts/preprocess_sleep_edf_expanded.py
+
+This script is kept for reference only. The import paths below
+(src.data.manifest, src.preprocessing.filters) do not exist in the
+current codebase. The canonical modules are:
+    src/sleep_staging/data/manifest.py
+    src/sleep_staging/preprocessing/filters.py
+"""
 
 import argparse
 import glob

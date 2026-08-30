@@ -58,7 +58,7 @@ files (1)/
 *.edf
 
 # Model checkpoints (use release assets)
-*.pt
+# *.pt  -- allow final checkpoint for Streamlit Cloud
 
 # Notebook data directories
 notebooks/data/

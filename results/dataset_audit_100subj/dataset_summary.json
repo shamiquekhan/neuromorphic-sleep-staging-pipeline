@@ -1,0 +1,103 @@
+{
+  "audit_date": "2026-08-28T17:26:19.973597",
+  "dataset": "Sleep-EDF Expanded",
+  "dataset_version": "1.0.0",
+  "subjects_total": 100,
+  "subjects_valid": 100,
+  "subjects_excluded": 8,
+  "subjects_excluded_reasons": {
+    "load_errors": 0,
+    "wake_only": 8
+  },
+  "included_subjects": 92,
+  "excluded_subjects": [
+    "SC4082",
+    "SC4111",
+    "SC4142",
+    "SC4162",
+    "SC4172",
+    "SC4192",
+    "SC4232",
+    "SC4301"
+  ],
+  "total_epochs_all": 232219,
+  "total_epochs_included": 228532,
+  "class_distribution_all": {
+    "Wake": {
+      "count": 161253,
+      "pct": 69.44
+    },
+    "N1": {
+      "count": 10580,
+      "pct": 4.56
+    },
+    "N2": {
+      "count": 37561,
+      "pct": 16.17
+    },
+    "N3": {
+      "count": 7943,
+      "pct": 3.42
+    },
+    "REM": {
+      "count": 14882,
+      "pct": 6.41
+    }
+  },
+  "class_distribution_included": {
+    "Wake": {
+      "count": 157566,
+      "pct": 68.95
+    },
+    "N1": {
+      "count": 10580,
+      "pct": 4.63
+    },
+    "N2": {
+      "count": 37561,
+      "pct": 16.44
+    },
+    "N3": {
+      "count": 7943,
+      "pct": 3.48
+    },
+    "REM": {
+      "count": 14882,
+      "pct": 6.51
+    }
+  },
+  "n1_stats": {
+    "median_epochs": 92.0,
+    "median_pct": 3.585,
+    "mean_epochs": 105.8,
+    "mean_pct": 4.2434,
+    "min_epochs": 0,
+    "max_epochs": 470,
+    "low_n1_subjects": 24,
+    "normal_n1_subjects": 71,
+    "high_n1_subjects": 5
+  },
+  "quality_checks": {
+    "all_labels_valid": false,
+    "no_nan": true,
+    "no_inf": true,
+    "all_shapes_valid": true
+  },
+  "folds": {
+    "n_folds": 10,
+    "method": "subject_level",
+    "validation_subjects_fixed": 9
+  },
+  "parameters": {
+    "sampling_rate_hz": 100,
+    "epoch_seconds": 30,
+    "samples_per_epoch": 3000,
+    "n_channels": 4,
+    "channels": [
+      "Fpz-Cz",
+      "Pz-Oz",
+      "EOG",
+      "EMG"
+    ]
+  }
+}

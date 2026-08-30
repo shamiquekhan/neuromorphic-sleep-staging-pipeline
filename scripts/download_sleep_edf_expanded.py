@@ -4,6 +4,9 @@ Downloads the full Sleep-EDF Expanded collection (197 recordings) to data/raw/sl
 
 Usage:
     python scripts/download_sleep_edf_expanded.py [--subjects SC4001 SC4002 ...]
+    python scripts/download_sleep_edf_expanded.py --stagger 3   # every 3rd subject for spread
+    python scripts/download_sleep_edf_expanded.py --workers 6   # parallel downloads
+    python scripts/download_sleep_edf_expanded.py --print-urls  # print URLs for aria2c
 
 Requires: requests, tqdm
 """
@@ -11,6 +14,7 @@ Requires: requests, tqdm
 import argparse
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import requests
@@ -74,8 +78,8 @@ ST_SUBJECTS = [
 
 ALL_SUBJECTS = SC_SUBJECTS + ST_SUBJECTS
 
-# Hypnogram suffix varies by subject
-HYP_SUFFIXES = ["EC", "EH", "EO", "EM", "EC", "EH", "EO", "EM"]
+# Hypnogram suffix varies by subject (all observed suffixes in dataset)
+HYP_SUFFIXES = ["EC", "EA", "EJ", "EU", "EV", "EW", "EG", "EH", "EP"]
 
 
 def find_physionet_file(subject_id: str, file_type: str) -> tuple[str, str]:
@@ -92,41 +96,84 @@ def find_physionet_file(subject_id: str, file_type: str) -> tuple[str, str]:
         return subdir, psg_name
 
     elif file_type == "hypnogram":
-        # Try each suffix until we find the file
+        # Try each suffix until we find the file locally
         for suffix in HYP_SUFFIXES:
             hyp_name = f"{subject_id}{suffix}-Hypnogram.edf"
             hyp_path = RAW_DIR / hyp_name
-            if hyp_path.exists():
+            if hyp_path.exists() and hyp_path.stat().st_size > 1000:
                 return subdir, hyp_name
-        # Return the first suffix as expected name
-        return subdir, f"{subject_id}EC-Hypnogram.edf"
+        # Not found locally — return first suffix as default
+        # (download_file will try HEAD to verify, but we need a name)
+        return subdir, f"{subject_id}{HYP_SUFFIXES[0]}-Hypnogram.edf"
 
 
 def download_file(url: str, dest: Path, force: bool = False) -> bool:
-    """Download a file from PhysioNet with progress bar."""
-    if dest.exists() and not force:
-        return True
+    """Download a file from PhysioNet with resume support and completeness check.
+
+    Checks actual file size against Content-Length to detect incomplete downloads.
+    Supports HTTP Range resume for interrupted transfers.
+    """
+    if force and dest.exists():
+        dest.unlink()
+
+    # Get expected size via HEAD request
+    try:
+        head = requests.head(url, timeout=30)
+        head.raise_for_status()
+        expected_size = int(head.headers.get("content-length", 0))
+    except Exception:
+        expected_size = 0
+
+    # Check if file is already complete
+    if dest.exists():
+        current_size = dest.stat().st_size
+        if expected_size and current_size == expected_size:
+            return True  # genuinely complete
+        elif expected_size and current_size > expected_size:
+            dest.unlink()  # corrupt/oversized, start over
+        elif current_size > 0:
+            # Resume from where it left off
+            headers = {"Range": f"bytes={current_size}-"}
+            mode = "ab"
+            initial = current_size
+        else:
+            headers, mode, initial = {}, "wb", 0
+    else:
+        headers, mode, initial = {}, "wb", 0
 
     try:
-        response = requests.get(url, stream=True, timeout=60)
+        response = requests.get(url, headers=headers, stream=True, timeout=60)
         response.raise_for_status()
 
-        total_size = int(response.headers.get("content-length", 0))
-        with open(dest, "wb") as f, tqdm(
-            total=total_size,
+        # If server doesn't support range requests, start fresh
+        if headers and response.status_code == 200:
+            mode, initial = "wb", 0
+
+        with open(dest, mode) as f, tqdm(
+            total=expected_size or None,
+            initial=initial,
             unit="B",
             unit_scale=True,
             desc=dest.name,
+            disable=not sys.stderr.isatty(),
         ) as pbar:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
                 pbar.update(len(chunk))
+
+        # Verify completeness
+        if expected_size and dest.stat().st_size != expected_size:
+            return False
         return True
     except Exception as e:
         print(f"  Error downloading {url}: {e}", file=sys.stderr)
-        if dest.exists():
-            dest.unlink()
         return False
+
+
+def download_one(args_tuple):
+    """Download a single file. Used by ThreadPoolExecutor."""
+    url, dest, force = args_tuple
+    return download_file(url, dest, force)
 
 
 def main():
@@ -140,7 +187,7 @@ def main():
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Re-download even if file exists",
+        help="Re-download even if file exists and is complete",
     )
     parser.add_argument(
         "--dry-run",
@@ -153,9 +200,28 @@ def main():
         default=None,
         help="Limit number of subjects to download",
     )
+    parser.add_argument(
+        "--stagger",
+        type=int,
+        default=None,
+        help="Take every Nth subject for better demographic spread (e.g. --stagger 3)",
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=6,
+        help="Number of parallel download workers (default: 6)",
+    )
+    parser.add_argument(
+        "--print-urls",
+        action="store_true",
+        help="Print URL list for aria2c and exit",
+    )
     args = parser.parse_args()
 
     subjects = args.subjects or ALL_SUBJECTS
+    if args.stagger:
+        subjects = subjects[:: args.stagger]
     if args.limit:
         subjects = subjects[: args.limit]
 
@@ -165,20 +231,55 @@ def main():
     hyp_urls = []
     for sid in subjects:
         psg_subdir, psg_name = find_physionet_file(sid, "psg")
-        hyp_subdir, hyp_name = find_physionet_file(sid, "hypnogram")
         psg_urls.append((sid, f"{BASE_URL}/{psg_subdir}/{psg_name}", RAW_DIR / psg_name))
-        hyp_urls.append((sid, f"{BASE_URL}/{hyp_subdir}/{hyp_name}", RAW_DIR / hyp_name))
+        # For hypnograms: check if any suffix already downloaded
+        hyp_downloaded = False
+        for suffix in HYP_SUFFIXES:
+            hyp_name = f"{sid}{suffix}-Hypnogram.edf"
+            hyp_dest = RAW_DIR / hyp_name
+            if hyp_dest.exists() and hyp_dest.stat().st_size > 1000:
+                hyp_downloaded = True
+                break
+        if not hyp_downloaded:
+            # Add all possible hypnogram URLs — download_hypnogram will try each
+            for suffix in HYP_SUFFIXES:
+                hyp_name = f"{sid}{suffix}-Hypnogram.edf"
+                hyp_urls.append((sid, f"{BASE_URL}/sleep-cassette/{hyp_name}", RAW_DIR / hyp_name))
 
-    total = len(psg_urls) * 2  # PSG + hypnogram per subject
+    total = len(psg_urls) + len(hyp_urls)  # PSG + hypnogram attempts
+
+    # --print-urls: output for aria2c
+    if args.print_urls:
+        print(f"# {len(subjects)} subjects, {total} files")
+        print(f"# Usage: aria2c -x 8 -s 8 -c -i urls.txt")
+        print(f"# -x 8 = 8 connections per file, -s 8 = split into 8 parts, -c = resume")
+        print()
+        for sid, url, dest in psg_urls + hyp_urls:
+            print(url)
+            print(f"  dir={RAW_DIR}")
+            print(f"  out={dest.name}")
+        return
+
     print(f"Subjects: {len(subjects)}")
     print(f"Files to download: {total}")
+    print(f"Workers: {args.workers}")
     print()
 
     if args.dry_run:
-        print("Dry run — files that would be downloaded:")
+        print("Dry run - files that would be downloaded:")
         for sid, url, dest in psg_urls[:5]:
-            exists = "EXISTS" if dest.exists() else "MISSING"
-            print(f"  [{exists}] {dest.name}")
+            status = "COMPLETE" if dest.exists() else "MISSING"
+            if dest.exists() and dest.stat().st_size > 0:
+                try:
+                    head = requests.head(url, timeout=10)
+                    expected = int(head.headers.get("content-length", 0))
+                    if expected and dest.stat().st_size == expected:
+                        status = "COMPLETE"
+                    else:
+                        status = f"PARTIAL ({dest.stat().st_size}/{expected})"
+                except Exception:
+                    status = "EXISTS (size unknown)"
+            print(f"  [{status}] {dest.name}")
         for sid, url, dest in hyp_urls[:5]:
             exists = "EXISTS" if dest.exists() else "MISSING"
             print(f"  [{exists}] {dest.name}")
@@ -186,36 +287,34 @@ def main():
             print(f"  ... and {len(subjects) - 5} more")
         return
 
-    # Download PSG files
-    print("=== Downloading PSG files ===")
-    psg_success = 0
-    psg_failed = []
-    for sid, url, dest in tqdm(psg_urls, desc="PSG"):
-        if download_file(url, dest, force=args.force):
-            psg_success += 1
-        else:
-            psg_failed.append(sid)
-        time.sleep(0.5)  # Be polite to PhysioNet
+    # Build download tasks
+    tasks = []
+    for sid, url, dest in psg_urls + hyp_urls:
+        tasks.append((url, dest, args.force))
 
-    # Download hypnogram files
-    print("\n=== Downloading Hypnogram files ===")
-    hyp_success = 0
-    hyp_failed = []
-    for sid, url, dest in tqdm(hyp_urls, desc="Hyp"):
-        if download_file(url, dest, force=args.force):
-            hyp_success += 1
-        else:
-            hyp_failed.append(sid)
-        time.sleep(0.5)
+    # Download with thread pool
+    success = 0
+    failed = []
+    with ThreadPoolExecutor(max_workers=args.workers) as executor:
+        futures = {executor.submit(download_one, t): t for t in tasks}
+        for future in as_completed(futures):
+            url, dest, _ = futures[future]
+            ok = future.result()
+            if ok:
+                success += 1
+            else:
+                failed.append(dest.name)
 
     # Summary
     print(f"\n=== Summary ===")
-    print(f"PSG files:      {psg_success}/{len(psg_urls)} downloaded")
-    print(f"Hypnogram files: {hyp_success}/{len(hyp_urls)} downloaded")
-    if psg_failed:
-        print(f"PSG failures:   {', '.join(psg_failed)}")
-    if hyp_failed:
-        print(f"Hyp failures:   {', '.join(hyp_failed)}")
+    print(f"Downloaded: {success}/{total}")
+    print(f"Failed:     {len(failed)}")
+    if failed:
+        print(f"Failed files:")
+        for name in failed[:20]:
+            print(f"  {name}")
+        if len(failed) > 20:
+            print(f"  ... and {len(failed) - 20} more")
 
 
 if __name__ == "__main__":

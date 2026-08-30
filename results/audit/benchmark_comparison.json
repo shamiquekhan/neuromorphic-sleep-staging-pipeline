@@ -1,0 +1,127 @@
+{
+  "audit_date": "2026-08-30",
+  "description": "Comparison of two 100-subject Full-FT benchmarks to identify configuration differences",
+  "benchmarks": {
+    "original_benchmark": {
+      "script": "scripts/run_100_subject_benchmark.py",
+      "output_dir": "results/full_100_subject",
+      "accuracy": 0.8766,
+      "kappa": 0.7619,
+      "macro_f1": 0.7278,
+      "weighted_f1": 0.8895,
+      "mgm": 0.7938,
+      "config": {
+        "model_init": "random (from scratch)",
+        "checkpoint": "none",
+        "dataset": "Sleep-EDF Expanded",
+        "subjects": 92,
+        "excluded_subjects": ["SC4082", "SC4111", "SC4142", "SC4162", "SC4172", "SC4192", "SC4232", "SC4301"],
+        "folds": 10,
+        "fold_manifest": "data/manifests/canonical_subject_folds_92subj.json",
+        "sequence_length": 10,
+        "sequence_stride": 5,
+        "batch_size": 32,
+        "learning_rate": 0.0003,
+        "weight_decay": 0.0001,
+        "grad_clip": 1.0,
+        "max_epochs": 20,
+        "early_stopping_patience": 5,
+        "scheduler": "cosine",
+        "n1_weight": 2.0,
+        "rem_weight": 2.0,
+        "mixed_precision": true,
+        "seed": 42,
+        "device": "cuda",
+        "channels": ["Fpz-Cz", "Pz-Oz", "EOG", "EMG"],
+        "sampling_rate": 100,
+        "epoch_seconds": 30,
+        "supervision": "all-position"
+      }
+    },
+    "adaptation_benchmark": {
+      "script": "scripts/train_adaptation.py",
+      "output_dir": "results/100_subject_adaptation/full_finetune",
+      "accuracy": 0.8731,
+      "kappa": 0.7578,
+      "macro_f1": 0.7259,
+      "weighted_f1": 0.8869,
+      "mgm": 0.7938,
+      "config": {
+        "model_init": "pre-trained checkpoint",
+        "checkpoint": "artifacts/final/student_full_finetuned.pt",
+        "dataset": "Sleep-EDF Expanded",
+        "subjects": 92,
+        "excluded_subjects": ["SC4082", "SC4111", "SC4142", "SC4162", "SC4172", "SC4192", "SC4232", "SC4301"],
+        "folds": 10,
+        "fold_manifest": "data/manifests/canonical_subject_folds_92subj.json",
+        "sequence_length": 10,
+        "sequence_stride": 5,
+        "batch_size": 32,
+        "learning_rate": 0.0003,
+        "weight_decay": 0.0001,
+        "grad_clip": 1.0,
+        "max_epochs": 20,
+        "early_stopping_patience": 5,
+        "scheduler": "cosine",
+        "n1_weight": 2.0,
+        "rem_weight": 2.0,
+        "mixed_precision": true,
+        "seed": 42,
+        "device": "cuda",
+        "channels": ["Fpz-Cz", "Pz-Oz", "EOG", "EMG"],
+        "sampling_rate": 100,
+        "epoch_seconds": 30,
+        "supervision": "all-position"
+      }
+    }
+  },
+  "comparison": {
+    "identical_parameters": [
+      "dataset",
+      "subjects",
+      "excluded_subjects",
+      "folds",
+      "fold_manifest",
+      "sequence_length",
+      "sequence_stride",
+      "batch_size",
+      "learning_rate",
+      "weight_decay",
+      "grad_clip",
+      "max_epochs",
+      "early_stopping_patience",
+      "scheduler",
+      "n1_weight",
+      "rem_weight",
+      "mixed_precision",
+      "seed",
+      "channels",
+      "sampling_rate",
+      "epoch_seconds",
+      "supervision"
+    ],
+    "differences": [
+      {
+        "parameter": "model_init",
+        "original_benchmark": "random (from scratch)",
+        "adaptation_benchmark": "pre-trained checkpoint",
+        "explanation": "Original trains from random weights; adaptation loads pre-trained Improved Student and fine-tunes all parameters"
+      },
+      {
+        "parameter": "checkpoint",
+        "original_benchmark": "none",
+        "adaptation_benchmark": "artifacts/final/student_full_finetuned.pt",
+        "explanation": "Adaptation starts from a model trained on 15 subjects"
+      }
+    ],
+    "result_difference": {
+      "accuracy_diff": -0.0035,
+      "kappa_diff": -0.0041,
+      "macro_f1_diff": -0.0019,
+      "weighted_f1_diff": -0.0026,
+      "explanation": "Slight difference due to different initialization points. Random init may find different local minima than fine-tuning from pre-trained checkpoint."
+    }
+  },
+  "conclusion": "The two benchmarks use identical experimental protocols except for model initialization. The original benchmark trains from scratch; the adaptation benchmark fine-tunes from a pre-trained checkpoint. Both are valid but answer different questions. The adaptation benchmark is the correct comparison for LoRA vs Full-FT analysis.",
+  "recommendation": "Use the adaptation benchmark results for the LoRA comparison study, as it properly isolates the effect of adaptation method while controlling for initialization."
+}

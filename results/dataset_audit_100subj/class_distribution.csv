@@ -1,0 +1,6 @@
+class,label_id,total_epochs,percentage
+Wake,0,161253,69.44
+N1,1,10580,4.56
+N2,2,37561,16.17
+N3,3,7943,3.42
+REM,4,14882,6.41

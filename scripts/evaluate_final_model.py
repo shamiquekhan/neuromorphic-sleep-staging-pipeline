@@ -21,7 +21,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from sklearn.metrics import (
     accuracy_score, cohen_kappa_score, f1_score,
-    precision_score, recall_score, confusion_matrix,
+    precision_recall_fscore_support, confusion_matrix,
     classification_report,
 )
 
@@ -135,30 +135,20 @@ def evaluate_fold(model, fold_data):
             per_class_recall.append(0)
     mgm = np.exp(np.mean(np.log(np.maximum(per_class_recall, 1e-10))))
 
-    # Per-class metrics
+    # Per-class metrics (using multiclass precision_recall_fscore_support)
+    precisions, recalls, f1s, supports = precision_recall_fscore_support(
+        all_labels, all_preds, labels=list(range(N_CLASSES)), zero_division=0,
+    )
     per_class = {}
     for i, name in enumerate(CANONICAL_LIST):
         mask = all_labels == i
-        if mask.sum() > 0:
-            class_preds = all_preds[mask]
-            binary_preds = (class_preds == i).astype(int)
-            binary_labels = np.ones_like(binary_preds)
-
-            per_class[name] = {
-                "precision": float(precision_score(binary_labels, binary_preds, zero_division=0)),
-                "recall": float(recall_score(binary_labels, binary_preds, zero_division=0)),
-                "f1": float(f1_score(binary_labels, binary_preds, zero_division=0)),
-                "support": int(mask.sum()),
-                "mean_prob": float(all_probs[mask, i].mean()),
-            }
-        else:
-            per_class[name] = {
-                "precision": 0.0,
-                "recall": 0.0,
-                "f1": 0.0,
-                "support": 0,
-                "mean_prob": 0.0,
-            }
+        per_class[name] = {
+            "precision": float(precisions[i]),
+            "recall": float(recalls[i]),
+            "f1": float(f1s[i]),
+            "support": int(supports[i]),
+            "mean_prob": float(all_probs[mask, i].mean()) if mask.sum() > 0 else 0.0,
+        }
 
     # Confusion matrix
     cm = confusion_matrix(all_labels, all_preds, labels=list(range(N_CLASSES)))
@@ -206,19 +196,14 @@ def main():
     all_results = []
     fold_metrics = []
 
-    for fold_num in range(1, 5):
+    n_folds = len(folds)
+    for fold_num in range(1, n_folds + 1):
         fold_key = f"fold_{fold_num}"
         fold_data = folds[fold_key]
 
         print(f"\n{'='*60}")
         print(f"  FOLD {fold_num} - Test: {fold_data['test']}")
         print(f"{'='*60}")
-
-        # Load checkpoint
-        model = ImprovedStudent()
-        ckpt = torch.load(CHECKPOINT, map_location="cpu", weights_only=True)
-        model.load_state_dict(ckpt)
-        model = model.to(DEVICE)
 
         # Train fresh model for this fold
         print(f"  Training fold {fold_num}...", end=" ", flush=True)
@@ -227,7 +212,8 @@ def main():
         elapsed = time.time() - t0
         print(f"Done ({elapsed:.1f}s)")
 
-        # Load trained weights
+        # Load trained weights into fresh model
+        model = ImprovedStudent()
         model.load_state_dict(state_dict)
         model = model.to(DEVICE)
 
@@ -312,13 +298,14 @@ def main():
     }
 
     # Create final metrics JSON
+    n_subjects = len(folds["fold_1"]["test"]) + len(folds["fold_1"]["validation"]) + len(folds["fold_1"]["train"])
     final_metrics = {
         "model": "Improved Student - Full Fine-Tuning",
         "parameters": 99477,
         "dataset": "Sleep-EDF Expanded",
-        "n_subjects": 15,
-        "n_folds": 4,
-        "evaluation": "subject-level 4-fold cross-validation",
+        "n_subjects": n_subjects,
+        "n_folds": n_folds,
+        "evaluation": f"{n_folds}-fold subject-level CV over {n_subjects} subjects",
         "accuracy": {
             "mean": overall["accuracy_mean"],
             "std": overall["accuracy_std"],
@@ -397,8 +384,8 @@ def main():
 
     print(f"\nModel: Improved Student - Full Fine-Tuning")
     print(f"Parameters: 99,477")
-    print(f"Dataset: Sleep-EDF Expanded (15 subjects)")
-    print(f"Evaluation: 4-fold subject-level cross-validation")
+    print(f"Dataset: Sleep-EDF Expanded ({n_subjects} subjects)")
+    print(f"Evaluation: {n_folds}-fold subject-level CV ({n_folds} test groups, {n_subjects - n_folds} train/val)")
 
     print(f"\n{'Metric':<20} {'Mean':>10} {'Std':>10}")
     print("-" * 40)

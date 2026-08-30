@@ -1,4 +1,4 @@
-"""Dashboard — Exhibition view with prediction demo."""
+"""Dashboard — Upload data and get predictions."""
 
 import sys
 from pathlib import Path
@@ -34,67 +34,9 @@ model_status_grid(predictor)
 
 st.markdown('<div class="divider-thick"></div>', unsafe_allow_html=True)
 
-# ── Demo Trigger ────────────────────────────────────────────────────────
-col_demo, col_space = st.columns([1, 3])
-with col_demo:
-    if st.button("Start Demo", use_container_width=True):
-        st.session_state.demo_mode = True
-        st.session_state.run_inference = True
-
-# ── Data Selection ──────────────────────────────────────────────────────
-subjects = available_subjects()
-has_cached_data = len(subjects) > 0
-
-if not has_cached_data:
-    st.info("No cached PSG data found. You can still use the **Upload Your ECG / PSG Data** section below.")
-
-if has_cached_data:
-    section_title("Data Selection")
-
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        subject = st.selectbox("Subject", subjects)
-    with c2:
-        data = load_cached_subject(subject)
-        n_epochs = data["epochs"].shape[0]
-        epoch_idx = st.slider("Epoch", 0, n_epochs - 1, value=min(50, n_epochs - 1))
-    with c3:
-        target = st.selectbox("Target epoch", list(range(10)), index=9)
-
-    # ── Run Prediction ──────────────────────────────────────────────────
-    run = st.button("Run Prediction", type="primary", use_container_width=True)
-    if run or st.session_state.demo_mode:
-        try:
-            seq = get_contiguous_sequence(data["epochs"], epoch_idx, seq_len=10)
-            result = predictor.predict(seq, target_epoch=target)
-            st.session_state.current_prediction = result
-            st.session_state.current_sequence = seq
-
-            # QC
-            target_epoch_data = seq[0, target]
-            qc = check_epoch_quality(target_epoch_data, CHANNEL_NAMES)
-            qc_panel(qc)
-
-            # Prediction
-            prediction_block(result)
-
-            section_title("Probability Distribution")
-            probability_bars(result.probabilities)
-
-        except Exception as exc:
-            st.error(f"Prediction failed: {exc}")
-        finally:
-            st.session_state.demo_mode = False
-
-    elif st.session_state.current_prediction is not None:
-        prediction_block(st.session_state.current_prediction)
-        section_title("Probability Distribution")
-        probability_bars(st.session_state.current_prediction.probabilities)
-
 # ═══════════════════════════════════════════════════════════════════════════
-#  USER ECG UPLOAD
+#  USER ECG / PSG UPLOAD
 # ═══════════════════════════════════════════════════════════════════════════
-st.markdown('<div class="divider-thick"></div>', unsafe_allow_html=True)
 section_title("Upload Your ECG / PSG Data")
 
 st.markdown(

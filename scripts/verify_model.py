@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-"""Verify model checkpoint loads correctly and meets all contracts."""
+"""Verify model checkpoint loads correctly and meets all contracts.
+
+NOTE: This is a validation/diagnostic script, not the primary evaluation entry point.
+For authoritative results, use `scripts/evaluate_final_model.py` instead.
+"""
 
 from __future__ import annotations
 

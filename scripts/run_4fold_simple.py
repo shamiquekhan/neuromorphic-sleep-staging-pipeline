@@ -2,6 +2,9 @@
 """4-Fold Canonical Ablation - Simplified Version.
 
 Runs experiments one at a time with proper intermediate saves.
+
+NOTE: This is an exploratory/ablation script. For authoritative final results,
+use `scripts/evaluate_final_model.py` instead.
 """
 
 import json

@@ -1,0 +1,10 @@
+{
+  "rank": 8,
+  "alpha": 16.0,
+  "scaling": 2.0,
+  "target_modules": [
+    "enc.0.pw",
+    "enc.1.pw",
+    "head"
+  ]
+}

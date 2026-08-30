@@ -4,7 +4,7 @@
   "dataset": "Sleep-EDF Expanded",
   "n_subjects": 15,
   "n_folds": 4,
-  "evaluation": "subject-level 4-fold cross-validation",
+  "evaluation": "4-fold subject-level CV over a 4-subject rotating test set",
   "accuracy": {
     "mean": 0.9295641785615016,
     "std": 0.010213426688386509
@@ -27,46 +27,46 @@
   },
   "per_class": {
     "Wake": {
-      "f1_mean": 0.9834024798441077,
-      "f1_std": 0.010820655322376636,
-      "precision_mean": 1.0,
-      "precision_std": 0.0,
+      "f1_mean": 0.9820572146837723,
+      "f1_std": 0.009720165382844285,
+      "precision_mean": 0.9972838333144887,
+      "precision_std": 0.003911924646556917,
       "recall_mean": 0.9675686517035436,
       "recall_std": 0.02083215357501822,
       "support_mean": 3766.5
     },
     "N1": {
-      "f1_mean": 0.6822815396904832,
-      "f1_std": 0.08969629794993264,
-      "precision_mean": 1.0,
-      "precision_std": 0.0,
+      "f1_mean": 0.45493185065701935,
+      "f1_std": 0.15691099252032442,
+      "precision_mean": 0.41557178015381013,
+      "precision_std": 0.17860320031207147,
       "recall_mean": 0.5247934217854531,
       "recall_std": 0.10313892360089975,
       "support_mean": 159.0
     },
     "N2": {
-      "f1_mean": 0.9118835131568398,
-      "f1_std": 0.043761674422300945,
-      "precision_mean": 1.0,
-      "precision_std": 0.0,
+      "f1_mean": 0.8743139496623564,
+      "f1_std": 0.04403921720501905,
+      "precision_mean": 0.9157424017218434,
+      "precision_std": 0.04991343896080095,
       "recall_mean": 0.8409965767316048,
       "recall_std": 0.07360286647759658,
       "support_mean": 922.5
     },
     "N3": {
-      "f1_mean": 0.9583437246739054,
-      "f1_std": 0.016290689694189668,
-      "precision_mean": 1.0,
-      "precision_std": 0.0,
+      "f1_mean": 0.8555376395048025,
+      "f1_std": 0.06567454212988177,
+      "precision_mean": 0.8098602190090208,
+      "precision_std": 0.12178963624885854,
       "recall_mean": 0.9204857353294853,
       "recall_std": 0.029836810881234695,
       "support_mean": 359.0
     },
     "REM": {
-      "f1_mean": 0.9664978695843995,
-      "f1_std": 0.017239700001394076,
-      "precision_mean": 1.0,
-      "precision_std": 0.0,
+      "f1_mean": 0.8033932715376739,
+      "f1_std": 0.06339497738057356,
+      "precision_mean": 0.7138770658954489,
+      "precision_std": 0.10698359252205178,
       "recall_mean": 0.9357014674791693,
       "recall_std": 0.03199799047358387,
       "support_mean": 343.0
@@ -75,7 +75,7 @@
   "fold_metrics": [
     {
       "fold": 1,
-      "test_subject": "SC4001",
+      "test_subject": "SC40001",
       "accuracy": 0.9224952741020794,
       "kappa": 0.8219170231364181,
       "macro_f1": 0.7488828969041675,
@@ -84,7 +84,7 @@
     },
     {
       "fold": 2,
-      "test_subject": "SC4002",
+      "test_subject": "SC40002",
       "accuracy": 0.9196808510638298,
       "kappa": 0.8536227358795945,
       "macro_f1": 0.7794612071306143,
@@ -93,7 +93,7 @@
     },
     {
       "fold": 3,
-      "test_subject": "SC4011",
+      "test_subject": "SC40011",
       "accuracy": 0.9459749552772808,
       "kappa": 0.8959501945486921,
       "macro_f1": 0.8485068731479567,
@@ -102,7 +102,7 @@
     },
     {
       "fold": 4,
-      "test_subject": "SC4012",
+      "test_subject": "SC40012",
       "accuracy": 0.9301056338028169,
       "kappa": 0.8713298984178603,
       "macro_f1": 0.7993361636537611,

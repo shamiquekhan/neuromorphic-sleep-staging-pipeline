@@ -1,0 +1,190 @@
+{
+  "audit_date": "2026-08-30",
+  "description": "Side-by-side comparison of all 100-subject experiments",
+
+  "protocol_comparison": {
+    "headers": ["Parameter", "Original Benchmark", "Adaptation Benchmark"],
+    "rows": [
+      ["Subjects", "92", "92"],
+      ["Folds", "10", "10"],
+      ["Seed", "42", "42"],
+      ["Sequence Length", "10", "10"],
+      ["Stride", "5", "5"],
+      ["Supervision", "all-position", "all-position"],
+      ["N1 Weight", "2×", "2×"],
+      ["REM Weight", "2×", "2×"],
+      ["Batch Size", "32", "32"],
+      ["Learning Rate", "3e-4", "3e-4"],
+      ["Weight Decay", "1e-4", "1e-4"],
+      ["Max Epochs", "20", "20"],
+      ["Early Stopping Patience", "5", "5"],
+      ["Scheduler", "cosine", "cosine"],
+      ["Mixed Precision", "True", "True"],
+      ["Gradient Clip", "1.0", "1.0"],
+      ["Initialization", "RANDOM", "PRE-TRAINED CHECKPOINT"],
+      ["Checkpoint", "none", "artifacts/final/student_full_finetuned.pt"],
+      ["Output Dir", "results/full_100_subject", "results/100_subject_adaptation/full_finetune"]
+    ]
+  },
+
+  "result_comparison": {
+    "original_random_init": {
+      "accuracy": 0.8766,
+      "kappa": 0.7619,
+      "macro_f1": 0.7278,
+      "weighted_f1": 0.8895,
+      "mgm": 0.7938,
+      "per_class_f1": {
+        "Wake": 0.9673,
+        "N1": 0.4524,
+        "N2": 0.7671,
+        "N3": 0.6877,
+        "REM": 0.7643
+      }
+    },
+    "adaptation_pretrained_init": {
+      "accuracy": 0.8731,
+      "kappa": 0.7578,
+      "macro_f1": 0.7259,
+      "weighted_f1": 0.8869,
+      "mgm": 0.7938,
+      "per_class_f1": {
+        "Wake": 0.9642,
+        "N1": 0.4454,
+        "N2": 0.7683,
+        "N3": 0.6805,
+        "REM": 0.7710
+      }
+    }
+  },
+
+  "differences_summary": {
+    "cause": "Different model initialization points",
+    "explanation": "Original benchmark trains from random weights (scratch). Adaptation benchmark fine-tunes from a pre-trained Improved Student checkpoint trained on 15 subjects. Both use identical training protocols otherwise.",
+    "magnitude": {
+      "accuracy_diff_pct": -0.35,
+      "kappa_diff": -0.0041,
+      "macro_f1_diff": -0.0019,
+      "weighted_f1_diff": -0.0026
+    },
+    "interpretation": "Very small differences. The pre-trained initialization provides a slightly different loss landscape, leading to marginally different convergence points. Both are valid results answering different questions."
+  },
+
+  "which_to_use": {
+    "for_lora_comparison": "Adaptation benchmark (pre-trained init) — this is the correct comparison because LoRA and Frozen also start from the same checkpoint",
+    "for_final_model": "Either is valid, but adaptation benchmark is more representative of practical deployment (starting from a pre-trained model)",
+    "do_not_mix": "Never compare original benchmark (random init) with adaptation benchmark (pre-trained init) as if they were the same experiment"
+  },
+
+  "adaptation_comparison_all_methods": {
+    "frozen": {
+      "accuracy": 0.8706,
+      "kappa": 0.7378,
+      "macro_f1": 0.6725,
+      "weighted_f1": 0.8708,
+      "mgm": 0.6680,
+      "per_class_f1": {
+        "Wake": 0.9640,
+        "N1": 0.3449,
+        "N2": 0.7526,
+        "N3": 0.6286,
+        "REM": 0.6722
+      }
+    },
+    "lora_head": {
+      "accuracy": 0.8313,
+      "kappa": 0.6820,
+      "macro_f1": 0.6586,
+      "weighted_f1": 0.8501,
+      "mgm": 0.7237,
+      "per_class_f1": {
+        "Wake": 0.9429,
+        "N1": 0.3335,
+        "N2": 0.7197,
+        "N3": 0.6454,
+        "REM": 0.6516
+      }
+    },
+    "lora_cnn_head": {
+      "accuracy": 0.8350,
+      "kappa": 0.6918,
+      "macro_f1": 0.6731,
+      "weighted_f1": 0.8552,
+      "mgm": 0.7442,
+      "per_class_f1": {
+        "Wake": 0.9453,
+        "N1": 0.3569,
+        "N2": 0.7207,
+        "N3": 0.6681,
+        "REM": 0.6746
+      }
+    },
+    "full_finetune": {
+      "accuracy": 0.8731,
+      "kappa": 0.7578,
+      "macro_f1": 0.7259,
+      "weighted_f1": 0.8869,
+      "mgm": 0.7938,
+      "per_class_f1": {
+        "Wake": 0.9642,
+        "N1": 0.4454,
+        "N2": 0.7683,
+        "N3": 0.6805,
+        "REM": 0.7710
+      }
+    }
+  },
+
+  "per_class_analysis": {
+    "N1": {
+      "frozen": 0.3449,
+      "lora_head": 0.3335,
+      "lora_cnn_head": 0.3569,
+      "full_ft": 0.4454,
+      "best": "full_ft (+0.10 vs frozen)",
+      "note": "Full FT improves N1 by 29% relative to frozen"
+    },
+    "N3": {
+      "frozen": 0.6286,
+      "lora_head": 0.6454,
+      "lora_cnn_head": 0.6681,
+      "full_ft": 0.6805,
+      "best": "full_ft (+0.05 vs frozen)",
+      "note": "Modest improvement, frozen already reasonable"
+    },
+    "REM": {
+      "frozen": 0.6722,
+      "lora_head": 0.6516,
+      "lora_cnn_head": 0.6746,
+      "full_ft": 0.7710,
+      "best": "full_ft (+0.10 vs frozen)",
+      "note": "Full FT significantly improves REM over frozen"
+    },
+    "Wake": {
+      "frozen": 0.9640,
+      "lora_head": 0.9429,
+      "lora_cnn_head": 0.9453,
+      "full_ft": 0.9642,
+      "best": "full_ft ≈ frozen",
+      "note": "All methods handle Wake well"
+    },
+    "N2": {
+      "frozen": 0.7526,
+      "lora_head": 0.7197,
+      "lora_cnn_head": 0.7207,
+      "full_ft": 0.7683,
+      "best": "full_ft (+0.02 vs frozen)",
+      "note": "Modest improvement"
+    }
+  },
+
+  "parameter_efficiency": {
+    "lora_cnn_head_vs_full_ft": {
+      "trainable_ratio": "1,448 / 99,477 = 1.43%",
+      "parameter_reduction": "68.7×",
+      "accuracy_retention": "83.5 / 87.3 = 95.6%",
+      "kappa_retention": "0.692 / 0.758 = 91.3%",
+      "macro_f1_retention": "0.673 / 0.726 = 92.7%"
+    }
+  }
+}

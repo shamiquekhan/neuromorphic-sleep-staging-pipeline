@@ -4,6 +4,9 @@
 Prints module name, class, input/output dimensions, parameter count,
 and requires_grad for every module in the model.
 
+NOTE: This is a diagnostic/inspection script, not the primary evaluation entry point.
+For authoritative results, use `scripts/evaluate_final_model.py` instead.
+
 Usage:
     python scripts/inspect_model.py
     python scripts/inspect_model.py --checkpoint artifacts/student_improved_best.pt

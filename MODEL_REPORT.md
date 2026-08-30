@@ -65,11 +65,11 @@ Temporal CNN     Parametric Gabor FEB
 
 | Stage | F1 | Precision | Recall |
 |-------|-----|-----------|--------|
-| Wake | 0.983 ± 0.011 | 1.000 | 0.967 |
-| N1 | **0.682 ± 0.090** | 1.000 | 0.552 |
-| N2 | 0.912 ± 0.044 | 1.000 | 0.848 |
-| N3 | 0.958 ± 0.016 | 1.000 | 0.912 |
-| REM | 0.966 ± 0.017 | 1.000 | 0.930 |
+| Wake | 0.982 ± 0.010 | 0.997 | 0.968 |
+| N1 | **0.455 ± 0.157** | 0.416 | 0.525 |
+| N2 | 0.874 ± 0.044 | 0.916 | 0.841 |
+| N3 | 0.856 ± 0.066 | 0.810 | 0.920 |
+| REM | 0.803 ± 0.063 | 0.714 | 0.936 |
 
 ### 2.3 Fold Breakdown
 
@@ -86,15 +86,15 @@ Temporal CNN     Parametric Gabor FEB
 
 ### 3.1 N1 Remains the Hardest Stage
 
-N1 has the lowest F1 (0.682) due to:
-- **Lowest recall** (0.552) — model misses ~45% of N1 epochs
+N1 has the lowest F1 (0.455) due to:
+- **Lowest recall** (0.525) — model misses ~48% of N1 epochs
 - N1 transitions are brief and ambiguous (often confused with N2)
 - Only 636 N1 epochs in the test set (2.9% of data)
 
 ### 3.2 Model Strengths
 
-- **Perfect precision** across all stages — when the model predicts a class, it's always correct
-- **Strong N3 performance** (F1=0.958) — deep sleep is well-distinguished
+- **High Wake precision** (0.997) — when the model predicts Wake, it's almost always correct
+- **Strong N3 performance** (F1=0.856) — deep sleep is well-distinguished
 - **High weighted F1** (0.935) — overall performance is excellent
 
 ### 3.3 Training Protocol
@@ -110,7 +110,7 @@ N1 has the lowest F1 (0.682) due to:
 ## 4. Protocol
 
 - **Dataset:** Sleep-EDF Expanded (15 subjects)
-- **Folds:** 4-fold subject-level CV
+- **Folds:** 4-fold subject-level CV over a 4-subject rotating test set (11 additional subjects for train/val only)
 - **Sequence:** length=10, stride=5, 30s epochs
 - **Channels:** Fpz-Cz, Pz-Oz, EOG, EMG
 - **Classes:** Wake, N1, N2, N3, REM
@@ -140,11 +140,22 @@ N1 has the lowest F1 (0.682) due to:
 
 | Member | Role |
 |--------|------|
-| Param Kaushik | Dataset & Data Governance |
+| Param Kaushik | Dataset & Data Governance, Streamlit Dashboard |
 | Suha Vora | Signal Preprocessing |
 | Shailendra Bhatt | Exploratory Data Analysis |
 | Shamique Khan | Model Development & Training |
 | Aasir Jaffer Lone | Evaluation & Performance |
+
+---
+
+## 7. Live Resources
+
+| Resource | Link |
+|----------|------|
+| **Interactive Demo** | [Hugging Face Space](https://huggingface.co/spaces/shamique/neurosleep-demo) |
+| **Model** | [Hugging Face Model Hub](https://huggingface.co/shamique/Light-Weight-Neuromorphic-Sleep-Stage-Model) |
+| **Reproducibility** | [Kaggle Notebook](https://www.kaggle.com/shamiquekhan/neurosleep-final) |
+| **Source** | [GitHub](https://github.com/shamiquekhan/neuromorphic-sleep-staging-pipeline) |
 
 ---
 

@@ -72,19 +72,20 @@ The Sleep-EDF dataset contains polysomnography recordings from healthy subjects.
 
 ### Class Distribution
 
-The dataset exhibits significant class imbalance:
+The dataset exhibits extreme class imbalance (untrimmed full-night recordings):
 
 ```
-Wake:   ~10-15% of epochs
-N1:     ~5-10% of epochs
-N2:     ~45-55% of epochs (majority class)
-N3:     ~15-25% of epochs
-REM:    ~15-20% of epochs
+Wake:   68.8% of epochs (28,219) — majority class
+N1:      3.4% of epochs (1,388)  — minority class
+N2:     16.4% of epochs (6,718)
+N3:      5.0% of epochs (2,070)
+REM:     6.4% of epochs (2,642)
 ```
+
+> **Why Wake is 68.8%:** These are untrimmed full-night recordings that include pre-sleep and post-sleep wake periods. Standard practice in the literature trims to ±30 min around sleep onset/offset, which would rebalance to ~10-15% Wake. This pipeline uses untrimmed recordings for now.
 
 **Impact on training:** The pipeline uses:
-- Log-inverse frequency class weights
-- Focal loss for hard example mining
+- N1/REM class weighting (2x) to address minority classes
 - Macro F1 and Cohen's κ as primary metrics (accuracy-insensitive to imbalance)
 
 ---

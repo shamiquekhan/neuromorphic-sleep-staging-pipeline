@@ -1,0 +1,83 @@
+{
+  "benchmark": "100-Subject Adaptation Study",
+  "dataset": "Sleep-EDF Expanded",
+  "n_subjects": 92,
+  "n_folds": 10,
+  "seed": 42,
+  "base_checkpoint": "artifacts/final/student_full_finetuned.pt",
+  "models": {
+    "frozen": {
+      "name": "Frozen Base",
+      "trainable_params": 0,
+      "trainable_pct": 0.0,
+      "accuracy_mean": 0.8706,
+      "accuracy_std": 0.0362,
+      "kappa_mean": 0.7378,
+      "kappa_std": 0.0773,
+      "macro_f1_mean": 0.6725,
+      "macro_f1_std": 0.0740,
+      "weighted_f1_mean": 0.8708,
+      "weighted_f1_std": 0.0425,
+      "mgm_mean": 0.6680,
+      "mgm_std": 0.1025
+    },
+    "lora_head": {
+      "name": "LoRA Head (r=8, α=16)",
+      "trainable_params": 552,
+      "trainable_pct": 0.5518,
+      "rank": 8,
+      "alpha": 16,
+      "targets": ["head"],
+      "accuracy_mean": 0.8313,
+      "accuracy_std": 0.0379,
+      "kappa_mean": 0.6820,
+      "kappa_std": 0.0647,
+      "macro_f1_mean": 0.6586,
+      "macro_f1_std": 0.0529,
+      "weighted_f1_mean": 0.8501,
+      "weighted_f1_std": 0.0362,
+      "mgm_mean": 0.7237,
+      "mgm_std": 0.0697
+    },
+    "lora_cnn_head": {
+      "name": "LoRA CNN+Head (r=8, α=16)",
+      "trainable_params": 1448,
+      "trainable_pct": 1.4347,
+      "rank": 8,
+      "alpha": 16,
+      "targets": ["enc.0.pw", "enc.1.pw", "head"],
+      "accuracy_mean": 0.8350,
+      "accuracy_std": 0.0369,
+      "kappa_mean": 0.6918,
+      "kappa_std": 0.0573,
+      "macro_f1_mean": 0.6731,
+      "macro_f1_std": 0.0457,
+      "weighted_f1_mean": 0.8552,
+      "weighted_f1_std": 0.0326,
+      "mgm_mean": 0.7442,
+      "mgm_std": 0.0622
+    },
+    "full_finetune": {
+      "name": "Full Fine-Tuning",
+      "trainable_params": 99477,
+      "trainable_pct": 100.0,
+      "accuracy_mean": 0.8731,
+      "accuracy_std": 0.0299,
+      "kappa_mean": 0.7578,
+      "kappa_std": 0.0468,
+      "macro_f1_mean": 0.7259,
+      "macro_f1_std": 0.0373,
+      "weighted_f1_mean": 0.8869,
+      "weighted_f1_std": 0.0254,
+      "mgm_mean": 0.7938,
+      "mgm_std": 0.0396
+    }
+  },
+  "parameter_efficiency": {
+    "full_ft_to_lora_cnn_head_ratio": 68.7,
+    "full_ft_to_lora_head_ratio": 180.2,
+    "lora_cnn_head_performance_ratio": 0.982,
+    "lora_head_performance_ratio": 0.958
+  },
+  "conclusion": "Full fine-tuning achieves best overall performance. LoRA provides competitive parameter-efficient alternative with 98% accuracy retention using only 1.4% trainable parameters."
+}
