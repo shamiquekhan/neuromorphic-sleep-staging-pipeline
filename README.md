@@ -615,7 +615,7 @@ evaluation:
 | Suha Vora | Signal Preprocessing |
 | Shailendra Bhatt | Exploratory Data Analysis |
 | Shamique Khan | Model Development & Training |
-| Aasir Jaffer Lone | Evaluation & Performance |
+| Aasir Jaffer Lone | Model Evaluation & Performance |
 
 > Commits consolidated by Shamique Khan for repo hygiene. See [docs/team.md](docs/team.md) for individual contributions.
 
