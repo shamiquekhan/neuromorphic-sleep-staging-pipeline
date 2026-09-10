@@ -1,4 +1,4 @@
-# NeuroSleep --- Final Model Report
+# NeuroSleep - Model Report
 
 ## Executive Summary
 
