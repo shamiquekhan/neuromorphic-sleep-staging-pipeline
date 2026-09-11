@@ -1,0 +1,111 @@
+# NeuroSleep — Canonical 92-Subject Eligible-Cohort Benchmark (PRIMARY)
+# =====================================================================
+# STATUS: PRIMARY / FINAL benchmark configuration. This is the only
+# configuration allowed for reported generalization results.
+#
+# Cohort phrasing (use everywhere): "92-subject eligible cohort from 100
+# downloaded Sleep-EDF Expanded records (8 wake-only subjects excluded)".
+# Do NOT write "100-subject evaluation" — the evaluation cohort is 92.
+#
+# Experiment ID: EXP-BENCH-92SUBJ
+#
+# Current evidence status (see docs/results.md):
+#   - From-scratch training, seed 42 (10 folds): results/benchmark_92_subject/ — COMPLETE
+#   - Seeds 43/44: NOT yet run
+#   - Adaptation experiments (frozen/LoRA/full-FT) that initialize from the
+#     15-subject-era checkpoint are CONTAMINATED — see
+#     docs/adaptation.md and scripts/verify_protocol.py.
+
+experiment:
+  id: EXP-BENCH-92SUBJ
+  name: benchmark_92_subject
+  status: primary
+
+model:
+  name: ImprovedStudent
+  parameters: 99477
+  n_classes: 5
+  architecture:
+    gru_hidden: 64
+    gru_layers: 2
+    stem_width: 10
+    encoder_channels: [32, 32]
+    gabor_n_filters: 8
+    gabor_out_dim: 32
+
+data:
+  name: sleep_edf_expanded
+  records_downloaded: 100
+  subjects_excluded_wake_only: 8
+  subjects_eligible: 92
+  cache_dir: data/cache/sleep_edf
+  manifest: data/manifests/sleep_edf_expanded.json
+  quality_manifest: results/dataset_audit_100subj/subject_quality_manifest.csv
+  folds_manifest: data/manifests/canonical_subject_folds_92subj.json
+
+sequence:
+  length: 10
+  stride: 5
+  epoch_seconds: 30
+  samples_per_epoch: 3000
+
+channels:
+  - Fpz-Cz
+  - Pz-Oz
+  - EOG
+  - EMG
+
+sampling_rate: 100
+n_channels: 4
+
+classes:
+  Wake: 0
+  N1: 1
+  N2: 2
+  N3: 3
+  REM: 4
+
+training:
+  initialization: from_scratch
+  seed: 42
+  seeds_planned: [42, 43, 44]
+  epochs: 20
+  batch_size: 32
+  learning_rate: 3.0e-4
+  weight_decay: 1.0e-4
+  grad_clip: 1.0
+  loss: weighted_cross_entropy
+  class_weights:
+    N1: 2.0
+    REM: 2.0
+  scheduler: cosine
+  warmup_fraction: 0.1
+  early_stopping_patience: 5
+  checkpoint_selection: val_macro_f1
+  device: auto
+  mixed_precision: true
+  pin_memory: true
+  num_workers: 4
+  supervision: all_position
+
+evaluation:
+  method: 10-fold subject-level CV
+  folds: 10
+  subject_level: true
+  seeds: [42, 43, 44]
+
+metrics:
+  - accuracy
+  - kappa
+  - macro_f1
+  - weighted_f1
+  - mgm
+  - per_class_f1
+  - per_class_recall
+  - per_class_precision
+  - confusion_matrix
+
+output:
+  results_dir: results/benchmark_92_subject
+  legacy_results_dir: results/full_100_subject  # seed-42 evidence lives here
+  per_fold_dir: results/benchmark_92_subject/fold_{fold:02d}

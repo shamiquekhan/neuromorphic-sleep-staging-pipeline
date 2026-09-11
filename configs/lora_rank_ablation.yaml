@@ -1,0 +1,45 @@
+# NeuroSleep — LoRA Rank Ablation (92-Subject Cohort)
+# ====================================================
+# Experiment IDs:
+#   EXP-LORA-R2-CNNHEAD   (r=2)
+#   EXP-LORA-R4-CNNHEAD   (r=4)
+#   EXP-LORA-R8-CNNHEAD   (r=8 — primary, already completed seed 42)
+#   EXP-LORA-R16-CNNHEAD  (r=16)
+#
+# Fixed across all ranks: alpha = 2 * rank (scaling = 2.0), dropout = 0.05,
+# targets = [enc.0.pw, enc.1.pw, head], seed 42, 10-fold subject-level CV.
+#
+# PROTOCOL REQUIREMENT: same leak-free base checkpoint as the adaptation
+# protocol (configs/adaptation_92_subject.yaml). Run
+# scripts/verify_protocol.py before launching. The quarantined legacy results
+# in results/100_subject_adaptation/lora_r*/ were produced with the
+# 15-subject-era contaminated base and are for historical comparison only.
+
+experiment:
+  id: EXP-LORA-RANK-ABLATION
+  name: lora_rank_ablation
+  status: in_progress
+
+base_checkpoint:
+  path: null
+  forbidden: artifacts/final/student_full_finetuned.pt  # 15-subject era — CONTAMINATED
+
+lora:
+  alpha_scaling_rule: alpha = 2 * rank
+  dropout: 0.05
+  targets: [enc.0.pw, enc.1.pw, head]
+
+ranks: [2, 4, 8, 16]
+
+training:
+  seed: 42
+  seeds_planned: [42, 43, 44]
+  epochs: 20
+  batch_size: 32
+  learning_rate: 3.0e-4
+  weight_decay: 1.0e-4
+  early_stopping_patience: 5
+
+output:
+  results_dir: results/ablations/lora_rank
+  legacy_contaminated_dir: results/100_subject_adaptation

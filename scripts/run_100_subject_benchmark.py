@@ -40,7 +40,7 @@ from sleep_staging.training.cross_dataset import (
 # ── Config ───────────────────────────────────────────────────────────────
 CACHE_DIR = REPO / "data" / "cache" / "sleep_edf"
 FOLDS_PATH = REPO / "data" / "manifests" / "canonical_subject_folds_92subj.json"
-OUTPUT_DIR = REPO / "results" / "full_100_subject"
+OUTPUT_DIR = REPO / "results" / "benchmark_92_subject"
 
 MAX_EPOCHS = 20
 BATCH_SIZE = 32

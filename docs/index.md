@@ -1,3 +1,4 @@
+
 # Documentation Index — Neuromorphic Sleep Stage Scoring
 
 ## Documentation Structure
@@ -20,30 +21,30 @@ docs/
 
 ### For Researchers
 
-| Document | Description |
-|----------|-------------|
+| Document            | Description                                   |
+| ------------------- | --------------------------------------------- |
 | `architecture.md` | Model design decisions and parameter analysis |
-| `methodology.md` | Research approach and experimental design |
-| `dataset.md` | Data sources, preprocessing, and contracts |
-| `results.md` | Official metrics and interpretation |
+| `methodology.md`  | Research approach and experimental design     |
+| `dataset.md`      | Data sources, preprocessing, and contracts    |
+| `results.md`      | Official metrics and interpretation           |
 
 ### For Engineers
 
-| Document | Description |
-|----------|-------------|
+| Document            | Description                                |
+| ------------------- | ------------------------------------------ |
 | `architecture.md` | Input/output specifications and components |
-| `deployment.md` | Export, quantization, and edge deployment |
-| `dataset.md` | Data formats and cache structure |
-| `methodology.md` | Training configuration and reproducibility |
+| `deployment.md`   | Export, quantization, and edge deployment  |
+| `dataset.md`      | Data formats and cache structure           |
+| `methodology.md`  | Training configuration and reproducibility |
 
 ### For Exhibition
 
-| Document | Description |
-|----------|-------------|
-| `exhibition.md` | Demo script, poster layout, Q&A |
-| `results.md` | Official result block for display |
-| `team.md` | Team roles for poster/presentation |
-| `architecture.md` | Visual architecture diagrams |
+| Document            | Description                        |
+| ------------------- | ---------------------------------- |
+| `exhibition.md`   | Demo script, poster layout, Q&A    |
+| `results.md`      | Official result block for display  |
+| `team.md`         | Team roles for poster/presentation |
+| `architecture.md` | Visual architecture diagrams       |
 
 ---
 
@@ -110,13 +111,13 @@ python -m pytest tests/ -v
 
 ## Team Contact
 
-| Member | Role |
-|--------|------|
-| Param Kaushik | Dataset & Data Governance |
-| Suha Vora | Signal Preprocessing |
-| Shailendra Bhatt | Exploratory Data Analysis |
-| Shamique Khan | Model Development & Training |
-| Aasir Jaffer Lone | Evaluation & Performance |
+| Member            | Role                         |
+| ----------------- | ---------------------------- |
+| Param Kaushik     | Dataset & Data Governance    |
+| Suha Vora         | Signal Preprocessing         |
+| Shailendra Bhatt  | Exploratory Data Analysis    |
+| Shamique Khan     | Model Development & Training |
+| Aasir Jaffer Lone | Evaluation & Performance     |
 
 ---
 
