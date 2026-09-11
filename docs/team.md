@@ -11,6 +11,7 @@ This document describes individual contributions to the NeuroSleep project.
 | Shailendra Bhatt | Exploratory Data Analysis | EDA notebooks, class distribution analysis, visualization |
 | Shamique Khan | Model Development & Training | ImprovedStudent architecture, LoRA adaptation, training loops, code consolidation |
 | Aasir Jaffer Lone | Evaluation & Performance | Metrics implementation, cross-validation design, performance analysis |
+| Prachi Kamboj | Documentation | Project documentation |
 
 ## Git History Note
 
