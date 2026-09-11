@@ -635,7 +635,7 @@ See [LICENSE](LICENSE) for details.
 ```bibtex
 @project{neurosleep_2026,
   title={NeuroSleep: Light-Weight Sleep Stage Scoring},
-  author={Kaushik, P. and Vora, S. and Bhatt, S. and Khan, S. and Lone, A.J.},
+  author={Kaushik, P. and Vora, S. and Bhatt, S. and Khan, S. and Lone, A.J. and Kamboj, P.},
   year={2026},
   institution={VIT Bhopal University}
 }
