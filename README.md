@@ -616,6 +616,7 @@ evaluation:
 | Shailendra Bhatt | Exploratory Data Analysis |
 | Shamique Khan | Model Development & Training |
 | Aasir Jaffer Lone | Model Evaluation & Performance |
+|Prachi Kamboj| Project Documentation |
 
 > Commits consolidated by Shamique Khan for repo hygiene. See [docs/team.md](docs/team.md) for individual contributions.
 
