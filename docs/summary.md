@@ -65,7 +65,8 @@ Raw PSG Signals (EEG + EOG + EMG)
 ┌─────────────────────────────────┐
 │ Notebook 05 — Evaluation        │
 │ 15 held-out subjects, metrics,  │
-│ confusion matrix, latency       │
+│ confusion matrix, error analysis,│
+│ latency                         │
 └─────────────────────────────────┘
 ```
 
@@ -128,7 +129,10 @@ pip install -r requirements.txt && pip install -e .
 
 # Run the full pipeline (notebooks 01→05)
 jupyter nbconvert --to notebook --execute notebooks/01_data_import_and_dataset_collection.ipynb --inplace
-# ...continue through 05
+jupyter nbconvert --to notebook --execute notebooks/02_data_preprocessing.ipynb --inplace
+jupyter nbconvert --to notebook --execute notebooks/03_exploratory_data_analysis.ipynb --inplace
+jupyter nbconvert --to notebook --execute notebooks/04_model_architecture_and_training.ipynb --inplace
+jupyter nbconvert --to notebook --execute notebooks/05_evaluation_and_benchmarking.ipynb --inplace
 
 # Dashboard
 streamlit run app/streamlit_app.py

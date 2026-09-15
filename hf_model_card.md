@@ -82,15 +82,14 @@ widget:
 
 # NeuroSleep — Light-Weight Sleep Stage Model
 
-**99,477 parameters, 87.30% ± 0.33% accuracy (κ=0.738, macro-F1=0.724, person-level 10-fold CV over 52 persons, seeds 42/43/44) — small enough for edge/wearable deployment, scoring Wake/N1/N2/N3/REM from 4-channel PSG.**
+**99,477 parameters, 73.90% accuracy (κ=0.416, macro-F1=0.263, exhibition 15-subject holdout) — small enough for edge/wearable deployment, scoring Wake/N1/N2/N3/REM from 4-channel PSG.**
 
-> **Evidence note:** these are the **primary benchmark** numbers
-> (EXP-BENCH-PERSON: 92-record / 52-person eligible cohort from 100
-> downloaded Sleep-EDF Expanded records, from-scratch training,
-> person-level 10-fold cross-validation, seeds 42/43/44, causal
-> unique-epoch protocol). The notebook pipeline (Notebooks 01→05 of the
-> source repo) reproduces training end-to-end and reports 88.64%
-> accuracy / κ 0.773 on 15 held-out subjects.
+> **Evidence note:** these are the **notebook pipeline exhibition** numbers
+> (EXP-EXHIBITION-15SUBJ: 92-record / 52-person eligible cohort from 100
+> downloaded Sleep-EDF Expanded records, 70/15/15 subject-level split,
+> seed 42). The notebook pipeline (Notebooks 01→05 of the source repo)
+> reproduces training end-to-end and reports 73.90% accuracy / κ 0.416
+> on 15 held-out subjects (all-position evaluation, stride=5).
 
 > **Quick links:** [GitHub](https://github.com/shamiquekhan/neuromorphic-sleep-staging-pipeline) · [Live Demo](https://huggingface.co/spaces/shamiquekhan/neurosleep-demo)
 
@@ -301,7 +300,7 @@ checkpoint.
 |----------|------|
 | **Source Code** | [GitHub](https://github.com/shamiquekhan/neuromorphic-sleep-staging-pipeline) |
 | **Live Demo** | [Hugging Face Space](https://huggingface.co/spaces/shamique/neurosleep-demo) |
-| **Reproduce** | Notebooks 01→05 in the source repo |
+| **Reproduce** | Notebooks 01→05 in the source repo (run in order) |
 | **Model Weights** | This page |
 
 ## Citation
