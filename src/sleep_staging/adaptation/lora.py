@@ -86,13 +86,17 @@ class LoRALinear(nn.Module):
     @property
     def adapter_state_dict(self) -> dict:
         return {
-            "lora_A": self.lora_A.data,
-            "lora_B": self.lora_B.data,
+            "lora_A": self.lora_A.detach().clone(),
+            "lora_B": self.lora_B.detach().clone(),
         }
 
     def load_adapter(self, state: dict) -> None:
-        self.lora_A.data = state["lora_A"]
-        self.lora_B.data = state["lora_B"]
+        # copy_ under no_grad keeps graph connectivity intact and avoids
+        # the pre-fix ``.data`` assignment (which can desync autograd
+        # state and silently break optimizer updates).
+        with torch.no_grad():
+            self.lora_A.copy_(state["lora_A"])
+            self.lora_B.copy_(state["lora_B"])
 
 
 class LoRAConv1d(nn.Module):
@@ -173,13 +177,14 @@ class LoRAConv1d(nn.Module):
     @property
     def adapter_state_dict(self) -> dict:
         return {
-            "lora_A": self.lora_A.data,
-            "lora_B": self.lora_B.data,
+            "lora_A": self.lora_A.detach().clone(),
+            "lora_B": self.lora_B.detach().clone(),
         }
 
     def load_adapter(self, state: dict) -> None:
-        self.lora_A.data = state["lora_A"]
-        self.lora_B.data = state["lora_B"]
+        with torch.no_grad():
+            self.lora_A.copy_(state["lora_A"])
+            self.lora_B.copy_(state["lora_B"])
 
 
 def apply_lora(
@@ -280,6 +285,10 @@ def get_lora_targets(model: nn.Module) -> list[str]:
 def assert_lora_targets(model: nn.Module, expected: list[str]) -> None:
     """Assert that all expected LoRA targets were actually applied.
 
+    Matching is exact on module names — the pre-fix substring check
+    (``target in name``) let e.g. ``head`` match ``enc.0.head``-style
+    names and report false positives.
+
     Args:
         model: The model with LoRA applied.
         expected: List of expected target module names.
@@ -287,16 +296,37 @@ def assert_lora_targets(model: nn.Module, expected: list[str]) -> None:
     Raises:
         RuntimeError: If any expected targets are missing.
     """
-    targets = get_lora_targets(model)
-    missing = [
-        target for target in expected
-        if not any(target in name for name in targets)
-    ]
+    targets = set(get_lora_targets(model))
+    missing = [target for target in expected if target not in targets]
     if missing:
         raise RuntimeError(
             f"LoRA targets not actually adapted: {missing}. "
-            f"Found targets: {targets}"
+            f"Found targets: {sorted(targets)}"
         )
+
+
+def freeze_norm_layers(model: nn.Module) -> int:
+    """Put all normalization layers into eval mode, recursively.
+
+    For strict parameter-efficient adaptation: ``nn.BatchNorm1d``
+    running statistics update in train mode even when their parameters
+    are frozen, so a "1,448 trainable parameters" claim is incomplete
+    while BN stats keep adapting. Freezing norm layers makes the
+    trainable-parameter count the *entire* adaptation surface.
+
+    Call before training and after every ``model.train()`` (norm layers
+    must be re-frozen whenever global train mode is re-entered).
+
+    Returns:
+        Number of normalization modules frozen.
+    """
+    n = 0
+    for module in model.modules():
+        if isinstance(module, (nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d,
+                               nn.GroupNorm, nn.LayerNorm, nn.RMSNorm)):
+            module.eval()
+            n += 1
+    return n
 
 
 def save_adapter(model: nn.Module, path: str | Path) -> None:

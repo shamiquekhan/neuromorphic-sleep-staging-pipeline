@@ -23,12 +23,9 @@ header()
 predictor = get_predictor()
 info = predictor.model_info
 
-# Load 100-subject aggregate metrics
-AGGREGATE_PATH = _repo / "results" / "100_subject_adaptation" / "final" / "aggregate_metrics.json"
-metrics_100 = {}
-if AGGREGATE_PATH.exists():
-    with open(AGGREGATE_PATH) as f:
-        metrics_100 = json.load(f)
+# Load notebook-pipeline (single-split) result
+from app.state import load_notebook_pipeline_result
+nb_result = load_notebook_pipeline_result()
 
 st.markdown('<div class="divider-thick"></div>', unsafe_allow_html=True)
 
@@ -82,99 +79,93 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ── 100-Subject Benchmark Results ───────────────────────────────────────
-if metrics_100 and "full_finetune" in metrics_100:
+# ── Primary Benchmark (92-Subject, from scratch, seed 42) ─────────────────
+from app.state import load_final_metrics
+
+primary_metrics = load_final_metrics()
+if primary_metrics:
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
-    ft = metrics_100["full_finetune"]
-    frozen = metrics_100.get("frozen", {})
-    lora = metrics_100.get("lora_cnn_head", {})
+    o = primary_metrics
+    acc, kappa = o.get("accuracy", {}), o.get("cohen_kappa", {})
+    macro, weighted = o.get("macro_f1", {}), o.get("weighted_f1", {})
 
-    section_title("100-Subject Benchmark — Full Fine-Tuning (Authoritative)")
-
-    o = ft["overall"]
+    section_title("Person-Level Primary Benchmark — From Scratch (Seed 42)")
+    st.caption(
+        "EXP-BENCH-PERSON · 92-record eligible cohort (52 persons; 100 "
+        "downloaded, 8 wake-only excluded) · 10-fold person-level CV · "
+        "seeds 42/43/44 (30 folds). Authoritative numbers: docs/results.md"
+    )
     st.markdown(
         f'<div class="swiss-grid-4">'
-        f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{o["accuracy"]["mean"]:.1%}</div>'
-        f'<div class="sz-caption">&plusmn; {o["accuracy"]["std"]:.1%}</div></div>'
-        f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{o["kappa"]["mean"]:.3f}</div>'
-        f'<div class="sz-caption">&plusmn; {o["kappa"]["std"]:.3f}</div></div>'
-        f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{o["macro_f1"]["mean"]:.3f}</div>'
-        f'<div class="sz-caption">&plusmn; {o["macro_f1"]["std"]:.3f}</div></div>'
-        f'<div><div class="sz-label">Weighted F1</div><div class="sz-display">{o["weighted_f1"]["mean"]:.3f}</div>'
-        f'<div class="sz-caption">&plusmn; {o["weighted_f1"]["std"]:.3f}</div></div>'
+        f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{acc.get("mean",0):.1%}</div>'
+        f'<div class="sz-caption">&plusmn; {acc.get("std",0):.1%}</div></div>'
+        f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{kappa.get("mean",0):.3f}</div>'
+        f'<div class="sz-caption">&plusmn; {kappa.get("std",0):.3f}</div></div>'
+        f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{macro.get("mean",0):.3f}</div>'
+        f'<div class="sz-caption">&plusmn; {macro.get("std",0):.3f}</div></div>'
+        f'<div><div class="sz-label">Weighted F1</div><div class="sz-display">{weighted.get("mean",0):.3f}</div>'
+        f'<div class="sz-caption">&plusmn; {weighted.get("std",0):.3f}</div></div>'
         f'</div>',
         unsafe_allow_html=True,
     )
 
-    # Per-class
-    if "per_class" in ft:
-        section_title("Per-Class Performance (Full Fine-Tuning)")
+    if "per_class" in o:
+        section_title("Per-Class Performance (Primary Benchmark)")
         rows = (
             '<table class="swiss-table">'
             '<tr><th>Stage</th><th>F1</th><th>Precision</th><th>Recall</th></tr>'
         )
         for stage in ["Wake", "N1", "N2", "N3", "REM"]:
-            if stage in ft["per_class"]:
-                s = ft["per_class"][stage]
+            if stage in o["per_class"]:
+                s = o["per_class"][stage]
                 rows += (
                     f'<tr><td>{stage}</td>'
-                    f'<td>{s["f1"]["mean"]:.3f} &plusmn; {s["f1"]["std"]:.3f}</td>'
-                    f'<td>{s["precision"]["mean"]:.3f}</td>'
-                    f'<td>{s["recall"]["mean"]:.3f}</td></tr>'
+                    f'<td>{s["f1_mean"]:.3f} &plusmn; {s["f1_std"]:.3f}</td>'
+                    f'<td>{s["precision_mean"]:.3f}</td>'
+                    f'<td>{s["recall_mean"]:.3f}</td></tr>'
                 )
         rows += "</table>"
         st.markdown(rows, unsafe_allow_html=True)
 
-    # Adaptation comparison
-    if frozen and lora:
-        section_title("Adaptation Method Comparison")
-        rows = (
-            '<table class="swiss-table">'
-            '<tr><th>Model</th><th>Params</th><th>Accuracy</th><th>&kappa;</th><th>Macro F1</th></tr>'
-        )
-        for label, data, params in [
-            ("Frozen", frozen, "0"),
-            ("LoRA CNN+Head", lora, "1,448"),
-            ("Full Fine-Tuning", ft, "99,477"),
-        ]:
-            o = data["overall"]
-            rows += (
-                f'<tr><td>{label}</td><td>{params}</td>'
-                f'<td>{o["accuracy"]["mean"]:.1%} &plusmn; {o["accuracy"]["std"]:.1%}</td>'
-                f'<td>{o["kappa"]["mean"]:.3f} &plusmn; {o["kappa"]["std"]:.3f}</td>'
-                f'<td>{o["macro_f1"]["mean"]:.3f} &plusmn; {o["macro_f1"]["std"]:.3f}</td></tr>'
-            )
-        rows += "</table>"
-        st.markdown(rows, unsafe_allow_html=True)
+# ── Notebook-pipeline result (single split, end-to-end) ─────────────────────
+if nb_result:
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    section_title("Notebook Pipeline — Single-Split Exhibition Run")
+    st.caption(
+        "End-to-end run through notebooks 01→05: manifest → preprocessing → "
+        "EDA → teacher + distilled student training (20 epochs each, per-epoch "
+        "logs in the notebook) → evaluation on 15 held-out test subjects. "
+        "Reproduces the full pipeline in one pass."
+    )
+    st.markdown(
+        f'<div class="swiss-grid-4">'
+        f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{nb_result["test_accuracy"]:.1%}</div>'
+        f'<div class="sz-caption">15 test subjects</div></div>'
+        f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{nb_result["cohen_kappa"]:.3f}</div>'
+        f'<div class="sz-caption">subject-level split</div></div>'
+        f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{nb_result["macro_f1"]:.3f}</div>'
+        f'<div class="sz-caption">5 classes</div></div>'
+        f'<div><div class="sz-label">Weighted F1</div><div class="sz-display">{nb_result["weighted_f1"]:.3f}</div>'
+        f'<div class="sz-caption">epoch-weighted</div></div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+    rows = (
+        '<table class="swiss-table" style="max-width:480px;">'
+        '<tr><th>Stage</th><th>F1</th></tr>'
+    )
+    for stage, key in [("Wake", "f1_wake"), ("N1", "f1_n1"), ("N2", "f1_n2"),
+                       ("N3", "f1_n3"), ("REM", "f1_rem")]:
+        rows += f'<tr><td>{stage}</td><td>{nb_result[key]:.3f}</td></tr>'
+    rows += "</table>"
+    st.markdown(rows, unsafe_allow_html=True)
 
-else:
-    # Fallback: try loading from results/final/
-    from app.state import load_final_metrics
-    metrics = load_final_metrics()
-    if metrics:
-        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-        acc = metrics.get("accuracy", {})
-        kappa = metrics.get("cohen_kappa", {})
-        macro = metrics.get("macro_f1", {})
-        weighted = metrics.get("weighted_f1", {})
-
-        section_title("Results (Development — 15-Subject 4-Fold CV)")
-        st.markdown(
-            f'<div class="swiss-grid-4">'
-            f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{acc.get("mean",0):.1%}</div>'
-            f'<div class="sz-caption">&plusmn; {acc.get("std",0):.1%}</div></div>'
-            f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{kappa.get("mean",0):.3f}</div>'
-            f'<div class="sz-caption">&plusmn; {kappa.get("std",0):.3f}</div></div>'
-            f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{macro.get("mean",0):.3f}</div>'
-            f'<div class="sz-caption">&plusmn; {macro.get("std",0):.3f}</div></div>'
-            f'<div><div class="sz-label">Weighted F1</div><div class="sz-display">{weighted.get("mean",0):.3f}</div>'
-            f'<div class="sz-caption">&plusmn; {weighted.get("std",0):.3f}</div></div>'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-    else:
-        st.warning("No results found. Run the benchmark scripts first.")
+if not primary_metrics and not nb_result:
+    st.warning(
+        "No results found. Run the notebooks (01→05) or "
+        "scripts/run_100_subject_benchmark.py first."
+    )
 
 # ── Reproducibility ─────────────────────────────────────────────────────
 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
@@ -195,11 +186,12 @@ except ImportError:
 
 st.markdown(
     '<div class="sz-body" style="margin-top:1rem;">'
-    "<strong>Dataset:</strong> Sleep-EDF Expanded, 92 subjects (PhysioNet)<br>"
+    "<strong>Dataset:</strong> Sleep-EDF Expanded — 92-record eligible cohort / 52 persons (PhysioNet)<br>"
     "<strong>Training window:</strong> 10 &times; 30 s epochs (300 s context)<br>"
-    "<strong>Final model:</strong> Improved Student (Full Fine-Tuning, 99,477 params)<br>"
-    "<strong>Training:</strong> All-position supervision + N1/REM class weighting (2x)<br>"
-    "<strong>Evaluation:</strong> 10-fold subject-level CV, 3 seeds (42, 43, 44)"
+    "<strong>Primary model:</strong> Improved Student (from scratch, 99,477 params)<br>"
+    "<strong>Training:</strong> Knowledge distillation from Improved Teacher + class weighting<br>"
+    "<strong>Evaluation:</strong> Primary: 10-fold person-level CV, seeds 42/43/44 &middot; "
+    "Notebook pipeline: single 70/15/15 subject split"
     "</div>",
     unsafe_allow_html=True,
 )

@@ -70,7 +70,17 @@ Parametric Gabor Feature Extraction
 
 ## Evaluation
 
-- **Accuracy:** 93.0% ± 1.0%
+> **Evidence status:** this checkpoint is the **15-subject
+> development-era model** (EXP-DEV-15SUBJ, 4-fold subject-level CV).
+> The metrics below are development-benchmark results and must not be
+> cited as the project's primary generalization result. The primary
+> benchmark (EXP-BENCH-92SUBJ: 92-subject eligible cohort from 100
+> downloaded Sleep-EDF Expanded records, from-scratch training,
+> 10-fold subject-level CV, seed 42) reports **87.66% ± 2.22%
+> accuracy, κ 0.762, macro-F1 0.728** — see the source repository's
+> `docs/results.md`.
+
+- **Accuracy (15-subject dev benchmark):** 93.0% ± 1.0%
 - **Cohen's Kappa:** 0.861 ± 0.027
 - **Macro F1:** 0.794 ± 0.036
 - **Weighted F1:** 0.935 ± 0.007

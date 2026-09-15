@@ -30,10 +30,20 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-FOLDS_PATH = REPO / "data" / "manifests" / "canonical_subject_folds_92subj.json"
+FOLDS_PATH = REPO / "data" / "manifests" / "person_folds_52subj.json"
+PERSON_FOLDS_PATH = REPO / "data" / "manifests" / "person_folds_52subj.json"
+PERSON_GROUPS_PATH = REPO / "data" / "manifests" / "person_groups.json"
 BENCH_CFG = REPO / "configs" / "benchmark_92_subject.yaml"
+BENCH_PERSON_CFG = REPO / "configs" / "benchmark_person_level.yaml"
 ADAPT_CFG = REPO / "configs" / "adaptation_92_subject.yaml"
 LEGACY_CKPT = REPO / "artifacts" / "final" / "student_full_finetuned.pt"
+
+
+def person_of(record: str) -> str:
+    """SC4ssN -> P4ss: strip the night digit (same person, two nights)."""
+    if not (record.startswith("SC") and len(record) == 6 and record[5] in "12"):
+        raise ValueError(f"Unexpected record id: {record}")
+    return f"P{record[2:5]}"
 
 # Training subjects of the legacy 15-subject-era checkpoint, recovered from
 # the historical fold manifest (see docs/archive/development_15_subject.md).
@@ -61,7 +71,7 @@ def sha256(path: Path) -> str:
 
 
 def check_folds_manifest() -> dict:
-    """Check 1: folds manifest integrity."""
+    """Check 1: folds manifest integrity (record level)."""
     with open(FOLDS_PATH) as f:
         manifest = json.load(f)
 
@@ -89,13 +99,115 @@ def check_folds_manifest() -> dict:
         for p in problems:
             fail(f"folds manifest: {p}")
         return {}
-    ok(f"folds manifest: 10 folds, 92 subjects, test sets disjoint "
-       f"({len(seen_test)} subjects appear in some test fold)")
+    ok(f"folds manifest (legacy record-level): 10 folds, 92 records, test sets disjoint "
+       f"({len(seen_test)} records appear in some test fold)")
     return manifest
 
 
+def check_person_level_folds() -> bool:
+    """Check 1b: person-level folds manifest integrity.
+
+    SC4ss1/SC4ss2 are two nights of the same person (PhysioNet
+    sleep-edfx README; SC-subjects.xls). The legacy record-level folds
+    therefore leak at person level: a test record's same-person mate is
+    usually in the train set. The person-level manifest
+    (person_folds_52subj.json) is the only structure valid for
+    person-generalization claims.
+    """
+    if not PERSON_FOLDS_PATH.exists():
+        fail("person-level folds manifest missing — run "
+             "scripts/generate_person_folds.py")
+        return False
+
+    manifest = json.load(open(PERSON_FOLDS_PATH))
+    folds = manifest["folds"]
+    problems = []
+
+    if len(folds) != 10:
+        problems.append(f"{len(folds)} folds, expected 10")
+    if manifest.get("n_persons") != 52:
+        problems.append(f"n_persons = {manifest.get('n_persons')}, expected 52")
+
+    all_records = set(manifest["records"])
+    seen_test = set()
+    val = set(next(iter(folds.values()))["validation"])
+    for name, fold in folds.items():
+        test = set(fold["test"])
+        if test & seen_test:
+            problems.append(f"{name}: test records in multiple folds")
+        seen_test |= test
+        if set(fold["validation"]) != val:
+            problems.append(f"{name}: validation set differs")
+
+        tr, te, va = set(fold["train"]), test, set(fold["validation"])
+        if tr & te or tr & va or te & va:
+            problems.append(f"{name}: record-level overlap")
+        if tr | te | va != all_records:
+            problems.append(f"{name}: missing records")
+
+        # the actual point: person-level disjointness
+        for r in tr | te | va:
+            pass
+        person_roles = {}
+        for r in all_records:
+            if r in tr:
+                person_roles.setdefault(person_of(r), set()).add("train")
+            if r in te:
+                person_roles.setdefault(person_of(r), set()).add("test")
+            if r in va:
+                person_roles.setdefault(person_of(r), set()).add("val")
+        split = {p: roles for p, roles in person_roles.items() if len(roles) > 1}
+        if split:
+            problems.append(f"{name}: persons split across roles: {split}")
+
+    if seen_test | val != all_records:
+        problems.append("test folds + validation != all records")
+
+    if problems:
+        for p in problems:
+            fail(f"person-level folds: {p}")
+        return False
+    n_persons = manifest["n_persons"]
+    ok(f"person-level folds: 10 folds, 52 persons, no person split across "
+       f"train/test/validation")
+    return True
+
+
+def check_legacy_folds_person_leakage() -> bool:
+    """Check 1c: quantify person-level leakage in the LEGACY folds.
+
+    Expected to FAIL — that is the documented finding. The legacy
+    record-level folds put a test record's same-person mate in train
+    for essentially every fold.
+    """
+    manifest = json.load(open(FOLDS_PATH))
+    folds = manifest["folds"]
+    n_leaky = 0
+    for name, fold in folds.items():
+        train_persons = {person_of(r) for r in fold["train"]}
+        test_persons = {person_of(r) for r in fold["test"]}
+        if train_persons & test_persons:
+            n_leaky += 1
+    if n_leaky:
+        fail(f"legacy record-level folds leak at PERSON level: {n_leaky}/10 "
+             f"folds train on the same-person mate of a test record "
+             f"(SC4ss1/SC4ss2 = one person, two nights). Any number produced "
+             f"on these folds is a RECORD-level estimate, not "
+             f"person-generalization.")
+        return False
+    ok("legacy folds: no person-level train/test overlap (unexpected!)")
+    return True
+
+
 def check_subject_disjointness(manifest: dict, base_subjects: set | None = None) -> bool:
-    """Check 2: base checkpoint training subjects vs evaluation folds."""
+    """Check 2: base checkpoint training subjects vs evaluation folds.
+
+    Runs against BOTH the legacy record-level manifest (expected to
+    FAIL for a base trained on the person-level validation persons —
+    documented, since that manifest is superseded) and the person-level
+    manifest (the canonical evaluation protocol for the adaptation
+    study — must PASS for a leak-free base).
+    """
     folds = manifest["folds"]
     eval_test = set()
     eval_val = set()
@@ -113,6 +225,11 @@ def check_subject_disjointness(manifest: dict, base_subjects: set | None = None)
     contaminated = train_subjects & (eval_test | eval_val)
     overlap_test = train_subjects & eval_test
     overlap_val = train_subjects & eval_val
+    # person-level view: even a record-disjoint base can share PERSONS
+    # with the eval folds (SC4ss1/SC4ss2 = same person)
+    person_overlap = {person_of(r) for r in train_subjects} & {
+        person_of(r) for r in (eval_test | eval_val)
+    }
 
     if contaminated:
         fail(
@@ -124,9 +241,18 @@ def check_subject_disjointness(manifest: dict, base_subjects: set | None = None)
         print("        -> any frozen/LoRA/full-FT result produced from this "
               "checkpoint is quarantined (see docs/adaptation.md)")
         return False
+    if person_overlap:
+        fail(
+            f"{label} is PERSON-CONTAMINATED: even though no record overlaps, "
+            f"{len(person_overlap)} persons appear on both sides "
+            f"(SC4ss1/SC4ss2 are the same person): {sorted(person_overlap)}"
+        )
+        return False
+
+    ok(f"{label} is clean vs the LEGACY record-level manifest")
 
     ok(f"{label}: {len(train_subjects)} training subjects are disjoint "
-       "from eval test+validation")
+       "from eval test+validation (record AND person level)")
     return True
 
 
@@ -139,7 +265,7 @@ def check_configs() -> bool:
         return False
 
     problems = []
-    for cfg_path in (BENCH_CFG, ADAPT_CFG):
+    for cfg_path in (BENCH_CFG, BENCH_PERSON_CFG, ADAPT_CFG):
         if not cfg_path.exists():
             problems.append(f"missing config: {cfg_path.name}")
             continue
@@ -202,7 +328,8 @@ def main() -> int:
         if p.suffix == ".json":
             data = json.load(open(p))
             if isinstance(data, dict):
-                for key in ("subjects", "train_subjects", "base_train_subjects"):
+                for key in ("subjects", "train_subjects", "base_train_subjects",
+                             "base_training_subject_ids", "base_training_person_ids"):
                     if key in data:
                         data = data[key]
                         break
@@ -218,10 +345,40 @@ def main() -> int:
     checks = []
     manifest = check_folds_manifest()
     if manifest:
+        # vs legacy manifest: informational for a leak-free base (the
+        # base's validation PERSONS appear as test records there —
+        # documented, that manifest is superseded)
         checks.append(check_subject_disjointness(manifest, base_subjects))
     else:
         checks.append(False)
+    checks.append(check_person_level_folds())
+    checks.append(check_legacy_folds_person_leakage())
     checks.append(check_configs())
+
+    # The canonical check for the adaptation study: base training
+    # records must be disjoint from the person-level folds' TEST sets
+    # (appearing in validation there is fine — those subjects are never
+    # used for adaptation evaluation).
+    if base_subjects is not None and PERSON_FOLDS_PATH.exists():
+        person_manifest = json.load(open(PERSON_FOLDS_PATH))
+        person_folds = person_manifest["folds"]
+        p_test = set()
+        p_val = set()
+        for fold in person_folds.values():
+            p_test.update(fold["test"])
+            p_val.update(fold["validation"])
+        overlap = base_subjects & p_test
+        in_val = base_subjects & p_val
+        if overlap:
+            fail(f"base checkpoint vs PERSON-LEVEL folds: {sorted(overlap)} "
+                 "are TEST records — adaptation from this base is contaminated")
+            checks.append(False)
+        else:
+            note = (f" (its training records are person-level VALIDATION "
+                    f"records: {len(in_val)})") if in_val else ""
+            ok(f"base checkpoint vs PERSON-LEVEL folds: 0 test-record "
+               f"overlap{note} — SAFE for the adaptation study")
+            checks.append(True)
 
     if LEGACY_CKPT.exists():
         print(f"\n  legacy checkpoint sha256: {sha256(LEGACY_CKPT)[:16]}… "

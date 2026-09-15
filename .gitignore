@@ -43,8 +43,11 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# Logs
+# Logs — transient working logs are ignored, but per-run logs copied
+# into results/**/run_logs/ are tracked as immutable run evidence
+logs/
 *.log
+!results/**/run_logs/*.log
 wandb/
 
 # Old pipeline files
@@ -62,3 +65,8 @@ files (1)/
 
 # Notebook data directories
 notebooks/data/
+
+# Primary benchmark: keep metrics/confusion/history + seed aggregates;
+# exclude regenerable per-fold prediction dumps and fold checkpoints
+results/benchmark_person_level/**/predictions.csv
+results/benchmark_person_level/**/best_model.pt

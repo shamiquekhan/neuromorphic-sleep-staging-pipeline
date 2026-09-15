@@ -8,7 +8,9 @@ version = "1.0.0"
 description = "Lightweight neuromorphic-inspired sleep-stage classification from physiological signals"
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.9"
+# Compatibility range; the *benchmark environment* is pinned exactly in
+# requirements-lock.txt (audit P1 #13) — run benchmarks from the lock.
+requires-python = ">=3.11"
 dependencies = [
     "torch>=2.0.0",
     "numpy>=1.24.0",

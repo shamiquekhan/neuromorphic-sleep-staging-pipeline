@@ -11,7 +11,7 @@ The final model (Improved Student, 99,477 parameters) is designed for edge deplo
 | Property | Value |
 |----------|-------|
 | Framework | PyTorch |
-| Checkpoint | `artifacts/student_improved_best.pt` |
+| Checkpoint | `artifacts/final/student_full_finetuned.pt` |
 | Parameters | 99,477 |
 | Model size (FP32) | ~400 KB |
 | CPU latency | 8.5 ms/batch |
@@ -124,7 +124,7 @@ from src.models.improved_student import ImprovedStudent
 
 # Load model
 model = ImprovedStudent(n_classes=5)
-checkpoint = torch.load("artifacts/student_improved_best.pt", weights_only=True)
+checkpoint = torch.load("artifacts/final/student_full_finetuned.pt", weights_only=True)
 if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
     model.load_state_dict(checkpoint["model_state_dict"])
 else:
@@ -213,7 +213,7 @@ pip install onnxruntime
 # Run inference
 python scripts/infer.py \
     --checkpoint artifacts/student_improved_int8.onnx \
-    --input demo/sample_inputs/sample_epoch.npz
+    --input <path/to/subject_cache.npz>
 ```
 
 ### Example: MCU Deployment (TensorFlow Lite Micro)

@@ -18,7 +18,7 @@ def dataset_fingerprint(cache_dir: Path) -> dict:
     Returns:
         Dict with hash, subject count, epoch count, class distribution.
     """
-    subjects = sorted(cache_dir.glob("*_night0.npz"))
+    subjects = sorted(cache_dir.glob("*_night*.npz"))
     total_epochs = 0
     class_counts = {}
 
@@ -30,7 +30,7 @@ def dataset_fingerprint(cache_dir: Path) -> dict:
             class_counts[int(label)] = class_counts.get(int(label), 0) + int((labels == label).sum())
 
     # Hash of all subject IDs
-    subject_names = [p.stem.replace("_night0", "") for p in subjects]
+    subject_names = [p.stem.split("_night")[0] for p in subjects]
     name_hash = hashlib.md5(",".join(subject_names).encode()).hexdigest()[:12]
 
     return {
@@ -54,7 +54,7 @@ def harmonization_report(dataset_a_dir: Path, dataset_b_dir: Path) -> dict:
     report = {}
 
     for name, d in [("dataset_a", dataset_a_dir), ("dataset_b", dataset_b_dir)]:
-        subjects = sorted(d.glob("*_night0.npz"))
+        subjects = sorted(d.glob("*_night*.npz"))
         if not subjects:
             report[name] = {"status": "empty"}
             continue

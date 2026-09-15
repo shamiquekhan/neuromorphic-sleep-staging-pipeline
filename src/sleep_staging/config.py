@@ -14,7 +14,6 @@ SLEEP_EDF_CACHE_DIR = PROJECT_ROOT / "data" / "cache" / "sleep_edf"
 SHHS_CACHE_DIR = PROJECT_ROOT / "data" / "cache" / "shhs"
 RAW_DIR = PROJECT_ROOT / "data" / "raw" / "sleep_edf"
 MANIFEST_PATH = PROJECT_ROOT / "data" / "manifests" / "sleep_edf.csv"
-EXPANDED_MANIFEST_PATH = PROJECT_ROOT / "data" / "manifests" / "sleep_edf_expanded.json"
 
 STAGE_NAMES = {0: "Wake", 1: "N1", 2: "N2", 3: "N3", 4: "REM"}
 STAGE_LIST = ["Wake", "N1", "N2", "N3", "REM"]
@@ -29,19 +28,29 @@ STAGE_COLORS = {
 
 @dataclass(frozen=True)
 class StudentConfig:
-    """Configuration for the Improved Student model."""
+    """Configuration for the Improved Student model.
+
+    Defaults describe the trained architecture exactly (99,477
+    parameters; matches artifacts/final and all fold checkpoints).
+    Changing any of these values changes the architecture and
+    invalidates existing checkpoints — `ImprovedStudent` now builds
+    every layer from this config, so the mismatch between documented
+    and actual widths that existed pre-fix (hardcoded 8/16/272 vs
+    config 10/32/32) can no longer occur silently.
+    """
 
     n_channels: int = 4
     n_classes: int = 5
     sampling_rate: int = 100
     gru_hidden: int = 64
     gru_layers: int = 2
-    stem_width: int = 10
+    stem_width: int = 8
     encoder_channels: tuple = (32, 32)
     gabor_n_filters: int = 8
-    gabor_out_dim: int = 32
+    gabor_out_dim: int = 16
     seq_len: int = 10
     epoch_seconds: int = 30
+    gabor_kernel_size: int = 51
 
     @property
     def samples_per_epoch(self) -> int:

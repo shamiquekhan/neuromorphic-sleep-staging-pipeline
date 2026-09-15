@@ -1,0 +1,482 @@
+======================================================================
+  FULL BENCHMARK — 10-Fold Cross-Validation
+  Folds: data/manifests/person_folds_52subj.json (person-level)
+======================================================================
+  Device: cuda
+  Seed: 43
+  Epochs: 20
+  Batch size: 32
+  Train windows: 10 epochs, stride 5 (subject-safe)
+  Eval protocol: causal, stride 1, last-epoch (unique epochs)
+  Class weights: N1=2.0x, REM=2.0x
+  Output: results/benchmark_person_level
+======================================================================
+
+============================================================
+  FOLD 1 — Seed 43
+  Train: 74 | Val: 8 | Test: 10
+  Test subjects: ['SC4031', 'SC4032', 'SC4321', 'SC4322', 'SC4411', 'SC4412', 'SC4611', 'SC4612', 'SC4651', 'SC4652']
+============================================================
+  Loading 74 train subjects...
+    Train epochs: 185,238
+  Loading 8 val subjects...
+    Val epochs: 8 subjects, 17,797 epochs
+  Loading 10 test subjects...
+    Test epochs: 25,497 across 10 subjects
+    NOTE [test]: 45 epochs excluded — causal context spans a dropped epoch in 3 subjects (unscoreable under contiguous-context protocol)
+  Train windows: 36,793 | Val scored epochs: 17,725 | Test scored epochs: 25,362
+  Model parameters: 99,477
+
+  Training for 20 epochs...
+  Epoch  1/20 (71.7s): loss=0.8080 acc=0.740 | val_acc=0.878 val_F1=0.738 *best*
+  Epoch  2/20 (71.6s): loss=0.5291 acc=0.850 | val_acc=0.899 val_F1=0.765 *best*
+  Epoch  3/20 (70.3s): loss=0.4796 acc=0.863 | val_acc=0.896 val_F1=0.767 *best*
+  Epoch  4/20 (71.0s): loss=0.4581 acc=0.869 | val_acc=0.897 val_F1=0.769 *best*
+  Epoch  5/20 (69.8s): loss=0.4320 acc=0.874 | val_acc=0.876 val_F1=0.723
+  Epoch  6/20 (70.0s): loss=0.4169 acc=0.880 | val_acc=0.887 val_F1=0.753
+  Epoch  7/20 (70.1s): loss=0.4037 acc=0.884 | val_acc=0.894 val_F1=0.766
+  Epoch  8/20 (71.5s): loss=0.3884 acc=0.886 | val_acc=0.898 val_F1=0.771 *best*
+  Epoch  9/20 (79.7s): loss=0.3761 acc=0.890 | val_acc=0.894 val_F1=0.764
+  Epoch 10/20 (136.5s): loss=0.3595 acc=0.893 | val_acc=0.892 val_F1=0.765
+  Epoch 11/20 (129.5s): loss=0.3516 acc=0.895 | val_acc=0.899 val_F1=0.769
+  Epoch 12/20 (102.3s): loss=0.3413 acc=0.897 | val_acc=0.895 val_F1=0.768
+  Epoch 13/20 (70.2s): loss=0.3331 acc=0.899 | val_acc=0.892 val_F1=0.756
+  Early stopping at epoch 13
+
+  TEST RESULTS (Fold 1) — causal unique-epoch protocol:
+    Scored epochs: 25,362 (10 subjects)
+    Accuracy:  0.8678
+    Kappa:     0.7503
+    Macro F1:  0.7115
+    Weighted F1: 0.8798
+    MGm:       0.7686
+    Wake : P=0.997 R=0.957 F1=0.976 (n=17165)
+    N1   : P=0.315 R=0.733 F1=0.441 (n=1119)
+    N2   : P=0.821 R=0.587 F1=0.684 (n=4028)
+    N3   : P=0.527 R=0.865 F1=0.655 (n=940)
+    REM  : P=0.854 R=0.754 F1=0.801 (n=2110)
+
+  Fold 1 completed in 1179.8s
+
+============================================================
+  FOLD 2 — Seed 43
+  Train: 75 | Val: 8 | Test: 9
+  Test subjects: ['SC4061', 'SC4062', 'SC4131', 'SC4221', 'SC4222', 'SC4501', 'SC4502', 'SC4731', 'SC4732']
+============================================================
+  Loading 75 train subjects...
+    Train epochs: 191,953
+  Loading 8 val subjects...
+    Val epochs: 8 subjects, 17,797 epochs
+  Loading 9 test subjects...
+    Test epochs: 18,782 across 9 subjects
+    NOTE [test]: 9 epochs excluded — causal context spans a dropped epoch in 1 subjects (unscoreable under contiguous-context protocol)
+  Train windows: 38,127 | Val scored epochs: 17,725 | Test scored epochs: 18,692
+  Model parameters: 99,477
+
+  Training for 20 epochs...
+  Epoch  1/20 (75.4s): loss=0.8115 acc=0.740 | val_acc=0.876 val_F1=0.733 *best*
+  Epoch  2/20 (72.9s): loss=0.5502 acc=0.847 | val_acc=0.897 val_F1=0.774 *best*
+  Epoch  3/20 (73.1s): loss=0.4945 acc=0.860 | val_acc=0.901 val_F1=0.773
+  Epoch  4/20 (72.6s): loss=0.4697 acc=0.868 | val_acc=0.902 val_F1=0.780 *best*
+  Epoch  5/20 (74.2s): loss=0.4509 acc=0.871 | val_acc=0.895 val_F1=0.761
+  Epoch  6/20 (76.7s): loss=0.4349 acc=0.875 | val_acc=0.902 val_F1=0.776
+  Epoch  7/20 (73.1s): loss=0.4181 acc=0.878 | val_acc=0.900 val_F1=0.778
+  Epoch  8/20 (72.3s): loss=0.4003 acc=0.882 | val_acc=0.900 val_F1=0.776
+  Epoch  9/20 (73.8s): loss=0.3902 acc=0.886 | val_acc=0.886 val_F1=0.757
+  Early stopping at epoch 9
+
+  TEST RESULTS (Fold 2) — causal unique-epoch protocol:
+    Scored epochs: 18,692 (9 subjects)
+    Accuracy:  0.8879
+    Kappa:     0.7745
+    Macro F1:  0.7714
+    Weighted F1: 0.8973
+    MGm:       0.7999
+    Wake : P=0.989 R=0.953 F1=0.971 (n=13104)
+    N1   : P=0.369 R=0.693 F1=0.481 (n=1059)
+    N2   : P=0.878 R=0.675 F1=0.763 (n=2868)
+    N3   : P=0.851 R=0.835 F1=0.843 (n=583)
+    REM  : P=0.731 R=0.879 F1=0.799 (n=1078)
+
+  Fold 2 completed in 798.5s
+
+============================================================
+  FOLD 3 — Seed 43
+  Train: 74 | Val: 8 | Test: 10
+  Test subjects: ['SC4051', 'SC4052', 'SC4071', 'SC4072', 'SC4211', 'SC4212', 'SC4441', 'SC4442', 'SC4631', 'SC4632']
+============================================================
+  Loading 74 train subjects...
+    Train epochs: 185,127
+  Loading 8 val subjects...
+    Val epochs: 8 subjects, 17,797 epochs
+  Loading 10 test subjects...
+    Test epochs: 25,608 across 10 subjects
+    NOTE [test]: 63 epochs excluded — causal context spans a dropped epoch in 2 subjects (unscoreable under contiguous-context protocol)
+  Train windows: 36,776 | Val scored epochs: 17,725 | Test scored epochs: 25,455
+  Model parameters: 99,477
+
+  Training for 20 epochs...
+  Epoch  1/20 (72.5s): loss=0.8153 acc=0.732 | val_acc=0.871 val_F1=0.722 *best*
+  Epoch  2/20 (71.0s): loss=0.5535 acc=0.844 | val_acc=0.888 val_F1=0.752 *best*
+  Epoch  3/20 (72.4s): loss=0.5084 acc=0.856 | val_acc=0.886 val_F1=0.753 *best*
+  Epoch  4/20 (74.1s): loss=0.4786 acc=0.861 | val_acc=0.891 val_F1=0.763 *best*
+  Epoch  5/20 (70.7s): loss=0.4553 acc=0.867 | val_acc=0.886 val_F1=0.749
+  Epoch  6/20 (71.8s): loss=0.4434 acc=0.872 | val_acc=0.887 val_F1=0.759
+  Epoch  7/20 (70.8s): loss=0.4257 acc=0.876 | val_acc=0.899 val_F1=0.774 *best*
+  Epoch  8/20 (69.9s): loss=0.4059 acc=0.881 | val_acc=0.898 val_F1=0.774 *best*
+  Epoch  9/20 (72.8s): loss=0.3966 acc=0.884 | val_acc=0.895 val_F1=0.767
+  Epoch 10/20 (71.5s): loss=0.3817 acc=0.886 | val_acc=0.893 val_F1=0.761
+  Epoch 11/20 (71.9s): loss=0.3678 acc=0.891 | val_acc=0.893 val_F1=0.770
+  Epoch 12/20 (71.1s): loss=0.3622 acc=0.891 | val_acc=0.898 val_F1=0.771
+  Epoch 13/20 (71.3s): loss=0.3509 acc=0.894 | val_acc=0.901 val_F1=0.777 *best*
+  Epoch 14/20 (73.5s): loss=0.3443 acc=0.895 | val_acc=0.896 val_F1=0.769
+  Epoch 15/20 (71.5s): loss=0.3343 acc=0.898 | val_acc=0.900 val_F1=0.775
+  Epoch 16/20 (71.3s): loss=0.3264 acc=0.900 | val_acc=0.900 val_F1=0.776
+  Epoch 17/20 (69.5s): loss=0.3211 acc=0.900 | val_acc=0.896 val_F1=0.772
+  Epoch 18/20 (71.6s): loss=0.3213 acc=0.900 | val_acc=0.900 val_F1=0.776
+  Early stopping at epoch 18
+
+  TEST RESULTS (Fold 3) — causal unique-epoch protocol:
+    Scored epochs: 25,455 (10 subjects)
+    Accuracy:  0.9110
+    Kappa:     0.8185
+    Macro F1:  0.7852
+    Weighted F1: 0.9190
+    MGm:       0.8603
+    Wake : P=0.998 R=0.970 F1=0.984 (n=17913)
+    N1   : P=0.375 R=0.816 F1=0.514 (n=966)
+    N2   : P=0.954 R=0.673 F1=0.789 (n=4322)
+    N3   : P=0.635 R=0.936 F1=0.757 (n=975)
+    REM  : P=0.827 R=0.946 F1=0.882 (n=1279)
+
+  Fold 3 completed in 1407.6s
+
+============================================================
+  FOLD 4 — Seed 43
+  Train: 77 | Val: 8 | Test: 7
+  Test subjects: ['SC4112', 'SC4161', 'SC4201', 'SC4202', 'SC4511', 'SC4512', 'SC4751']
+============================================================
+  Loading 77 train subjects...
+    Train epochs: 193,242
+  Loading 8 val subjects...
+    Val epochs: 8 subjects, 17,797 epochs
+  Loading 7 test subjects...
+    Test epochs: 17,493 across 7 subjects
+    NOTE [test]: 45 epochs excluded — causal context spans a dropped epoch in 2 subjects (unscoreable under contiguous-context protocol)
+  Train windows: 38,390 | Val scored epochs: 17,725 | Test scored epochs: 17,385
+  Model parameters: 99,477
+
+  Training for 20 epochs...
+  Epoch  1/20 (75.9s): loss=0.8202 acc=0.742 | val_acc=0.877 val_F1=0.712 *best*
+  Epoch  2/20 (72.9s): loss=0.5509 acc=0.844 | val_acc=0.888 val_F1=0.746 *best*
+  Epoch  3/20 (73.1s): loss=0.5019 acc=0.856 | val_acc=0.879 val_F1=0.732
+  Epoch  4/20 (73.4s): loss=0.4690 acc=0.864 | val_acc=0.900 val_F1=0.772 *best*
+  Epoch  5/20 (74.7s): loss=0.4469 acc=0.869 | val_acc=0.894 val_F1=0.769
+  Epoch  6/20 (76.7s): loss=0.4289 acc=0.874 | val_acc=0.872 val_F1=0.732
+  Epoch  7/20 (74.9s): loss=0.4171 acc=0.878 | val_acc=0.896 val_F1=0.771
+  Epoch  8/20 (72.9s): loss=0.4000 acc=0.883 | val_acc=0.895 val_F1=0.766
+  Epoch  9/20 (72.8s): loss=0.3872 acc=0.885 | val_acc=0.891 val_F1=0.755
+  Early stopping at epoch 9
+
+  TEST RESULTS (Fold 4) — causal unique-epoch protocol:
+    Scored epochs: 17,385 (7 subjects)
+    Accuracy:  0.8980
+    Kappa:     0.7876
+    Macro F1:  0.7343
+    Weighted F1: 0.9147
+    MGm:       0.8469
+    Wake : P=0.999 R=0.937 F1=0.967 (n=12559)
+    N1   : P=0.304 R=0.745 F1=0.432 (n=628)
+    N2   : P=0.935 R=0.767 F1=0.843 (n=2913)
+    N3   : P=0.395 R=0.922 F1=0.554 (n=283)
+    REM  : P=0.871 R=0.882 F1=0.877 (n=1002)
+
+  Fold 4 completed in 782.9s
+
+============================================================
+  FOLD 5 — Seed 43
+  Train: 75 | Val: 8 | Test: 9
+  Test subjects: ['SC4121', 'SC4122', 'SC4171', 'SC4311', 'SC4312', 'SC4431', 'SC4432', 'SC4741', 'SC4742']
+============================================================
+  Loading 75 train subjects...
+    Train epochs: 186,742
+  Loading 8 val subjects...
+    Val epochs: 8 subjects, 17,797 epochs
+  Loading 9 test subjects...
+    Test epochs: 23,993 across 9 subjects
+    NOTE [test]: 18 epochs excluded — causal context spans a dropped epoch in 2 subjects (unscoreable under contiguous-context protocol)
+  Train windows: 37,087 | Val scored epochs: 17,725 | Test scored epochs: 23,894
+  Model parameters: 99,477
+
+  Training for 20 epochs...
+  Epoch  1/20 (78.2s): loss=0.8354 acc=0.733 | val_acc=0.889 val_F1=0.746 *best*
+  Epoch  2/20 (69.5s): loss=0.5572 acc=0.843 | val_acc=0.879 val_F1=0.739
+  Epoch  3/20 (71.0s): loss=0.4974 acc=0.859 | val_acc=0.879 val_F1=0.741
+  Epoch  4/20 (70.4s): loss=0.4660 acc=0.867 | val_acc=0.893 val_F1=0.774 *best*
+  Epoch  5/20 (70.1s): loss=0.4436 acc=0.872 | val_acc=0.888 val_F1=0.763
+  Epoch  6/20 (70.8s): loss=0.4274 acc=0.877 | val_acc=0.893 val_F1=0.771
+  Epoch  7/20 (72.4s): loss=0.4139 acc=0.879 | val_acc=0.886 val_F1=0.753
+  Epoch  8/20 (70.7s): loss=0.3978 acc=0.882 | val_acc=0.904 val_F1=0.788 *best*
+  Epoch  9/20 (70.3s): loss=0.3866 acc=0.885 | val_acc=0.893 val_F1=0.768
+  Epoch 10/20 (71.3s): loss=0.3725 acc=0.888 | val_acc=0.896 val_F1=0.766
+  Epoch 11/20 (73.2s): loss=0.3664 acc=0.892 | val_acc=0.899 val_F1=0.773
+  Epoch 12/20 (74.4s): loss=0.3480 acc=0.894 | val_acc=0.903 val_F1=0.783
+  Epoch 13/20 (73.8s): loss=0.3426 acc=0.896 | val_acc=0.895 val_F1=0.775
+  Early stopping at epoch 13
+
+  TEST RESULTS (Fold 5) — causal unique-epoch protocol:
+    Scored epochs: 23,894 (9 subjects)
+    Accuracy:  0.8765
+    Kappa:     0.7591
+    Macro F1:  0.7545
+    Weighted F1: 0.8966
+    MGm:       0.8148
+    Wake : P=0.999 R=0.920 F1=0.958 (n=16851)
+    N1   : P=0.254 R=0.771 F1=0.382 (n=889)
+    N2   : P=0.858 R=0.729 F1=0.788 (n=3480)
+    N3   : P=0.791 R=0.842 F1=0.816 (n=932)
+    REM  : P=0.834 R=0.825 F1=0.830 (n=1742)
+
+  Fold 5 completed in 1052.1s
+
+============================================================
+  FOLD 6 — Seed 43
+  Train: 75 | Val: 8 | Test: 9
+  Test subjects: ['SC4021', 'SC4022', 'SC4041', 'SC4042', 'SC4241', 'SC4242', 'SC4701', 'SC4702', 'SC4762']
+============================================================
+  Loading 75 train subjects...
+    Train epochs: 186,444
+  Loading 8 val subjects...
+    Val epochs: 8 subjects, 17,797 epochs
+  Loading 9 test subjects...
+    Test epochs: 24,291 across 9 subjects
+    NOTE [test]: 275 epochs excluded — causal context spans a dropped epoch in 6 subjects (unscoreable under contiguous-context protocol)
+  Train windows: 37,081 | Val scored epochs: 17,725 | Test scored epochs: 23,935
+  Model parameters: 99,477
+
+  Training for 20 epochs...
+  Epoch  1/20 (72.7s): loss=0.8254 acc=0.736 | val_acc=0.878 val_F1=0.719 *best*
+  Epoch  2/20 (70.9s): loss=0.5481 acc=0.845 | val_acc=0.886 val_F1=0.751 *best*
+  Epoch  3/20 (70.4s): loss=0.5000 acc=0.858 | val_acc=0.890 val_F1=0.760 *best*
+  Epoch  4/20 (70.1s): loss=0.4692 acc=0.867 | val_acc=0.896 val_F1=0.768 *best*
+  Epoch  5/20 (71.7s): loss=0.4473 acc=0.870 | val_acc=0.887 val_F1=0.761
+  Epoch  6/20 (71.3s): loss=0.4323 acc=0.874 | val_acc=0.900 val_F1=0.782 *best*
+  Epoch  7/20 (71.7s): loss=0.4186 acc=0.878 | val_acc=0.903 val_F1=0.778
+  Epoch  8/20 (70.3s): loss=0.4021 acc=0.882 | val_acc=0.901 val_F1=0.780
+  Epoch  9/20 (70.7s): loss=0.3965 acc=0.884 | val_acc=0.896 val_F1=0.773
+  Epoch 10/20 (71.9s): loss=0.3818 acc=0.888 | val_acc=0.897 val_F1=0.767
+  Epoch 11/20 (70.9s): loss=0.3685 acc=0.891 | val_acc=0.901 val_F1=0.783 *best*
+  Epoch 12/20 (72.5s): loss=0.3613 acc=0.892 | val_acc=0.892 val_F1=0.765
+  Epoch 13/20 (71.1s): loss=0.3477 acc=0.894 | val_acc=0.904 val_F1=0.780
+  Epoch 14/20 (71.3s): loss=0.3441 acc=0.897 | val_acc=0.895 val_F1=0.770
+  Epoch 15/20 (70.1s): loss=0.3352 acc=0.899 | val_acc=0.895 val_F1=0.767
+  Epoch 16/20 (71.4s): loss=0.3276 acc=0.900 | val_acc=0.891 val_F1=0.763
+  Early stopping at epoch 16
+
+  TEST RESULTS (Fold 6) — causal unique-epoch protocol:
+    Scored epochs: 23,935 (9 subjects)
+    Accuracy:  0.8610
+    Kappa:     0.7429
+    Macro F1:  0.7034
+    Weighted F1: 0.8777
+    MGm:       0.7948
+    Wake : P=0.997 R=0.931 F1=0.963 (n=16070)
+    N1   : P=0.335 R=0.770 F1=0.467 (n=1261)
+    N2   : P=0.894 R=0.674 F1=0.769 (n=4492)
+    N3   : P=0.424 R=0.867 F1=0.570 (n=474)
+    REM  : P=0.742 R=0.757 F1=0.749 (n=1638)
+
+  Fold 6 completed in 1247.8s
+
+============================================================
+  FOLD 7 — Seed 43
+  Train: 75 | Val: 8 | Test: 9
+  Test subjects: ['SC4091', 'SC4092', 'SC4151', 'SC4152', 'SC4231', 'SC4621', 'SC4622', 'SC4661', 'SC4662']
+============================================================
+  Loading 75 train subjects...
+    Train epochs: 187,472
+  Loading 8 val subjects...
+    Val epochs: 8 subjects, 17,797 epochs
+  Loading 9 test subjects...
+    Test epochs: 23,263 across 9 subjects
+    NOTE [test]: 307 epochs excluded — causal context spans a dropped epoch in 5 subjects (unscoreable under contiguous-context protocol)
+  Train windows: 37,293 | Val scored epochs: 17,725 | Test scored epochs: 22,875
+  Model parameters: 99,477
+
+  Training for 20 epochs...
+  Epoch  1/20 (73.0s): loss=0.8204 acc=0.736 | val_acc=0.889 val_F1=0.740 *best*
+  Epoch  2/20 (70.6s): loss=0.5556 acc=0.844 | val_acc=0.891 val_F1=0.761 *best*
+  Epoch  3/20 (70.3s): loss=0.4969 acc=0.860 | val_acc=0.898 val_F1=0.768 *best*
+  Epoch  4/20 (70.9s): loss=0.4681 acc=0.865 | val_acc=0.884 val_F1=0.736
+  Epoch  5/20 (73.3s): loss=0.4428 acc=0.873 | val_acc=0.904 val_F1=0.773 *best*
+  Epoch  6/20 (74.3s): loss=0.4201 acc=0.879 | val_acc=0.881 val_F1=0.746
+  Epoch  7/20 (69.5s): loss=0.4076 acc=0.881 | val_acc=0.888 val_F1=0.755
+  Epoch  8/20 (71.4s): loss=0.3922 acc=0.887 | val_acc=0.885 val_F1=0.750
+  Epoch  9/20 (69.7s): loss=0.3788 acc=0.889 | val_acc=0.895 val_F1=0.768
+  Epoch 10/20 (71.0s): loss=0.3663 acc=0.893 | val_acc=0.896 val_F1=0.769
+  Early stopping at epoch 10
+
+  TEST RESULTS (Fold 7) — causal unique-epoch protocol:
+    Scored epochs: 22,875 (9 subjects)
+    Accuracy:  0.8719
+    Kappa:     0.7728
+    Macro F1:  0.7391
+    Weighted F1: 0.8779
+    MGm:       0.7930
+    Wake : P=0.997 R=0.947 F1=0.971 (n=14750)
+    N1   : P=0.479 R=0.557 F1=0.515 (n=1522)
+    N2   : P=0.877 R=0.686 F1=0.770 (n=4142)
+    N3   : P=0.569 R=0.938 F1=0.708 (n=778)
+    REM  : P=0.605 R=0.925 F1=0.731 (n=1683)
+
+  Fold 7 completed in 830.8s
+
+============================================================
+  FOLD 8 — Seed 43
+  Train: 76 | Val: 8 | Test: 8
+  Test subjects: ['SC4001', 'SC4002', 'SC4101', 'SC4102', 'SC4401', 'SC4402', 'SC4601', 'SC4602']
+============================================================
+  Loading 76 train subjects...
+    Train epochs: 189,632
+  Loading 8 val subjects...
+    Val epochs: 8 subjects, 17,797 epochs
+  Loading 8 test subjects...
+    Test epochs: 21,103 across 8 subjects
+    NOTE [test]: 27 epochs excluded — causal context spans a dropped epoch in 3 subjects (unscoreable under contiguous-context protocol)
+  Train windows: 37,665 | Val scored epochs: 17,725 | Test scored epochs: 21,004
+  Model parameters: 99,477
+
+  Training for 20 epochs...
+  Epoch  1/20 (71.2s): loss=0.8061 acc=0.740 | val_acc=0.841 val_F1=0.679 *best*
+  Epoch  2/20 (71.2s): loss=0.5508 acc=0.844 | val_acc=0.886 val_F1=0.729 *best*
+  Epoch  3/20 (72.7s): loss=0.4921 acc=0.863 | val_acc=0.900 val_F1=0.776 *best*
+  Epoch  4/20 (72.0s): loss=0.4600 acc=0.869 | val_acc=0.903 val_F1=0.781 *best*
+  Epoch  5/20 (71.5s): loss=0.4402 acc=0.874 | val_acc=0.884 val_F1=0.758
+  Epoch  6/20 (72.1s): loss=0.4198 acc=0.878 | val_acc=0.894 val_F1=0.771
+  Epoch  7/20 (71.9s): loss=0.4113 acc=0.882 | val_acc=0.890 val_F1=0.769
+  Epoch  8/20 (71.6s): loss=0.3942 acc=0.885 | val_acc=0.907 val_F1=0.789 *best*
+  Epoch  9/20 (72.8s): loss=0.3827 acc=0.886 | val_acc=0.902 val_F1=0.777
+  Epoch 10/20 (75.9s): loss=0.3711 acc=0.890 | val_acc=0.899 val_F1=0.775
+  Epoch 11/20 (73.7s): loss=0.3606 acc=0.892 | val_acc=0.892 val_F1=0.765
+  Epoch 12/20 (71.3s): loss=0.3479 acc=0.894 | val_acc=0.906 val_F1=0.784
+  Epoch 13/20 (74.3s): loss=0.3386 acc=0.896 | val_acc=0.904 val_F1=0.786
+  Early stopping at epoch 13
+
+  TEST RESULTS (Fold 8) — causal unique-epoch protocol:
+    Scored epochs: 21,004 (8 subjects)
+    Accuracy:  0.8748
+    Kappa:     0.7650
+    Macro F1:  0.7407
+    Weighted F1: 0.8882
+    MGm:       0.7919
+    Wake : P=0.995 R=0.931 F1=0.962 (n=14340)
+    N1   : P=0.281 R=0.646 F1=0.392 (n=807)
+    N2   : P=0.836 R=0.690 F1=0.756 (n=3159)
+    N3   : P=0.683 R=0.898 F1=0.776 (n=1169)
+    REM  : P=0.800 R=0.836 F1=0.818 (n=1529)
+
+  Fold 8 completed in 1052.7s
+
+============================================================
+  FOLD 9 — Seed 43
+  Train: 77 | Val: 8 | Test: 7
+  Test subjects: ['SC4011', 'SC4012', 'SC4191', 'SC4421', 'SC4422', 'SC4641', 'SC4642']
+============================================================
+  Loading 77 train subjects...
+    Train epochs: 193,458
+  Loading 8 val subjects...
+    Val epochs: 8 subjects, 17,797 epochs
+  Loading 7 test subjects...
+    Test epochs: 17,277 across 7 subjects
+  Train windows: 38,425 | Val scored epochs: 17,725 | Test scored epochs: 17,214
+  Model parameters: 99,477
+
+  Training for 20 epochs...
+  Epoch  1/20 (75.0s): loss=0.8163 acc=0.734 | val_acc=0.877 val_F1=0.729 *best*
+  Epoch  2/20 (71.8s): loss=0.5554 acc=0.845 | val_acc=0.890 val_F1=0.753 *best*
+  Epoch  3/20 (73.0s): loss=0.4997 acc=0.858 | val_acc=0.899 val_F1=0.779 *best*
+  Epoch  4/20 (71.6s): loss=0.4757 acc=0.865 | val_acc=0.887 val_F1=0.760
+  Epoch  5/20 (73.7s): loss=0.4541 acc=0.871 | val_acc=0.901 val_F1=0.779 *best*
+  Epoch  6/20 (73.8s): loss=0.4351 acc=0.874 | val_acc=0.883 val_F1=0.750
+  Epoch  7/20 (72.5s): loss=0.4209 acc=0.878 | val_acc=0.898 val_F1=0.777
+  Epoch  8/20 (75.1s): loss=0.4104 acc=0.880 | val_acc=0.896 val_F1=0.770
+  Epoch  9/20 (77.9s): loss=0.3957 acc=0.883 | val_acc=0.894 val_F1=0.770
+  Epoch 10/20 (74.6s): loss=0.3849 acc=0.887 | val_acc=0.892 val_F1=0.765
+  Early stopping at epoch 10
+
+  TEST RESULTS (Fold 9) — causal unique-epoch protocol:
+    Scored epochs: 17,214 (7 subjects)
+    Accuracy:  0.9199
+    Kappa:     0.8415
+    Macro F1:  0.8094
+    Weighted F1: 0.9272
+    MGm:       0.8633
+    Wake : P=1.000 R=0.953 F1=0.976 (n=11943)
+    N1   : P=0.428 R=0.759 F1=0.548 (n=694)
+    N2   : P=0.932 R=0.828 F1=0.877 (n=3023)
+    N3   : P=0.838 R=0.816 F1=0.827 (n=598)
+    REM  : P=0.704 R=0.981 F1=0.820 (n=956)
+
+  Fold 9 completed in 852.1s
+
+============================================================
+  FOLD 10 — Seed 43
+  Train: 78 | Val: 8 | Test: 6
+  Test subjects: ['SC4141', 'SC4251', 'SC4252', 'SC4522', 'SC4711', 'SC4712']
+============================================================
+  Loading 78 train subjects...
+    Train epochs: 197,307
+  Loading 8 val subjects...
+    Val epochs: 8 subjects, 17,797 epochs
+  Loading 6 test subjects...
+    Test epochs: 13,428 across 6 subjects
+    NOTE [test]: 9 epochs excluded — causal context spans a dropped epoch in 1 subjects (unscoreable under contiguous-context protocol)
+  Train windows: 39,193 | Val scored epochs: 17,725 | Test scored epochs: 13,365
+  Model parameters: 99,477
+
+  Training for 20 epochs...
+  Epoch  1/20 (75.2s): loss=0.7959 acc=0.753 | val_acc=0.874 val_F1=0.705 *best*
+  Epoch  2/20 (74.0s): loss=0.5338 acc=0.855 | val_acc=0.887 val_F1=0.745 *best*
+  Epoch  3/20 (75.3s): loss=0.4874 acc=0.867 | val_acc=0.875 val_F1=0.730
+  Epoch  4/20 (75.4s): loss=0.4578 acc=0.871 | val_acc=0.893 val_F1=0.761 *best*
+  Epoch  5/20 (75.7s): loss=0.4399 acc=0.876 | val_acc=0.900 val_F1=0.776 *best*
+  Epoch  6/20 (76.8s): loss=0.4221 acc=0.880 | val_acc=0.894 val_F1=0.767
+  Epoch  7/20 (75.3s): loss=0.4082 acc=0.882 | val_acc=0.900 val_F1=0.776
+  Epoch  8/20 (75.6s): loss=0.3914 acc=0.886 | val_acc=0.894 val_F1=0.758
+  Epoch  9/20 (75.8s): loss=0.3793 acc=0.888 | val_acc=0.896 val_F1=0.775
+  Epoch 10/20 (79.6s): loss=0.3645 acc=0.893 | val_acc=0.901 val_F1=0.773
+  Early stopping at epoch 10
+
+  TEST RESULTS (Fold 10) — causal unique-epoch protocol:
+    Scored epochs: 13,365 (6 subjects)
+    Accuracy:  0.7730
+    Kappa:     0.4134
+    Macro F1:  0.5101
+    Weighted F1: 0.7376
+    MGm:       0.4031
+    Wake : P=0.829 R=0.979 F1=0.898 (n=9543)
+    N1   : P=0.200 R=0.412 F1=0.269 (n=621)
+    N2   : P=0.929 R=0.161 F1=0.275 (n=2190)
+    N3   : P=0.840 R=0.516 F1=0.640 (n=275)
+    REM  : P=0.903 R=0.317 F1=0.469 (n=736)
+
+  Fold 10 completed in 878.0s
+
+======================================================================
+  FINAL RESULTS — Seed 43
+======================================================================
+  Folds completed: 10/10
+  Accuracy:     0.8742 ± 0.0383
+  Kappa:        0.7426 ± 0.1135
+  Macro F1:     0.7260 ± 0.0782
+  Weighted F1:  0.8816 ± 0.0509
+  MGm:          0.7737 ± 0.1272
+
+  Per-class F1 (unique-epoch protocol):
+    Wake : 0.9625 ± 0.0228
+    N1   : 0.4440 ± 0.0773
+    N2   : 0.7313 ± 0.1598
+    N3   : 0.7144 ± 0.1006
+    REM  : 0.7775 ± 0.1123
+
+  Results saved to results/benchmark_person_level/summary_seed43.json

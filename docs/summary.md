@@ -2,7 +2,7 @@
 
 ## One-Line Summary
 
-A compact deep-learning system that classifies 30-second sleep epochs into five AASM stages (Wake, N1, N2, N3, REM) from EEG, EOG, and EMG signals, using only 99,477 parameters for edge deployment.
+A compact deep-learning system that classifies 30-second sleep epochs into five AASM stages (Wake, N1, N2, N3, REM) from EEG, EOG, and EMG signals, using only 99,477 parameters for edge deployment — trained end-to-end by the five-notebook pipeline in this repository.
 
 ---
 
@@ -12,20 +12,19 @@ A compact deep-learning system that classifies 30-second sleep epochs into five 
 |----------|-------|
 | **Title** | Neuromorphic Sleep Stage Scoring |
 | **Venue** | VIT Bhopal University |
-| **Final Model** | Improved Student |
+| **Final Model** | Improved Student (distilled from Improved Teacher) |
 | **Parameters** | 99,477 |
-| **Test Accuracy** | **87.5% ± 3.2%** |
-| **Cohen's Kappa** | **0.763 ± 0.043** |
-| **Macro F1** | **0.721 ± 0.050** |
-| **CPU Latency** | 8.5 ms/batch |
-| **Dataset** | Sleep-EDF Expanded (15 subjects) |
-| **Checkpoint** | `artifacts/student_improved_best.pt` |
+| **Primary Benchmark** (person-level CV, 3 seeds × 10 folds) | **87.30% ± 0.33% acc · κ 0.738 · macro-F1 0.724** |
+| **Notebook Pipeline** (15 held-out test subjects) | **88.64% acc · κ 0.773 · macro-F1 0.719** |
+| **CPU Latency** | ~8.9 ms/batch |
+| **Dataset** | Sleep-EDF Expanded (92 records / 52 persons) |
+| **Checkpoint** | `artifacts/final/student_full_finetuned.pt` |
 
 ---
 
 ## Problem Statement
 
-Sleep staging is clinically important but requires expert analysis of multi-channel polysomnography (PSG) recordings. Manual scoring takes 2–4 hours per study and requires specialized training. This project develops an automated system to classify five sleep stages from physiological signals.
+Sleep staging is clinically important but requires expert analysis of multi-channel polysomnography (PSG) recordings. Manual scoring takes 2–4 hours per study and requires specialized training. This project develops an automated system to classify five sleep stages from physiological signals under a strict sub-100K parameter budget for edge/wearable deployment.
 
 ---
 
@@ -36,104 +35,107 @@ Raw PSG Signals (EEG + EOG + EMG)
         │
         ▼
 ┌─────────────────────────────────┐
-│ Signal Preprocessing            │
-│ • 0.5–35 Hz bandpass            │
-│ • 50 Hz notch                   │
-│ • Z-score normalization         │
-│ • Artifact QC                   │
-└─────────────┬───────────────────┘
-              │
-              ▼
+│ Notebook 01 — Manifest & Split   │
+│ 100 PSG/hypnogram pairs,         │
+│ subject-level 70/15/15 split     │
+└─────────────────────────────────┘
+        │
+        ▼
 ┌─────────────────────────────────┐
-│ Model Architecture              │
-│ • Multi-Resolution Stem         │
-│ • Depthwise-Separable CNN       │
-│ • Parametric Gabor FEB          │
-│ • 2-Layer GRU (300s context)    │
-└─────────────┬───────────────────┘
-              │
-              ▼
+│ Notebook 02 — Preprocessing      │
+│ 0.5–35 Hz bandpass, 50 Hz notch, │
+│ 30-s epochs, z-score, QC flags   │
+└─────────────────────────────────┘
+        │
+        ▼
 ┌─────────────────────────────────┐
-│ 5-Class Sleep Stage Prediction  │
-│ Wake, N1, N2, N3, REM          │
+│ Notebook 03 — EDA               │
+│ class balance, spectra,         │
+│ transition structure            │
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│ Notebook 04 — Training          │
+│ focal-loss Teacher → distilled  │
+│ Student (per-epoch logs)        │
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│ Notebook 05 — Evaluation        │
+│ 15 held-out subjects, metrics,  │
+│ confusion matrix, latency       │
 └─────────────────────────────────┘
 ```
 
 ---
 
-## Key Components
+## Key Results
 
-### 1. Signal Preprocessing
-- Bandpass filtering (0.5–35 Hz) removes noise
-- Notch filtering (50 Hz) eliminates power-line interference
-- Z-score normalization standardizes signals
-- Artifact QC flags ~2% of epochs
+| Benchmark | Accuracy | Cohen's κ | Macro F1 | Evidence |
+|-----------|---------:|----------:|---------:|----------|
+| **Person-level primary** (10-fold CV over 52 persons, seeds 42/43/44) | 87.30% ± 0.33% | 0.738 ± 0.010 | 0.724 ± 0.005 | `results/benchmark_person_level/` |
+| **Notebook pipeline** (single split, 15 test subjects) | 88.64% | 0.773 | 0.719 | `notebooks/05_evaluation_and_benchmarking.ipynb` |
 
-### 2. Multi-Resolution Stem
-- Parallel short (250ms) and long (1s) receptive fields
-- Captures patterns at different temporal scales
-- Combines local waveform morphology with slow oscillations
-
-### 3. Depthwise-Separable Convolution
-- Reduces parameters by ~77% vs standard convolution
-- Maintains feature extraction capability
-- Enables edge deployment
-
-### 4. Parametric Gabor Feature Extraction
-- 8 learnable Gabor filters (0.5–30 Hz)
-- Captures frequency-localized patterns
-- Compact parameterization (16 learnable params)
-
-### 5. GRU Temporal Modeling
-- 2-layer GRU with 64 hidden units
-- Models dependencies across 10 consecutive epochs
-- Provides 300 seconds of temporal context
+Per-class F1 (notebook pipeline): Wake 0.970 · N2 0.791 · REM 0.707 · N3 0.685 · N1 0.440.
 
 ---
 
-## Official Result
+## Architecture
 
 ```
-┌─────────────────────────────────────────┐
-│     NEUROMORPHIC SLEEP STAGE SCORING    │
-├─────────────────────────────────────────┤
-│                                         │
-│     87.34%                              │
-│     TEST ACCURACY                       │
-│                                         │
-│     0.7551                              │
-│     COHEN'S κ                           │
-│                                         │
-│     99,477                              │
-│     PARAMETERS                          │
-│                                         │
-│     8.5 ms/batch                        │
-│     CPU LATENCY                         │
-│                                         │
-└─────────────────────────────────────────┘
+PSG Input (4 channels × 10 epochs × 3000 samples)
+        ↓
+Multi-Resolution Stem (kernel 25 / kernel 200)
+        ↓
+Depthwise-Separable CNN (2 blocks)
+        ↓
+Parametric Gabor Features (8 learnable filters)
+        ↓
+Feature Fusion
+        ↓
+2-Layer GRU (hidden 64 — 89,856 of 99,477 params)
+        ↓
+5-class head → Wake / N1 / N2 / N3 / REM
 ```
-
-### Per-Class F1 Scores
-
-| Stage | F1 | Notes |
-|-------|-----|-------|
-| Wake | 0.97 | Excellent |
-| N1 | 0.20 | Challenging |
-| N2 | 0.82 | Good |
-| N3 | 0.78 | Good |
-| REM | 0.36 | Moderate |
 
 ---
 
-## LoRA Adaptation
+## Repository Structure
 
-**LoRA r=8 achieved 90.66% ± 3.59% held-out-subject test accuracy and κ = 0.8092 ± 0.0663 across four folds, with only 552 trainable parameters (0.55% of the 99,477-parameter base model). Validation accuracy used for checkpoint selection peaked at 87.27% (κ = 0.7175).**
+```
+notebooks/          THE pipeline (01→06), outputs embedded
+src/sleep_staging/  Installable package (models, LoRA, data, evaluation, inference)
+scripts/            CLI entry points (benchmark, folds, summarize, verify)
+app/                Streamlit dashboard
+tests/              92 passing tests
+docs/               results.md is the numbers source of truth
+artifacts/          Final checkpoints (student + teacher)
+results/            Primary benchmark evidence + notebook result
+configs/            benchmark_person_level.yaml (primary)
+data/               Manifests (tracked) + cache/raw (local only)
+deployment/         Docker deployment
+huggingface/        Hub model card + demo space assets
+```
 
-| Method | Trainable | κ | Macro F1 |
-|---|---:|---:|---:|
-| Frozen Base | 0 | 0.5001 ± 0.1329 | 0.4106 ± 0.0775 |
-| Full Fine-Tuning | 99,477 | 0.8595 ± 0.0092 | 0.7379 ± 0.0390 |
-| **LoRA r=8** | **552** | **0.8092 ± 0.0663** | **0.6464 ± 0.0603** |
+---
+
+## Quick Commands
+
+```bash
+pip install -r requirements.txt && pip install -e .
+
+# Run the full pipeline (notebooks 01→05)
+jupyter nbconvert --to notebook --execute notebooks/01_data_import_and_dataset_collection.ipynb --inplace
+# ...continue through 05
+
+# Dashboard
+streamlit run app/streamlit_app.py
+
+# Tests
+python -m pytest tests/ -v
+```
 
 ---
 
@@ -146,96 +148,3 @@ Raw PSG Signals (EEG + EOG + EMG)
 | Shailendra Bhatt | Exploratory Data Analysis |
 | Shamique Khan | Model Development & Training |
 | Aasir Jaffer Lone | Evaluation & Performance |
-
----
-
-## Repository Structure
-
-```
-sleep/
-├── configs/           YAML configuration files
-├── src/               Modular Python package
-│   ├── data/          Dataset loading
-│   ├── preprocessing/ Signal filtering
-│   ├── models/        ImprovedStudent architecture
-│   ├── training/      Loss functions & trainer
-│   ├── evaluation/    Metrics & visualization
-│   └── inference/     Prediction utilities
-├── scripts/           CLI entry points
-├── notebooks/         5 exhibition notebooks
-├── demo/              Streamlit dashboard
-├── tests/             Pytest test suite
-├── artifacts/         Final trained checkpoint
-├── results/           Official evaluation results
-└── docs/              Project documentation
-```
-
----
-
-## Quick Start
-
-```bash
-# Activate environment
-conda activate sleep
-
-# Run tests
-python -m pytest tests/ -v
-
-# Run demo
-streamlit run demo/demo.py
-
-# Run inference
-python scripts/infer.py --checkpoint artifacts/student_improved_best.pt --input demo/sample_inputs/sample_epoch.npz
-```
-
----
-
-## Key Innovations
-
-1. **Sub-100K parameters:** Achieves 87.34% accuracy with only 99,477 parameters
-2. **Multi-resolution feature capture:** Parallel stems capture patterns at different timescales
-3. **Learnable frequency filters:** Parametric Gabor filters adapt to sleep-specific frequencies
-4. **Efficient architecture:** Depthwise-separable convolutions enable edge deployment
-5. **Temporal context:** 300-second GRU context models sleep-stage transitions
-
----
-
-## Deployment Readiness
-
-| Property | Value |
-|----------|-------|
-| Model size (FP32) | ~400 KB |
-| Input size | 120 KB per epoch |
-| CPU latency | 8.5 ms/batch |
-| Real-time capable | Yes |
-| Edge deployment | Yes (ARM Cortex-M7+) |
-
----
-
-## Exhibition Story
-
-1. **Problem:** Sleep staging requires expert analysis
-2. **Solution:** Automated classification using deep learning
-3. **Innovation:** Compact architecture with multi-resolution features
-4. **Result:** 87.34% accuracy with 99,477 parameters
-5. **Impact:** Edge-deployable for clinical assistance
-
----
-
-## Documentation
-
-| Document | Purpose |
-|----------|---------|
-| `docs/architecture.md` | Detailed model design |
-| `docs/dataset.md` | Data source and preprocessing |
-| `docs/deployment.md` | Edge deployment guide |
-| `docs/exhibition.md` | Demo script and poster layout |
-| `docs/methodology.md` | Research approach |
-| `docs/results.md` | Official metrics |
-| `docs/team.md` | Team roles |
-| `docs/index.md` | Documentation index |
-
----
-
-*Last updated: August 2026*
-*Project: Neuromorphic Sleep Stage Scoring — VIT Bhopal University*

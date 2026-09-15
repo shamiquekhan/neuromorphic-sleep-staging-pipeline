@@ -26,9 +26,9 @@ sys.path.insert(0, str(REPO / "src"))
 import torch
 
 # ── Paths ──────────────────────────────────────────────────────────────
-FOLDS_PATH = REPO / "data" / "manifests" / "canonical_subject_folds_92subj.json"
+FOLDS_PATH = REPO / "data" / "manifests" / "person_folds_52subj.json"
 CHECKPOINT_PATH = REPO / "artifacts" / "final" / "student_full_finetuned.pt"
-CONFIG_PATH = REPO / "configs" / "full_100_subject.yaml"
+CONFIG_PATH = REPO / "configs" / "benchmark_92_subject.yaml"
 REFERENCE_PATH = REPO / "results" / "audit" / "protocol_fingerprint_seed42.json"
 
 

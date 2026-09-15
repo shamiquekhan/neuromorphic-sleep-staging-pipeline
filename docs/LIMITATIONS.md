@@ -2,11 +2,34 @@
 
 This document provides a transparent, evidence-based assessment of every sleep stage classification performance across all model configurations.
 
+> **EVIDENCE STATUS (September 2026 audit) — read before citing anything below.**
+>
+> This document accumulates analyses from **four eras** of the
+> project. Numbers below are historical and must be interpreted per era:
+>
+> | Era | Cohort | Where it appears below | Status |
+> |-----|--------|------------------------|--------|
+> | 4-record baseline | 4 records | §3 per-stage tables marked "Baseline", §5 confusion matrix | Historical |
+> | 15-record development (EXP-DEV-15SUBJ) | 15 records | §6.4, §10, §11 | Archived — small cohort; 93.0% is dev-only |
+> | 92-record adaptation study (EXP-ADAPT-*) | record-level folds | §1, §4 tables | **Quarantined** — contaminated base checkpoint (12 test / 3 validation overlaps, ~+2.5pp) |
+> | 92-record from-scratch (EXP-BENCH-92SUBJ) | record-level folds | per-class F1 quoted as "primary" in earlier revisions | **Superseded** — record-level estimate (see below) |
+>
+> **P0 (records ≠ persons):** `SC4ss1`/`SC4ss2` are two nights of the
+> same person (PhysioNet sleep-edfx README; SC-subjects.xls). The
+> 92-record cohort is **52 persons**, and the legacy record-level folds
+> leak at person level in 10/10 folds (a test record's same-person mate
+> sits in train). The 87.66% ± 2.22% record-level number is therefore
+> an optimistic, record-level estimate. The person-level primary
+> benchmark (EXP-BENCH-PERSON, `person_folds_52subj.json`) is in
+> progress; its fold-1 result (82.4% vs 86.4% record-level on the same
+> test records) already quantifies the inflation at ~4pp for that fold.
+> See [`results.md`](results.md).
+
 ---
 
 ## 1. Executive Summary
 
-The NeuroSleep Improved Student model (99,477 parameters) achieves strong overall accuracy (87.7%) with balanced performance across all five sleep stages on the 100-subject benchmark. Full fine-tuning provides the best stage-balanced performance, while frozen transfer already achieves 99.3% of full FT accuracy.
+The NeuroSleep Improved Student model (99,477 parameters) achieves strong overall accuracy on the 92-record cohort (record-level estimate — see the evidence-status header). The adaptation-era comparison below (full fine-tuning best, frozen transfer high) is **quarantined evidence**.
 
 | Stage | Frozen F1 | LoRA CNN+Head F1 | Full FT F1 | Status |
 |-------|-----------|------------------|------------|--------|
@@ -16,7 +39,7 @@ The NeuroSleep Improved Student model (99,477 parameters) achieves strong overal
 | N3    | 0.629 ± 0.114 | 0.668 ± 0.110 | **0.681 ± 0.114** | Moderate |
 | REM   | 0.672 ± 0.157 | 0.675 ± 0.117 | **0.771 ± 0.078** | Strong |
 
-**100-subject benchmark (3 seeds × 10 folds = 30 folds):**
+**Adaptation-study aggregate (QUARANTINED — contaminated base checkpoint; internal comparison only):**
 - Full FT: Accuracy = 87.7% ± 2.7%, κ = 0.763 ± 0.043, Macro F1 = 0.730 ± 0.037
 - Frozen: Accuracy = 87.1% ± 3.6%, κ = 0.738 ± 0.077, Macro F1 = 0.673 ± 0.074
 - LoRA CNN+Head: Accuracy = 83.6% ± 3.7%, κ = 0.693 ± 0.057, Macro F1 = 0.674 ± 0.045
@@ -35,8 +58,8 @@ The NeuroSleep Improved Student model (99,477 parameters) achieves strong overal
 
 - **Total downloaded:** 100 Sleep-EDF Expanded subjects
 - **Excluded:** 8 wake-only subjects (SC4082, SC4111, SC4142, SC4162, SC4172, SC4192, SC4232, SC4301)
-- **Final evaluation cohort:** 92 subjects
-- **Fold assignment:** 10-fold subject-level CV (canonical_subject_folds_92subj.json)
+- **Final evaluation cohort:** 92 records — 52 persons
+- **Fold assignment:** 10-fold subject-level CV (person_folds_52subj.json, person-level)
 
 ### 2.2 Class Distribution (Full Cohort)
 
@@ -436,7 +459,7 @@ Total N1 epochs: 1,388 (vs 318 original) — 4.4x increase
 
 4. **Accuracy slightly lower but more robust:** 87.5% ± 3.2% vs 91.0% ± 0.0%. The higher variance reflects more diverse test subjects, which is realistic.
 
-5. **All stages above 0.72 F1:** No stage is critically weak. The model achieves clinically useful performance across all sleep stages.
+5. **All stages above 0.72 F1:** No stage is critically weak. The model achieves research-grade benchmark performance across all sleep stages. (Historical note: an earlier draft said "clinically useful"; that claim was removed — no clinical validation has been performed.)
 
 ### 11.5 Remaining Limitations
 
@@ -451,7 +474,7 @@ Total N1 epochs: 1,388 (vs 318 original) — 4.4x increase
 ### For Exhibition
 Present the expanded results honestly:
 
-> "The model achieves 87.5% overall accuracy (κ=0.763) across 15 subjects from Sleep-EDF Expanded, with strong performance on all stages: Wake (F1=0.96), N1 (F1=0.72), N2 (F1=0.85), N3 (F1=0.96), and REM (F1=0.92). Through all-position supervision, minority-class weighting, and expanded subject diversity, we improved N1 from 0% to 72% F1 and REM from 0% to 92% F1. These results demonstrate that subject diversity is the primary bottleneck for minority-class sleep staging, and that targeted training strategies combined with adequate data can achieve clinically useful performance across all sleep stages."
+> "The model achieves 87.5% overall accuracy (κ=0.763) across 15 subjects from Sleep-EDF Expanded, with strong performance on all stages: Wake (F1=0.96), N1 (F1=0.72), N2 (F1=0.85), N3 (F1=0.96), and REM (F1=0.92). Through all-position supervision, minority-class weighting, and expanded subject diversity, we improved N1 from 0% to 72% F1 and REM from 0% to 92% F1. These results demonstrate that subject diversity is the primary bottleneck for minority-class sleep staging, and that targeted training strategies combined with adequate data achieve research-grade benchmark performance across all sleep stages." (Historical result — 15-record development cohort; do not cite as final. The current primary benchmark is in `docs/results.md`.)
 
 ### For Future Work
 1. **Expand to full cohort** (183 subjects) for final benchmark.
@@ -468,14 +491,11 @@ Present the expanded results honestly:
 |------|-------------|
 | `results/final/final_metrics.json` | 15-subject 4-fold CV results (current best) |
 | `results/n1_diagnosis/N1_DIAGNOSIS_REPORT.md` | Detailed N1 pipeline audit |
-| `results/n1_fix/*.json` | N1 weighting experiment results |
-| `results/full_model/*.json` | Full model training results (all-position supervision) |
-| `results/full_model/final_results.json` | Multi-seed aggregate results |
-| `results/expanded_5subjects/results.json` | 5-subject experiment results |
+| `results/benchmark_person_level/` | Person-level primary benchmark evidence (seeds 42/43/44) |
+| `results/final/notebook_pipeline_result.csv` | Notebook-pipeline single-split result |
 | `artifacts/final/student_full_finetuned.pt` | Best trained checkpoint (full fine-tuning) |
-| `artifacts/expanded_5subjects/model.pt` | 5-subject model checkpoint |
-| `scripts/train_full_model.py` | Training script (all-position supervision + class weights) |
-| `scripts/train_n1_fix.py` | Training script with weighted CE, focal loss |
+| `artifacts/final/student_full_finetuned.pt` | Final deployable student checkpoint |
+| `notebooks/04_model_architecture_and_training.ipynb` | Canonical training (teacher + distilled student, per-epoch logs) |
 | `scripts/download_sleep_edf_expanded.py` | PhysioNet download script |
 | `scripts/preprocess_sleep_edf_expanded.py` | MNE preprocessing pipeline |
 | `results/lora_cv_results.json` | LoRA cross-validation results |

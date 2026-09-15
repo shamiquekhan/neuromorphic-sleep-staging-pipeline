@@ -2,6 +2,8 @@
 
 import torch
 
+from .runlog import tee_run_log
+
 
 def get_device() -> torch.device:
     """Get the best available device (CUDA if available, else CPU)."""

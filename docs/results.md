@@ -1,190 +1,213 @@
-# Final Results — NeuroSleep
+# Results — NeuroSleep
 
-> **This is the single authoritative result document for the project.** All other result tables in the repository are historical.
-
----
-
-## Executive Summary
-
-| Property | Value |
-|----------|-------|
-| Model | Improved Student — Full Fine-Tuning |
-| Parameters | 99,477 |
-| Dataset | Sleep-EDF Expanded (92 subjects) |
-| **Accuracy** | **87.7% ± 2.7%** |
-| **Cohen's Kappa** | **0.763 ± 0.043** |
-| **Macro F1** | **0.730 ± 0.037** |
-| **Weighted F1** | **89.0% ± 2.1%** |
-| **MGm** | **0.797 ± 0.040** |
-| Evaluation | 10-fold subject-level CV, 3 seeds (42, 43, 44) |
+> **Single authoritative results document.** All numbers below are
+> regenerated from raw fold evidence by `scripts/summarize_benchmark.py`.
+> Never hand-edit a number; re-run the summarizer instead.
 
 ---
 
-## Per-Class Performance (Full Fine-Tuning, 30 Folds)
+## Evidence Status (read this first)
 
-| Stage | F1 | Precision | Recall |
-|-------|-----|-----------|--------|
-| Wake | 0.964 ± 0.016 | 0.995 ± 0.003 | 0.936 ± 0.031 |
-| **N1** | **0.445 ± 0.061** | 0.330 ± 0.065 | 0.712 ± 0.070 |
-| N2 | 0.768 ± 0.041 | 0.878 ± 0.043 | 0.687 ± 0.063 |
-| N3 | 0.681 ± 0.114 | 0.562 ± 0.135 | 0.896 ± 0.075 |
-| REM | 0.771 ± 0.078 | 0.772 ± 0.077 | 0.785 ± 0.118 |
+The repository contains four tiers of evidence. Only the first is citable
+as a generalization result.
 
-### N1 Analysis
+> **P0 finding (Sept 2026):** `SC4ss1`/`SC4ss2` record pairs are **two
+> nights of the same person** (PhysioNet sleep-edfx README: "ss is the
+> subject number, and N is the night"; confirmed by SC-subjects.xls and
+> EDF headers). The "92-subject" cohort is **92 records from 52
+> persons**. The legacy record-level folds put a test record's
+> same-person mate in the train set in **10/10 folds** — every number
+> produced on them is a *record-level* estimate, not person
+> generalization. The primary benchmark (EXP-BENCH-PERSON) uses
+> person-level folds (`person_folds_52subj.json`); the runner refuses
+> leaky folds by default.
 
-N1 is the hardest stage with F1=0.445. This is expected because:
-- N1 epochs are brief (1-7 minutes) and transitional
-- N1 is often confused with N2 and Wake
-- N1 is only ~4.6% of the dataset
+> **Protocol fix (Sept 2026, applied):** the legacy evaluation
+> protocol (stride-5 windows over subject-concatenated arrays,
+> all-position supervision) double-counted epochs, allowed
+> subject-seam windows, and spliced contexts across dropped-epoch gaps.
+> The canonical protocol is now **causal, one prediction per unique
+> epoch**, subject-safe and gap-safe, enforced by
+> `tests/test_sequence_dataset.py` and documented in
+> `docs/evaluation_protocol.md`. All pre-fix results are quarantined
+> (evidence removed in the Sept 2026 cleanup). The primary benchmark
+> below was **re-run under the fixed protocol**.
 
-### Model Strengths
+| Tier | Experiment | Status | Evidence |
+|------|-----------|--------|----------|
+| **Primary** | EXP-BENCH-PERSON — from-scratch, person-level 10-fold CV over 52 persons, fixed (causal unique-epoch) protocol | **Complete (seeds 42/43/44, 30 folds)** | `results/benchmark_person_level/` |
+| Superseded | EXP-BENCH-92SUBJ — from-scratch, record-level folds (person-leaky), legacy protocol | 87.66% ± 2.22% is a **record-level** estimate only | recorded here (evidence removed in the Sept 2026 cleanup) |
+| Quarantined | EXP-ADAPT-* — Frozen / LoRA / Full-FT from the 15-record-era base checkpoint | **Contaminated** — base checkpoint's training records overlap 12 eval test folds and 3 validation folds; frozen baseline inflated ~+2.5pp | `docs/adaptation.md` (evidence removed in the Sept 2026 cleanup) |
+| Archived | EXP-DEV-15SUBJ — 15-record development benchmark (93.0%) | Historical only; small cohort; do not cite as final | `docs/archive/development_15_subject.md`, `results/final/` |
 
-- **High Wake F1** (0.964) — Wake classification is excellent
-- **Strong N2 detection** (F1=0.768) — light sleep well-distinguished
-- **Balanced performance** — Macro F1 (0.730) indicates good stage balance
-
----
-
-## Adaptation Method Comparison (30 Folds)
-
-| Model | Trainable Params | Accuracy | κ | Macro F1 | Weighted F1 | MGm |
-|-------|----------------:|---------:|----:|---------:|------------:|----:|
-| Frozen Base | 0 (0%) | 87.1% ± 3.6% | 0.738 ± 0.077 | 0.673 ± 0.074 | 87.1% ± 4.2% | 0.668 ± 0.102 |
-| LoRA CNN+Head (r=8) | 1,448 (1.43%) | 83.6% ± 3.7% | 0.693 ± 0.057 | 0.674 ± 0.045 | 85.5% ± 3.3% | 0.744 ± 0.062 |
-| **Full Fine-Tuning** | **99,477 (100%)** | **87.7% ± 2.7%** | **0.763 ± 0.043** | **0.730 ± 0.037** | **89.0% ± 2.1%** | **0.797 ± 0.040** |
-
-### Per-Stage F1 Comparison
-
-| Stage | Frozen | LoRA CNN+Head | Full FT |
-|-------|-------:|--------------:|--------:|
-| Wake | 0.964 ± 0.020 | 0.945 ± 0.024 | 0.964 ± 0.016 |
-| N1 | 0.345 ± 0.082 | 0.357 ± 0.041 | **0.445 ± 0.061** |
-| N2 | 0.753 ± 0.055 | 0.721 ± 0.044 | **0.768 ± 0.041** |
-| N3 | 0.629 ± 0.114 | 0.668 ± 0.110 | **0.681 ± 0.114** |
-| REM | 0.672 ± 0.157 | 0.675 ± 0.117 | **0.771 ± 0.078** |
-
-### Parameter Efficiency
-
-- LoRA CNN+Head uses **68.7× fewer trainable parameters** (1,448 vs 99,477)
-- LoRA CNN+Head retains **95.4% of full FT accuracy** (83.6% / 87.7%)
-- LoRA CNN+Head retains **90.9% of full FT κ** (0.693 / 0.763)
-- Frozen base already transfers well at **99.3% of full FT accuracy**
-
-### Key Findings
-
-1. **Full fine-tuning achieves the strongest overall and stage-balanced performance**
-2. **Frozen base transfers surprisingly well** — only 0.6% accuracy drop vs full FT
-3. **LoRA provides parameter-efficient adaptation** but does not match full FT
-4. **Full FT improves every stage** over frozen base, especially N1 (+0.10 F1) and REM (+0.10 F1)
+**Canonical cohort phrasing:** *"92-record eligible cohort (52 persons)
+from 100 downloaded Sleep-EDF Expanded records (8 wake-only excluded)."*
+Never write "92-subject evaluation" — the evaluation cohort is 52
+persons / 92 records.
 
 ---
 
-## Model Architecture
+## Primary Benchmark — EXP-BENCH-PERSON (from-scratch, seeds 42/43/44, fixed protocol, complete)
 
-```
-PSG Input (EEG + EOG + EMG, 4 channels)
-      ↓
-Multi-Resolution Stem
-      ↓
-Depthwise-Separable CNN
-      ↓
-Parametric Gabor FEB
-      ↓
-2-Layer GRU (300s context)
-      ↓
-5-Class Softmax
-```
+> **This is the current authoritative result.** Produced under the
+> post-audit protocol: subject-safe sequence windows (no window spans
+> two subjects or a dropped-epoch gap) and causal unique-epoch
+> evaluation (stride-1, last-epoch supervision — exactly one prediction
+> per scored epoch). See `docs/evaluation_protocol.md`.
 
-| Property | Value |
-|----------|-------|
-| Parameters | 99,477 |
-| Model Size | ~400 KB (FP32) |
-| Input Shape | [batch, 10, 4, 3000] |
-| Output Shape | [batch, 10, 5] |
-| Context Window | 300 seconds (10 × 30s epochs) |
+- **Protocol:** 10-fold **person-level** CV — whole persons (both
+  nights) assigned to folds; 5 fixed validation persons; folds
+  stratified by age decade (cohort spans 25–101 yr); 52 persons /
+  92 records
+- **Sequence construction:** subject-safe windows, stride 5
+  (training only), all-position supervision (training signal only)
+- **Evaluation:** causal, stride 1, last-epoch supervision; every
+  scored epoch predicted exactly once with (subject, epoch)
+  provenance; epochs whose 5-min context spans a dropped epoch are
+  excluded as unscoreable (798 across the 10 test folds)
+- **Initialization:** from scratch (random init)
+- **Seeds:** 42, 43, 44 (30 trained folds total) — cross-seed
+  agreement is tight (accuracy SD across seed means: 0.33pp)
+- **Environment:** pinned in `results/benchmark_person_level/env.json`
+  (torch 2.6.0+cu124, CUDA 12.4, GTX 1650, git SHA, protocol-file
+  checksums)
+
+### Overall metrics (mean of per-seed means; pooled fold-level 95% CI, n = 30)
+
+| Metric | Seeds 42 / 43 / 44 | Mean ± SD(seeds) | 95% CI (pooled) |
+|--------|--------------------|------------------|-----------------|
+| **Accuracy** | 87.55 / 87.42 / 86.92% | **87.30% ± 0.33%** | [85.80, 88.79]% |
+| **Cohen's κ** | 0.745 / 0.743 / 0.726 | **0.738 ± 0.010** | [0.691, 0.785] |
+| **Macro F1** | 0.728 / 0.726 / 0.719 | **0.724 ± 0.005** | [0.693, 0.755] |
+| Weighted F1 | 0.883 / 0.882 / 0.877 | 0.880 ± 0.003 | [0.860, 0.901] |
+| MGm | 0.777 / 0.774 / 0.766 | 0.772 ± 0.006 | [0.721, 0.823] |
+
+### Per-class F1 (mean of seed means; pooled 95% CI)
+
+| Stage | F1 | 95% CI |
+|-------|----|--------|
+| Wake | 0.960 | [0.950, 0.970] |
+| N1 | **0.445** | [0.413, 0.478] |
+| N2 | 0.733 | [0.672, 0.794] |
+| N3 | 0.700 | [0.658, 0.742] |
+| REM | 0.782 | [0.739, 0.826] |
+
+### Interpretation
+
+- The honest person-generalization estimate under the fixed protocol is
+  **87.30% (κ 0.738)**, stable across three seeds. The near-coincidence
+  with the superseded record-level number (87.66%) is *not* evidence of
+  equivalence: the fixed protocol is stricter (unique-epoch scoring, no
+  subject-seam windows, no spliced-gap contexts) while person-level
+  folds are honest — the biases partially offset.
+- Fold variance dominates seed variance (fold-level SD ~4pp vs
+  seed-level ~0.3pp): person-level test groups are small (4–5 persons)
+  and demographically heterogeneous. Fold 10 collapsed on N2 recall
+  (0.17) — an honest hard-fold data point, retained rather than hidden.
+- N1 remains the bottleneck (F1 0.445, precision ~0.31 vs recall
+  ~0.69 — the model over-predicts N1 relative to its ~4.6% base
+  rate). This is a core research direction, not a cosmetic issue.
+- Per-fold evidence: `results/benchmark_person_level/fold_XX/`
+  (seed 42) and `fold_XX_seed43/` / `fold_XX_seed44/`
+  (metrics, confusion matrices, per-epoch predictions with
+  probabilities and provenance, training history, checkpoints);
+  cross-seed aggregate in `summary_multiseed.json`.
 
 ---
 
-## Training Protocol (100-Subject)
+## Historical (pre-protocol-fix) Benchmarks
 
-| Parameter | Value |
-|-----------|-------|
-| Optimizer | AdamW |
-| Learning Rate | 3e-4 |
-| Weight Decay | 1e-4 |
-| Epochs | 20 (early stopping patience=5) |
-| Batch Size | 32 |
-| Class Weights | N1=2x, REM=2x |
-| Gradient Clipping | max_norm=1.0 |
-| Scheduler | Cosine Annealing |
-| Mixed Precision | True (CUDA) |
-| Device | NVIDIA GTX 1650 (CUDA 12.4) |
-| Seeds | 42, 43, 44 |
+Both runs below used the legacy protocol (stride-5 windows over
+subject-concatenated arrays, all-position supervision) and are
+quarantined (evidence removed in the Sept 2026 cleanup). They are
+retained for like-for-like protocol comparison only.
 
----
+### EXP-BENCH-PERSON, legacy protocol (person-level folds, seed 42)
 
-## Evaluation Protocol (100-Subject)
+Accuracy 85.47% ± 3.99%, κ 0.705 ± 0.128, macro F1 0.697 ± 0.082.
+Note: the legacy *all-position* protocol scored most epochs twice and
+included spliced-gap contexts, so these numbers are not directly
+comparable to the primary benchmark above.
 
-- **Method:** 10-fold subject-level cross-validation
-- **Subjects:** 92 from Sleep-EDF Expanded (8 wake-only excluded)
-- **Fold assignment:** Canonical (canonical_subject_folds_92subj.json)
-- **Sequence:** length=10, stride=5, 30s epochs
-- **All-position supervision** — every epoch in the window is supervised
-- **Reproducibility:** 3 seeds × 10 folds = 30 folds per method
+### EXP-BENCH-92SUBJ (superseded: record-level folds, person-leaky, legacy protocol)
+
+87.66% ± 2.22% — a **record-level** estimate only (each test record's
+same-person mate was in the train pool in 10/10 folds). Per-class F1:
+Wake 0.967 · N1 0.452 · N2 0.767 · N3 0.688 · REM 0.764.
 
 ---
 
-## Files
+## Quarantined — Adaptation Study (EXP-ADAPT-*)
 
-### 100-Subject Benchmark (Authoritative)
+These numbers are **retained for internal, like-for-like comparison
+only** and must not be cited as generalization results. The base
+checkpoint was trained on 15 records, 12 of which appear in the
+evaluation test folds (see `docs/adaptation.md` for the full overlap
+analysis). Additionally these runs used the record-level (person-leaky)
+folds.
 
-| File | Description |
-|------|-------------|
-| `configs/full_100_subject.yaml` | 100-subject configuration |
-| `artifacts/final/student_full_finetuned.pt` | Checkpoint |
-| `results/100_subject_adaptation/final/aggregate_metrics.json` | 3-seed aggregate |
-| `results/100_subject_adaptation/final/overall_comparison.csv` | Overall metrics |
-| `results/100_subject_adaptation/final/per_class_comparison.csv` | Per-class metrics |
-| `results/100_subject_adaptation/final/FINAL_ADAPTATION_RESULTS.md` | Full report |
+| Regime | Trainable params | Accuracy | κ | Macro F1 |
+|--------|-----------------:|---------:|----:|---------:|
+| 2A Frozen | 0 | 87.1% ± 3.6% | 0.738 ± 0.077 | 0.673 ± 0.074 |
+| 2B LoRA CNN+Head (r=8, α=16) | 1,448 (1.43%) | 83.6% ± 3.7% | 0.693 ± 0.057 | 0.674 ± 0.045 |
+| 2C Full FT | 99,477 (100%) | 87.7% ± 2.7% | 0.763 ± 0.043 | 0.730 ± 0.037 |
 
-### 15-Subject Development (Historical)
+Reading notes:
 
-| File | Description |
-|------|-------------|
-| `configs/final.yaml` | Development configuration |
-| `results/final/final_metrics.json` | Development results |
+- The Frozen/Full-FT numbers are inflated by ~+2.5pp by record overlap
+  and further inflated by person-level leakage of the folds themselves.
+- **Honest LoRA reading:** the tested CNN+Head configuration trains
+  68.7× fewer parameters than full FT but produced *lower* accuracy and
+  substantially lower macro-F1 (0.674 vs 0.730) in this (contaminated)
+  run. The scientific claim — whether low-rank adaptation can
+  compensate for a completely frozen GRU (90.3% of parameters) —
+  remains **open** until re-run on a leak-free base checkpoint over
+  person-level folds (`docs/adaptation.md` §4).
+
+---
+
+## Archived — 15-Record Development Benchmark (EXP-DEV-15SUBJ)
+
+93.0% ± 1.0% accuracy, κ 0.861, macro-F1 0.794, 4-fold CV over 15
+records. Superseded by the person-level benchmark. Full record:
+`docs/archive/development_15_subject.md`.
+
+---
+
+## Model Architecture (context for all results)
+
+99,477 parameters — multi-resolution stem (7,232), depthwise-separable
+encoder (2,304), parametric Gabor filters (144), 2-layer GRU hidden 64
+(89,856 — 90.3% of the parameter budget), linear head (325).
+Input `[B, 10, 4, 3000]` @ 100 Hz; output per-epoch 5-class logits over
+a 300-second context.
 
 ---
 
 ## Reproduction
 
 ```bash
-# Run 100-subject adaptation benchmark (all 3 modes, 1 seed)
-python scripts/train_adaptation.py --mode frozen --seed 42 --device cuda
-python scripts/train_adaptation.py --mode lora --targets enc.0.pw,enc.1.pw,head --rank 8 --alpha 16 --seed 42 --device cuda
-python scripts/train_adaptation.py --mode full_finetune --seed 42 --device cuda
+# Generate person-level folds (idempotent, seeded)
+python scripts/build_person_groups.py
+python scripts/generate_person_folds.py
 
-# Aggregate all 3 seeds
-python scripts/aggregate_adaptation_results.py
+# Primary benchmark (person-level; runner refuses leaky folds)
+python scripts/run_100_subject_benchmark.py --seed 42 --device cuda \
+    --folds-manifest data/manifests/person_folds_52subj.json \
+    --output-dir results/benchmark_person_level
 
-# Verify protocol consistency
-python scripts/protocol_fingerprint.py --seed 42 --mode full_finetune --save-reference
-python scripts/protocol_fingerprint.py --seed 43 --mode full_finetune
+# Regenerate tables + CIs from fold evidence
+python scripts/summarize_benchmark.py --results-dir results/benchmark_person_level
+
+# Verify protocol integrity (person-level checks included)
+python scripts/verify_protocol.py
 ```
+
+To re-run the superseded record-level benchmark (research purposes
+only), pass `--allow-record-level` explicitly; outputs are labeled
+record-level.
 
 ---
 
-## Citation
-
-```bibtex
-@project{neurosleep_2026,
-  title={NeuroSleep: Neuromorphic Sleep Stage Scoring},
-  author={Kaushik, P. and Vora, S. and Bhatt, S. and Khan, S. and Lone, A.J.},
-  year={2026},
-  institution={VIT Bhopal University}
-}
-```
-
----
-
-*Last updated: August 2026*
+*Numbers generated by `scripts/summarize_benchmark.py` from fold
+summaries. Last regenerated: September 2026.*

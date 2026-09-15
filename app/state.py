@@ -19,11 +19,22 @@ def _resolve_checkpoint() -> Path:
 
 @st.cache_data
 def load_final_metrics() -> dict:
-    """Load the authoritative final metrics from results/final/final_metrics.json."""
+    """Load the primary person-level benchmark metrics (results/final/final_metrics.json)."""
     if RESULTS_PATH.exists():
         with open(RESULTS_PATH) as f:
             return json.load(f)
     return {}
+
+
+@st.cache_data
+def load_notebook_pipeline_result() -> dict:
+    """Load the notebook-pipeline (single-split) result from results/final/notebook_pipeline_result.csv."""
+    path = RESULTS_PATH.parent / "notebook_pipeline_result.csv"
+    if not path.exists():
+        return {}
+    import pandas as pd
+    df = pd.read_csv(path)
+    return df.iloc[0].to_dict() if len(df) else {}
 
 
 def init_session() -> None:

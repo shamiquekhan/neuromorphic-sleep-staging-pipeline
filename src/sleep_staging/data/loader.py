@@ -13,15 +13,22 @@ def load_cached_subject(
 ) -> dict:
     """Load a cached NPZ file for one subject.
 
-    The cache files are named ``{subject_id}_night0.npz`` and contain:
+    The cache files are named ``{subject_id}_nightE0.npz`` and contain:
         - ``epochs``: ``[n_epochs, n_channels, n_samples]``
         - ``labels``: ``[n_epochs]`` integer stage labels.
+        - ``orig_epoch_idx`` (optional, newer caches): ``[n_epochs]``
+          index of each cached epoch within the raw 30 s annotation grid
+          of the recording. Preprocessing drops unlabeled epochs ("?",
+          movement time) before caching, so consecutive cached rows can
+          be temporally discontiguous; this key makes those gaps
+          detectable. See ``data/sequence_dataset.py``.
 
     Returns:
-        Dict with keys ``epochs``, ``labels``, ``subject_id``.
+        Dict with keys ``epochs``, ``labels``, ``subject_id``, and
+        ``orig_epoch_idx`` (None when the cache predates it).
     """
     d = Path(cache_dir) if cache_dir else CACHE_DIR
-    path = d / f"{subject_id}_night0.npz"
+    path = d / f"{subject_id}_nightE0.npz"
     if not path.exists():
         raise FileNotFoundError(f"Cache file not found: {path}")
 
@@ -30,6 +37,9 @@ def load_cached_subject(
         "epochs": data["epochs"],
         "labels": data["labels"],
         "subject_id": subject_id,
+        "orig_epoch_idx": (
+            data["orig_epoch_idx"] if "orig_epoch_idx" in data else None
+        ),
     }
 
 
@@ -61,6 +71,6 @@ def available_subjects(cache_dir: str | Path | None = None) -> list[str]:
     """List subject IDs present in the cache directory."""
     d = Path(cache_dir) if cache_dir else CACHE_DIR
     return sorted(
-        p.stem.replace("_night0", "")
-        for p in d.glob("*_night0.npz")
+        p.stem.split("_night")[0]
+        for p in d.glob("*_night*.npz")
     )

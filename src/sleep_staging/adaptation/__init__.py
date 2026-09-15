@@ -5,6 +5,7 @@ from .lora import (
     LoRALinear,
     apply_lora,
     count_lora_parameters,
+    freeze_norm_layers,
     load_adapter,
     save_adapter,
 )
@@ -14,6 +15,7 @@ __all__ = [
     "LoRALinear",
     "apply_lora",
     "count_lora_parameters",
+    "freeze_norm_layers",
     "load_adapter",
     "save_adapter",
 ]

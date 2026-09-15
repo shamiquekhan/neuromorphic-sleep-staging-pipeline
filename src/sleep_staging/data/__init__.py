@@ -4,6 +4,11 @@ from .loader import available_subjects, get_contiguous_sequence, load_cached_sub
 from .manifest import get_subjects, load_manifest
 from .labels import CANONICAL_LIST, N_CLASSES, SLEEP_EDF_MAP, SHHS_MAP, SleepStage
 from .harmonization import dataset_fingerprint, harmonization_report
+from .sequence_dataset import (
+    SubjectSequenceDataset,
+    CausalEvalDataset,
+    make_subject_list,
+)
 
 __all__ = [
     "available_subjects",
@@ -18,4 +23,7 @@ __all__ = [
     "SleepStage",
     "dataset_fingerprint",
     "harmonization_report",
+    "SubjectSequenceDataset",
+    "CausalEvalDataset",
+    "make_subject_list",
 ]

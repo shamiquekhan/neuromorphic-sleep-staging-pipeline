@@ -16,7 +16,9 @@ Interactive demo for five-stage sleep classification from polysomnography signal
 - **Architecture:** Improved Student (99,477 parameters)
 - **Input:** 10 x 4 x 3000 (10 epochs, 4 channels, 3000 samples)
 - **Output:** Wake, N1, N2, N3, REM
-- **Accuracy:** 93.0% ± 1.0%
+- **Accuracy:** 93.0% ± 1.0% (15-subject development benchmark; the
+  primary 92-subject benchmark reports 87.66% ± 2.22% — see the source
+  repository's `docs/results.md`)
 
 ## Links
 

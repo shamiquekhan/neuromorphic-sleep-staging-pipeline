@@ -1,269 +1,178 @@
-# Methodology — Neuromorphic Sleep Stage Scoring
+# Methodology — NeuroSleep
 
 ## Research Approach
 
-This project follows a systematic engineering methodology for developing an automated sleep-stage classification system. The approach emphasizes reproducibility, edge-deployment readiness, and exhibition-quality documentation.
+NeuroSleep investigates compact multi-resolution convolutional-recurrent
+sleep staging under a strict parameter budget, and evaluates whether
+parameter-efficient low-rank adaptation can approach full fine-tuning
+performance while substantially reducing the number of trainable
+parameters.
+
+The methodology centers on three commitments:
+
+1. **Subject-level separation** — every reported metric comes from
+   subject-level cross-validation folds; no subject's data is split
+   across train/validation/test.
+2. **Evidence regeneration, not hand-editing** — all numbers in the
+   documentation regenerate from raw fold evidence via
+   `scripts/summarize_benchmark.py`; the regeneration order is
+   CODE → CONFIG → EXPERIMENT → RAW RESULTS → AGGREGATION → RESULT
+   TABLES → MODEL_REPORT → README → HF MODEL CARD.
+3. **Machine-checkable protocol integrity** —
+   `scripts/verify_protocol.py` fails the run if folds, configs, or
+   base-checkpoint subject disjointness are violated.
 
 ---
 
-## Pipeline Overview
+## Experimental Matrix
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    METHODOLOGY PIPELINE                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Phase 1: Data Acquisition & Governance                        │
-│  ├── Sleep-EDF download & validation                           │
-│  ├── PSG/Hypnogram pairing                                     │
-│  ├── Subject-level splitting                                   │
-│  └── Manifest generation                                       │
-│                                                                 │
-│  Phase 2: Signal Preprocessing                                 │
-│  ├── Bandpass filtering (0.5–35 Hz)                            │
-│  ├── Notch filtering (50 Hz)                                   │
-│  ├── Z-score normalization                                     │
-│  ├── Artifact quality control                                  │
-│  └── Epoch caching                                             │
-│                                                                 │
-│  Phase 3: Exploratory Data Analysis                            │
-│  ├── Class distribution analysis                               │
-│  ├── Signal characteristic visualization                       │
-│  ├── Temporal pattern analysis                                 │
-│  └── Quality control validation                                │
-│                                                                 │
-│  Phase 4: Model Development                                    │
-│  ├── Architecture design (Improved Student)                    │
-│  ├── Teacher training (Improved Teacher)                       │
-│  ├── Knowledge distillation                                    │
-│  └── Checkpoint selection                                      │
-│                                                                 │
-│  Phase 5: LoRA Adaptation                                      │
-│  ├── Rank sweep (r=2, r=4, r=8)                               │
-│  ├── 4-fold held-out-subject CV                                │
-│  ├── Multi-seed confirmation                                   │
-│  ├── Latency & merge verification                              │
-│  └── Parameter-efficiency analysis                             │
-│                                                                 │
-│  Phase 6: Evaluation & Deployment                              │
-│  ├── Test set evaluation                                       │
-│  ├── Official result documentation                             │
-│  ├── Edge deployment preparation                               │
-│  └── Exhibition demonstration                                  │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| ID | Experiment | Status |
+|----|-----------|--------|
+| EXP-DEV-15SUBJ | 15-record development benchmark, 4-fold CV | Archived (historical) |
+| EXP-BENCH-92SUBJ | 92-record from-scratch benchmark, record-level folds | Complete (seed 42) — **superseded** (person leakage) |
+| **EXP-BENCH-PERSON** | Person-level from-scratch benchmark, 10-fold CV over 52 persons | **Complete** (seed 42): 85.47% ± 3.99% — **primary** |
+| EXP-ADAPT-FROZEN / -LORA-R8-CNNHEAD / -FULLFT | Three adaptation regimes from one base checkpoint | Quarantined (contaminated base + record-level folds) — re-run pending |
+| EXP-LORA-R{2,4,16}-CNNHEAD | LoRA rank ablation | Pending leak-free base + person-level folds |
+| EXP-LORA-TARGET-* | LoRA target-module matrix (head / CNN / Gabor / GRU) | Pending LoRA-GRU support |
+| EXP-CROSS-DATASET | Cross-dataset validation (e.g., SHHS) | Planned |
+
+**Records ≠ persons (P0).** SC4ss1/SC4ss2 are two nights of the same
+person (PhysioNet sleep-edfx README; SC-subjects.xls; EDF headers). The
+92-record cohort is 52 persons. All splits — and the adaptation base
+checkpoint's training set — must be disjoint at the *person* level.
+Machine-enforced by `scripts/verify_protocol.py` and the benchmark
+runner's refusal guard.
+
+Definitions the matrix depends on:
+
+- **From-scratch training:** random initialization → all parameters
+  trained (the primary benchmark).
+- **Full fine-tuning:** pretrained base checkpoint → all 99,477
+  parameters unfrozen → task adaptation.
+- **LoRA:** base weights frozen; low-rank A/B adapters trainable in
+  selected projection layers.
+- **Frozen:** base weights frozen; no training; evaluation only.
 
 ---
 
-## Phase 1: Data Acquisition & Governance
+## Phase 1 — Data Acquisition & Governance
 
-### Objectives
-- Obtain Sleep-EDF PSG recordings
-- Validate data integrity
-- Create reproducible subject-level splits
-- Establish data contract for downstream processing
+**Source:** PhysioNet Sleep-EDF Expanded (SC cassette study).
 
-### Methods
+- 100 records downloaded → 8 wake-only records excluded →
+  **92-record eligible cohort — 52 persons** (SC4ss1/SC4ss2 = same
+  person's two nights; 40 two-night, 12 one-night persons).
+- Channels: EEG Fpz-Cz, EEG Pz-Oz, EOG, EMG @ 100 Hz.
+- PSG–hypnogram pairing validation, duplicate record detection,
+  channel availability checks.
+- Person-level fold assignment:
+  `data/manifests/person_folds_52subj.json` (10 folds over persons,
+  5 fixed validation persons, stratified by age decade).
+- Person groups: `data/manifests/person_groups.json`
+  (`scripts/build_person_groups.py`).
+- QC flags are computed and cached per epoch by Notebook 02 (see `data/cache/cache_index.csv`).
 
-**Data Source:** PhysioNet Sleep-EDF Expanded database
-- 78 healthy subjects
-- 2 nights per subject (most subjects)
-- 100 Hz sampling rate
-- 4 channels: EEG Fpz-Cz, EEG Pz-Oz, EOG, EMG
+## Phase 2 — Signal Preprocessing
 
-**Subject-Level Splitting:**
-```python
-# Prevents data leakage from same subject in multiple splits
-train_subj, temp_subj = train_test_split(subjects, test_size=0.30, random_state=42)
-val_subj, test_subj = train_test_split(temp_subj, test_size=0.50, random_state=42)
-```
+| Step | Setting | Rationale |
+|------|---------|-----------|
+| Bandpass | 4th-order Butterworth, 0.5–35 Hz | Preserve sleep-relevant frequencies, remove drift |
+| Notch | 50 Hz, Q=30 | Power-line interference |
+| Normalization | z-score per channel | Amplitude invariance |
+| QC flags | clipping / flatline / NaN | Stored; not used to filter training |
 
-**Quality Assurance:**
-- PSG-Hypnogram file pairing validation
-- Duplicate subject-night detection
-- Channel availability verification
+Deliverable: cached per-subject `.npz` epochs (`data/cache/sleep_edf/`).
 
-### Deliverables
-- `data/manifests/sleep_edf.csv` — Subject/night manifest
-- `data/manifests/subject_splits.csv` — Train/val/test splits
+## Phase 3 — Model Development
 
----
+**Improved Student** (99,477 parameters):
 
-## Phase 2: Signal Preprocessing
+| Module | Parameters | Share |
+|--------|-----------:|------:|
+| Multi-Resolution Stem (parallel Conv1d, kernels 25/200) | 7,232 | 7.27% |
+| Depthwise-Separable Encoder (2 blocks) | 2,304 | 2.32% |
+| Parametric Gabor Filters (8 learnable, 0.5–30 Hz) | 144 | 0.14% |
+| 2-Layer GRU (hidden 64, 300-s context) | 89,856 | 90.33% |
+| Linear Head | 325 | 0.33% |
 
-### Objectives
-- Reduce noise and artifacts
-- Standardize signal characteristics
-- Create model-ready epoch representations
+Design principles: multi-scale temporal receptive fields; depthwise-
+separable compute for edge deployment; learnable spectral features;
+recurrent temporal modeling. The architecture is a conventional
+differentiable CNN–GRU network designed for edge constraints — see the
+positioning note in [`MODEL_REPORT.md`](../MODEL_REPORT.md) §1.
 
-### Methods
+**Training objective:** class-weighted cross-entropy (N1 2×, REM 2×)
+over all 10 positions of each subject-safe 10-epoch window. All-position
+supervision is a *training signal only* — all reported metrics come from
+the causal one-prediction-per-epoch protocol (see
+[`evaluation_protocol.md`](evaluation_protocol.md)).
 
-**Bandpass Filtering:**
-- 4th-order Butterworth filter
-- Cutoff: 0.5 Hz (high-pass) to 35 Hz (low-pass)
-- Rationale: Removes baseline drift and high-frequency noise while preserving sleep-relevant frequencies
+> Historical note: an early teacher-distillation phase existed during
+> development. The final architecture and all reported results use the
+> student model trained directly; the teacher is not part of the
+> reported pipeline.
 
-**Notch Filtering:**
-- IIR notch filter at 50 Hz
-- Quality factor: 30
-- Rationale: Eliminates power-line interference
+## Phase 4 — Benchmarks (record-level superseded; person-level primary)
 
-**Z-Score Normalization:**
-```python
-x_normalized = (x - mean) / std
-```
-- Per-channel, per-epoch
-- Ensures zero mean and unit variance
-- Makes model invariant to absolute signal amplitude
+- **EXP-BENCH-PERSON (primary, in progress):** 10-fold **person-level**
+  CV over 52 persons — whole persons (both nights) per fold role, 5
+  fixed validation persons, stratified by age decade
+  (`configs/benchmark_person_level.yaml`)
+- **EXP-BENCH-92SUBJ (superseded):** identical training on record-level
+  folds (`configs/benchmark_person_level.yaml`); seeds 42/43/44 numbers are
+  record-level estimates
+- From-scratch initialization per fold
+- AdamW, lr 3e-4, weight decay 1e-4, ≤20 epochs, early stopping
+  patience 5 (checkpoint selection on validation macro-F1), batch 32,
+  cosine schedule, grad clip 1.0, CUDA AMP
+- Metrics: accuracy, Cohen's κ, macro/weighted F1, MGm, per-class
+  precision/recall/F1, confusion matrices — computed per fold,
+  aggregated over folds (the fold is the unit of analysis), with 95% CIs
+- The runner refuses person-leaky folds unless `--allow-record-level` is
+  passed explicitly
 
-**Artifact Quality Control:**
-| Check | Threshold | Action |
-|-------|-----------|--------|
-| Clipping | |x| > 8.0σ | Flag epoch |
-| Flatline | std < 0.05 | Flag epoch |
-| NaN/Inf | Non-finite values | Flag epoch |
+Current evidence: person-level seed 42 complete — **85.47% ± 3.99%,
+κ 0.705, macro-F1 0.697** (primary); record-level seed 42 complete but
+superseded — see [`results.md`](results.md) for numbers, evidence
+tiers, and the single-seed caveat.
 
-### Rationale
-Preprocessing is treated as a first-class engineering step, not an optional cleanup. The contract is fixed and reproducible.
+## Phase 5 — Parameter-Efficient Adaptation (EXP-ADAPT-*)
 
-### Deliverables
-- `data/cache/*.npz` — Preprocessed epoch arrays
-- `data/cache/cache_index.csv` — Cache metadata
+Three regimes, all from the **same base checkpoint**, on the same folds:
 
----
+| Regime | Base weights | Trainable | Optimized |
+|--------|--------------|-----------|-----------|
+| 2A Frozen | frozen | 0 | — (eval only) |
+| 2B LoRA | frozen | 1,448 (r=8, CNN+Head) | low-rank A/B factors |
+| 2C Full FT | unfrozen | 99,477 | all parameters |
 
-## Phase 3: Exploratory Data Analysis
-
-### Objectives
-- Verify dataset characteristics
-- Identify class imbalance
-- Validate preprocessing quality
-- Understand temporal patterns
-
-### Analyses Performed
-
-**Class Distribution:**
-- Quantified imbalance across 5 sleep stages
-- N2 dominates (~50% of epochs)
-- N1 and REM are minority classes
-
-**Signal Characteristics:**
-- Visualized raw vs. preprocessed waveforms
-- Verified frequency content after filtering
-- Confirmed normalization effectiveness
-
-**Temporal Patterns:**
-- Analyzed sleep-stage transition frequencies
-- Verified contiguous epoch ordering
-- Confirmed no data leakage across recordings
-
-### Key Findings
-- Class imbalance requires imbalance-aware training (focal loss, class weights)
-- Artifact flag rate ~2% (acceptable)
-- Strong temporal dependencies justify sequence modeling
-
----
-
-## Phase 4: Model Development
-
-### Architecture Design Principles
-
-1. **Multi-scale signal processing:** Capture patterns at different temporal scales
-2. **Computational efficiency:** Use depthwise-separable convolutions for edge deployment
-3. **Frequency awareness:** Include parametric Gabor filters for spectral patterns
-4. **Temporal modeling:** Use GRU to capture stage transitions
-
-### Improved Student Architecture
-
-| Component | Description | Parameters |
-|-----------|-------------|------------|
-| Multi-Resolution Stem | Parallel short/long receptive fields | ~1,000 |
-| Depthwise-Separable CNN | Efficient feature extraction | ~2,000 |
-| Parametric Gabor FEB | Learnable frequency filters | ~1,300 |
-| 2-Layer GRU | Temporal sequence modeling | ~16,500 |
-| Classification Head | 5-class softmax | 320 |
-| **Total** | | **99,477** |
-
-### Training Strategy
-
-**Knowledge Distillation:**
-- Train a larger "teacher" model first
-- Distill knowledge into the smaller "student"
-- Student learns from both hard labels and softened teacher predictions
-
-**Loss Function:**
-```
-L_total = α_ce × L_CE + α_kl × L_KL + α_feat × L_Feature
-```
-
-| Component | Weight | Purpose |
-|-----------|--------|---------|
-| Cross-entropy | 1.0 | Hard-label supervision |
-| KL divergence | 1.0 | Teacher-student alignment |
-| Feature MSE | 0.5 | Intermediate representation alignment |
-
-**Hyperparameters:**
-
-| Parameter | Value | Justification |
-|-----------|-------|---------------|
-| Optimizer | AdamW | Adaptive learning rate with weight decay |
-| Learning rate | 3e-4 | Standard for small models |
-| Batch size | 16 | Balance between speed and stability |
-| Sequence length | 10 | 5 minutes of context (300s) |
-| Training epochs | 20 | Sufficient for convergence |
-
-### Rationale
-The architecture is intentionally compact for edge deployment. The 99,477 parameter count is below the project's 100K target while maintaining competitive accuracy (87.5% across 15 subjects).
-
-### Deliverables
-- `artifacts/student_improved_best.pt` — Final trained model
-- `artifacts/teacher_improved_best.pt` — Teacher model (training only)
-
----
-
-## Phase 5: Evaluation & Deployment
-
-### Evaluation Protocol
-
-**Test Set:** Held-out subjects never seen during training
-
-**Metrics:**
-
-| Metric | Value | Interpretation |
-|--------|-------|----------------|
-| Accuracy | 87.5% ± 3.2% | Overall correct classifications |
-| Cohen's κ | 0.763 ± 0.043 | Agreement beyond chance |
-| Macro F1 | 0.721 ± 0.050 | Balanced performance across classes |
-
-**Per-Class Performance:**
-
-| Stage | F1 Score | Notes |
-|-------|----------|-------|
-| Wake | 0.9693 | Excellent — strong EEG/EMG signatures |
-| N1 | 0.2006 | Challenging — brief, transitional stage |
-| N2 | 0.8162 | Good — distinct spindle/K-complex features |
-| N3 | 0.7849 | Good — clear delta wave patterns |
-| REM | 0.3586 | Moderate — overlap with Wake/N1 |
-
-### Official Result
-
-The project's single authoritative result is:
+**Person-level requirement (critical):**
 
 ```
-Improved Student
-87.34% Test Accuracy
-Cohen's κ = 0.7551
-99,477 Parameters
-8.5 ms/batch CPU latency
+base_checkpoint_training_RECORDS ∩ evaluation_records        = ∅
+base_checkpoint_training_PERSONS ∩ evaluation_PERSONS          = ∅
 ```
 
-### Deployment Preparation
+(SC4ss1/SC4ss2 = same person, two nights.) The legacy runs violated
+record-disjointness (12 test / 3 validation overlaps) *and* used
+person-leaky folds; they are quarantined. The protocol, contamination
+record, and re-run procedure are documented in
+[`adaptation.md`](adaptation.md). Planned follow-ups:
+rank ablation (r = 2/4/8/16), target-module matrix (head / CNN /
+Gabor / **GRU** — the key open question, since the GRU holds 90.3% of
+parameters), alpha and dropout ablations, paired fold-level statistics
+(Wilcoxon signed-rank, effect sizes, bootstrap CIs).
 
-1. Export to ONNX format
-2. Apply INT8 post-training quantization
-3. Validate on target hardware
-4. Implement real-time inference pipeline
+## Phase 6 — Evaluation & Deployment
+
+- Per-fold evaluation artifacts (`metrics.json`,
+  `training_history.csv`, `predictions.csv`, `confusion_matrix.csv`)
+  make every result independently auditable.
+- Protocol fingerprints (dataset manifest hash, checkpoint hash, config
+  hash, git commit, PyTorch/CUDA, GPU, hyperparameters) recorded per
+  run; `scripts/verify_protocol.py` enforces them.
+- Streamlit dashboard for demonstration; ONNX/INT8 edge deployment is
+  future work (see `ROADMAP.md`).
 
 ---
 
@@ -271,23 +180,23 @@ Cohen's κ = 0.7551
 
 | Aspect | Implementation |
 |--------|---------------|
-| Random seeds | Python, NumPy, PyTorch all seeded to 42 |
-| Deterministic operations | CUDA deterministic mode enabled |
-| Configuration | YAML files for all parameters |
-| Version control | Git-tracked code and manifests |
-| Checkpointing | Best model saved by validation κ |
-
----
+| Seeds | Seeded Python/NumPy/Torch; primary benchmark protocol uses seeds 42/43/44 (43/44 pending) |
+| Folds | Canonical, manifest-pinned subject-level folds |
+| Configs | One YAML per experiment ID under `configs/` |
+| Integrity | `scripts/verify_protocol.py` gate |
+| Aggregation | `scripts/summarize_benchmark.py` (never hand-edit numbers) |
 
 ## Ethical Considerations
 
-1. **Not a medical device:** This is a research prototype, not a clinical diagnostic system
-2. **Limited validation:** Only validated on Sleep-EDF (healthy subjects)
-3. **Expert oversight required:** Should supplement, not replace, expert scoring
-4. **Data privacy:** Uses publicly available, de-identified data
-5. **Responsible claims:** Avoid overstating clinical applicability
+1. **Not a medical device** — research prototype, no clinical validation.
+2. Validation limited to healthy-subject Sleep-EDF data.
+3. Should supplement, not replace, expert scoring.
+4. Uses publicly available, de-identified data.
+5. Claims in documentation are tied to the evidence hierarchy, not
+   inflated by superseded results.
 
 ---
 
-*Last updated: August 2026*
-*Project: Neuromorphic Sleep Stage Scoring — VIT Bhopal University*
+*Last updated: September 2026 — regenerated as part of the
+documentation-consistency repair; see `ROADMAP.md` for experiment
+status.*

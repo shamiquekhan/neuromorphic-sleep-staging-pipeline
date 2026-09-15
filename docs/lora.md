@@ -217,7 +217,7 @@ The following invariants are asserted by tests (`tests/test_lora.py`,
 ## 10. Results
 
 > **CONTAMINATION WARNING (quarantined):** the existing adaptation results in
-> `results/100_subject_adaptation/` were produced with the 15-subject-era
+> The historical adaptation runs (removed in the Sept 2026 cleanup) were produced with the 15-subject-era
 > base checkpoint, whose training subjects overlap the evaluation folds
 > (12 test + 3 validation). Absolute numbers below are inflated (~+2.5pp on
 > the frozen baseline) and **must not be reported as generalization

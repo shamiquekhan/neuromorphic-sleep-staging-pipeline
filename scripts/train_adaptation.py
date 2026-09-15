@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 """
-100-Subject Adaptation Study — Frozen / LoRA / Full Fine-Tuning
+Adaptation Study (EXP-ADAPT-*) — Frozen / LoRA / Full Fine-Tuning
 
-All three modes start from the same base checkpoint and are evaluated on the
-same 10 subject-level folds (canonical_subject_folds_92subj.json) used by the
-full_100_subject benchmark.
+All three modes start from the same leak-free base checkpoint
+(artifacts/base_leakfree/student_full_finetuned.pt — trained on the 5
+validation PERSONS of person_folds_52subj.json, 0 test-fold overlap,
+provenance embedded) and are evaluated on the same 10 person-level
+folds (person_folds_52subj.json) used by the benchmark
+(results/benchmark_person_level).
+
+The legacy base checkpoint (artifacts/final/student_full_finetuned.pt)
+is FORBIDDEN: its 15 training records overlap the eval test folds —
+see docs/adaptation.md; verify_protocol.py enforces this.
 
 Modes:
     frozen          Load base checkpoint, freeze everything, evaluate test folds only.
@@ -34,21 +41,31 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "scripts"))
 
-from run_100_subject_benchmark import (
-    CACHE_DIR, FOLDS_PATH, MAX_EPOCHS, BATCH_SIZE, LR, WEIGHT_DECAY,
-    GRAD_CLIP, SEQ_LEN, SEQ_STRIDE, N1_WEIGHT, REM_WEIGHT, PATIENCE,
-    load_folds, load_subjects, build_dataloaders, train_one_epoch, evaluate,
-)
+def load_folds_from_path(path):
+    with open(path) as f:
+        return json.load(f)["folds"]
+
 
 from sleep_staging.models.improved_student import ImprovedStudent, count_parameters
 from sleep_staging.adaptation.lora import (
     LoRAConfig, apply_lora, count_lora_parameters, get_lora_targets,
-    assert_lora_targets,
+    assert_lora_targets, freeze_norm_layers,
 )
 from sleep_staging.data.labels import CANONICAL_LIST
+from sleep_staging.data.sequence_dataset import CausalEvalDataset
+from sleep_staging.training.seed import seed_everything
+from run_100_subject_benchmark import (
+    CACHE_DIR, MAX_EPOCHS, BATCH_SIZE, LR, WEIGHT_DECAY,
+    GRAD_CLIP, SEQ_LEN, SEQ_STRIDE, N1_WEIGHT, REM_WEIGHT, PATIENCE,
+    load_subjects, build_dataloaders, train_one_epoch, evaluate,
+)
 
-OUTPUT_ROOT = REPO / "results" / "100_subject_adaptation"
-DEFAULT_BASE = REPO / "artifacts" / "final" / "student_full_finetuned.pt"
+OUTPUT_ROOT = REPO / "results" / "adaptation_rerun"
+# Canonical base: leak-free (5 validation persons, 0 test-fold overlap,
+# provenance embedded in the checkpoint payload). The legacy
+# artifacts/final/student_full_finetuned.pt is FORBIDDEN — 15-record-era
+# checkpoint with 12 records in eval test folds (see docs/adaptation.md).
+DEFAULT_BASE = REPO / "artifacts" / "base_leakfree" / "student_full_finetuned.pt"
 
 
 def load_base(model: nn.Module, checkpoint: str) -> None:
@@ -72,8 +89,7 @@ def mode_dir_name(mode: str, args) -> Path:
 
 
 def run_fold(mode, fold_num, fold_data, args):
-    torch.manual_seed(args.seed)
-    np.random.seed(args.seed)
+    seed_everything(args.seed)  # python/numpy/torch/cuda/cudnn, all controlled
 
     out_dir = mode_dir_name(mode, args) / f"fold_{fold_num:02d}"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -87,7 +103,10 @@ def run_fold(mode, fold_num, fold_data, args):
     print(f"  Train: {len(train_subjects)} | Val: {len(val_subjects)} | Test: {len(test_subjects)}")
     print(f"{'='*60}")
 
-    train_loader, val_loader, test_loader, train_labels = build_dataloaders(
+    # Subject-safe train loader + causal unique-epoch val/test datasets
+    # (P0.1 + P0.6): one prediction per scored epoch with (subject,
+    # epoch) provenance; windows never span subjects or gaps.
+    train_loader, val_ds, test_ds, train_labels = build_dataloaders(
         train_subjects, val_subjects, test_subjects, CACHE_DIR,
     )
 
@@ -102,7 +121,7 @@ def run_fold(mode, fold_num, fold_data, args):
             p.requires_grad = False
         model = model.to(args.device)
         criterion = nn.CrossEntropyLoss(weight=torch.ones(5).to(args.device))
-        test_metrics = evaluate(model, test_loader, criterion, args.device)
+        test_metrics = evaluate(model, test_ds, criterion, args.device)
         recorded.update({
             "trainable_params": 0,
             "trainable_pct": 0.0,
@@ -118,11 +137,17 @@ def run_fold(mode, fold_num, fold_data, args):
             model = apply_lora(model, lora_cfg)
             assert_lora_targets(model, lora_cfg.target_modules)
             print(f"  LoRA targets wrapped: {get_lora_targets(model)}")
+            # Strict PEFT: BN running stats must not update during
+            # adaptation, or the "N trainable parameters" claim is
+            # incomplete. Re-frozen after every train() re-entry below.
+            n_frozen = freeze_norm_layers(model)
+            print(f"  Norm layers frozen (strict PEFT): {n_frozen}")
             pc = count_lora_parameters(model)
             print(f"  LoRA trainable: {pc['trainable']:,} ({pc['trainable_pct']}%)")
             recorded.update({
                 "rank": args.rank, "alpha": args.alpha,
                 "lora_targets": get_lora_targets(model),
+                "norm_layers_frozen": n_frozen,
                 "trainable_params": pc["trainable"],
                 "trainable_pct": pc["trainable_pct"],
                 "total_params": pc["total"],
@@ -166,7 +191,11 @@ def run_fold(mode, fold_num, fold_data, args):
             train_loss, train_acc = train_one_epoch(
                 model, train_loader, optimizer, criterion, args.device, scaler,
             )
-            val_metrics = evaluate(model, val_loader, criterion, args.device)
+            if mode == "lora":
+                # train_one_epoch re-enters model.train(); norm layers
+                # must be re-frozen each epoch for strict PEFT.
+                freeze_norm_layers(model)
+            val_metrics = evaluate(model, val_ds, criterion, args.device)
             scheduler.step()
             elapsed = time.time() - t0
 
@@ -174,7 +203,6 @@ def run_fold(mode, fold_num, fold_data, args):
                 "epoch": epoch + 1,
                 "train_loss": train_loss,
                 "train_acc": train_acc,
-                "val_loss": val_metrics["loss"],
                 "val_accuracy": val_metrics["accuracy"],
                 "val_kappa": val_metrics["kappa"],
                 "val_macro_f1": val_metrics["macro_f1"],
@@ -193,7 +221,7 @@ def run_fold(mode, fold_num, fold_data, args):
             print(
                 f"  Epoch {epoch+1:2d}/{MAX_EPOCHS} ({elapsed:.1f}s): "
                 f"loss={train_loss:.4f} acc={train_acc:.3f} | "
-                f"val_loss={val_metrics['loss']:.4f} val_acc={val_metrics['accuracy']:.3f} "
+                f"val_acc={val_metrics['accuracy']:.3f} "
                 f"val_F1={val_metrics['macro_f1']:.3f}{marker}"
             )
             if patience >= PATIENCE:
@@ -203,7 +231,7 @@ def run_fold(mode, fold_num, fold_data, args):
         if best_state:
             model.load_state_dict(best_state)
 
-        test_metrics = evaluate(model, test_loader, criterion, args.device)
+        test_metrics = evaluate(model, test_ds, criterion, args.device)
         recorded["test_metrics"] = test_metrics
         pd.DataFrame(history).to_csv(out_dir / "training_history.csv", index=False)
         if mode == "lora":
@@ -213,7 +241,8 @@ def run_fold(mode, fold_num, fold_data, args):
             torch.save({"model_state_dict": best_state, **recorded}, out_dir / "best_model.pt")
 
     # Print test summary
-    print(f"\n  TEST RESULTS ({mode}, Fold {fold_num}):")
+    print(f"\n  TEST RESULTS ({mode}, Fold {fold_num}) — causal unique-epoch protocol:")
+    print(f"    Scored epochs: {test_metrics['n_unique_epochs']:,}")
     print(f"    Accuracy:  {test_metrics['accuracy']:.4f}")
     print(f"    Kappa:     {test_metrics['kappa']:.4f}")
     print(f"    Macro F1:  {test_metrics['macro_f1']:.4f}")
@@ -230,24 +259,22 @@ def run_fold(mode, fold_num, fold_data, args):
                  columns=[f"pred_{n}" for n in CANONICAL_LIST]).to_csv(
         out_dir / "confusion_matrix.csv")
 
-    all_preds, all_labels = [], []
-    model.eval()
-    with torch.no_grad():
-        for x, y in test_loader:
-            x = x.to(args.device, non_blocking=True)
-            logits = model(x)
-            all_preds.append(logits.argmax(dim=-1).cpu().numpy().reshape(-1))
-            all_labels.append(y.numpy().reshape(-1))
-    all_preds = np.concatenate(all_preds)
-    all_labels = np.concatenate(all_labels)
+    preds = test_metrics["predictions"]
     pd.DataFrame({
-        "true_label": all_labels, "pred_label": all_preds,
-        "true_name": [CANONICAL_LIST[int(l)] for l in all_labels],
-        "pred_name": [CANONICAL_LIST[int(p)] for p in all_preds],
+        "subject_id": preds["subject_id"],
+        "epoch_index": preds["epoch_index"],
+        "true_label": preds["y_true"],
+        "pred_label": preds["y_pred"],
+        "true_name": [CANONICAL_LIST[int(l)] for l in preds["y_true"]],
+        "pred_name": [CANONICAL_LIST[int(p)] for p in preds["y_pred"]],
     }).to_csv(out_dir / "predictions.csv", index=False)
 
+    serializable = {
+        k: v for k, v in test_metrics.items() if k != "predictions"
+    }
+    serializable["confusion_matrix"] = cm.tolist()
     with open(out_dir / "metrics.json", "w") as f:
-        json.dump({**recorded, **test_metrics}, f, indent=2, default=str)
+        json.dump({**recorded, **serializable}, f, indent=2, default=str)
 
     return test_metrics
 
@@ -265,6 +292,8 @@ def main():
     parser.add_argument("--fold", type=int, default=None, help="Run specific fold only")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--device", default="auto")
+    parser.add_argument("--folds-manifest", default=str(REPO / "data" / "manifests" / "person_folds_52subj.json"),
+                        help="Folds manifest (default legacy record-level; use person_folds_52subj.json for person-level)")
     args = parser.parse_args()
 
     if args.device == "auto":
@@ -273,6 +302,28 @@ def main():
         device = torch.device(args.device)
     args.device = device
 
+    # Hard guard: the forbidden legacy base must never silently be used.
+    FORBIDDEN = REPO / "artifacts" / "final" / "student_full_finetuned.pt"
+    if Path(args.base_checkpoint).resolve() == FORBIDDEN.resolve():
+        raise SystemExit(
+            "REFUSING: artifacts/final/student_full_finetuned.pt is the "
+            "contaminated 15-record-era base (12 training records appear "
+            "in eval test folds). Use artifacts/base_leakfree/"
+            "student_full_finetuned.pt — see docs/adaptation.md."
+        )
+
+    OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+    folds = load_folds_from_path(args.folds_manifest)
+
+    # Tee the console into the mode's results dir as run evidence.
+    from sleep_staging.utils.runlog import tee_run_log
+
+    log_name = f"adaptation_{args.mode}_seed{args.seed}"
+    with tee_run_log(mode_dir_name(args.mode, args), log_name):
+        _run_adaptation(args, folds, device)
+
+
+def _run_adaptation(args, folds, device):
     print("=" * 70)
     print(f"  100-SUBJECT ADAPTATION STUDY — {args.mode}")
     print("=" * 70)
@@ -282,9 +333,7 @@ def main():
     if args.mode == "lora":
         print(f"  LoRA: r={args.rank}, alpha={args.alpha}, dropout={args.lora_dropout}")
         print(f"  Targets: {args.targets}")
-    OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
 
-    folds = load_folds()
     fold_range = [args.fold] if args.fold else range(1, 11)
     agg_file = mode_dir_name(args.mode, args) / f"{args.mode}_seed{args.seed}.json"
     agg = {}
@@ -309,6 +358,9 @@ def main():
             "weighted_f1": metrics["weighted_f1"],
             "mgm": metrics["mgm"],
             "per_class": metrics["per_class"],
+            "per_class_accuracy": metrics["per_class_accuracy"],
+            "n_unique_epochs": metrics["n_unique_epochs"],
+            "protocol": "causal_unique_epoch",
             "test_subjects": folds[key]["test"],
             "time_s": elapsed,
         }

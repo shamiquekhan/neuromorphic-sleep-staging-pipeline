@@ -4,14 +4,26 @@
 
 | Property | Value |
 |----------|-------|
-| Source | PhysioNet Sleep-EDF Expanded |
+| Source | PhysioNet Sleep-EDF Expanded (SC cassette study) |
 | Type | Polysomnography (PSG) recordings |
-| Subjects | 4 (development subset) |
-| Recordings | 4 nights |
-| Total epochs | ~11,128 (full cohort) |
+| Records downloaded | 100 |
+| Records excluded (wake-only) | 8 |
+| **Eligible cohort** | **92 records — 52 persons** |
+| Persons with both nights | 40 (SC4ss1 + SC4ss2) |
+| Persons with one night | 12 (lost cassettes / wake-only exclusion) |
 | Epoch length | 30 seconds |
 | Sampling rate | 100 Hz |
 | Target classes | 5 (AASM standard) |
+
+> **Records ≠ persons (P0).** PhysioNet's SC naming is `SC4ssNE0` where
+> *ss is the subject number and N is the night* (sleep-edfx README).
+> `SC4051` and `SC4052` are two nights of the **same person** —
+> confirmed by `SC-subjects.xls` (age/sex constant per ss) and the EDF
+> headers (identical patient fields, adjacent recording dates). The
+> "92-subject" phrasing used in earlier documentation is wrong: the
+> cohort is 92 records from 52 persons. Splits must be made at the
+> person level (`person_folds_52subj.json`,
+> `scripts/generate_person_folds.py`).
 
 ---
 
@@ -143,27 +155,35 @@ Raw PSG (100 Hz, 4 channels)
 
 ## Dataset Splits
 
-### Subject-Level Splitting
+### Person-Level Splitting (current protocol)
 
-To prevent data leakage, splits are performed at the **subject level**, not at the epoch level.
+To prevent data leakage, splits are performed at the **person level**:
+both nights of a person always travel together into the same role
+(train / validation / test). The person-level protocol
+(`person_folds_52subj.json`) uses:
 
-| Split | Subjects | Recordings | Purpose |
-|-------|----------|------------|---------|
-| Train | 70% | ~55 subjects | Model training |
-| Validation | 15% | ~12 subjects | Hyperparameter tuning, checkpoint selection |
-| Test | 15% | ~12 subjects | Final evaluation |
+- 10 test folds over the 47 pool persons (4–5 persons per fold)
+- 5 fixed validation persons (~10% of persons)
+- folds stratified by **age decade** — the SC cohort spans 25–101 yr
+  and fold difficulty must be balanced
 
-**Key principle:** No subject appears in multiple splits. This ensures the model generalizes to unseen subjects.
+| Role | Persons | Records | Purpose |
+|------|---------|---------|---------|
+| Train (per fold) | ~42 | ~74 | Model training |
+| Validation (fixed) | 5 | 8 | Checkpoint selection, early stopping |
+| Test (per fold) | 4–5 | 6–10 | Final evaluation |
 
-### Split Assignment
+**Key principle:** no person appears in multiple roles, and no record's
+same-person mate is ever in a different role. This is enforced by
+`scripts/verify_protocol.py` and by the runner's refusal guard.
 
-```python
-from sklearn.model_selection import train_test_split
+### Historical: Record-Level Splitting (superseded)
 
-subjects = sorted(manifest["subject_id"].unique())
-train_subj, temp_subj = train_test_split(subjects, test_size=0.30, random_state=42)
-val_subj, test_subj = train_test_split(temp_subj, test_size=0.50, random_state=42)
-```
+The earlier manifest (record-level, removed) treated
+each record (night) as an independent "subject". This leaked at person
+level in 10/10 folds: a test record's same-person mate was almost
+always in the train pool. Numbers from those folds are record-level
+estimates and are labeled as such in [`results.md`](results.md).
 
 ---
 
@@ -226,11 +246,12 @@ The pipeline performs these validation steps:
 
 ## Dataset Limitations
 
-1. **Development subset expanded:** The pipeline now uses 15 subjects from Sleep-EDF Expanded. Full deployment requires 183 subjects.
-2. **Healthy subjects only:** No pathological sleep patterns (apnea, narcolepsy, etc.)
-3. **Single night per subject:** Limited intra-subject variability
-4. **Class imbalance:** N1 and REM are underrepresented
-5. **Annotation granularity:** 30-second epochs may miss brief events
+1. **Two nights per person only:** 40 of 52 persons have both nights; night-to-night variability beyond two nights is unrepresented.
+2. **Healthy subjects only:** No pathological sleep patterns (apnea, narcolepsy, etc.).
+3. **Wide age range (25–101 yr):** fold stratification mitigates but does not remove demographic imbalance.
+4. **Class imbalance:** N1 and REM are underrepresented.
+5. **Annotation granularity:** 30-second epochs may miss brief events.
+6. **RK scoring conventions:** hypnograms use Rechtschaffen-Kales (1968), not AASM — labels are mapped to 5 classes.
 
 ---
 
@@ -250,5 +271,5 @@ The pipeline performs these validation steps:
 
 ---
 
-*Last updated: August 2026*
+*Last updated: September 2026*
 *Project: Neuromorphic Sleep Stage Scoring — VIT Bhopal University*

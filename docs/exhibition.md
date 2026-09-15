@@ -83,8 +83,9 @@
 ```bash
 # Run inference
 python scripts/infer.py \
-    --checkpoint artifacts/student_improved_best.pt \
-    --input demo/sample_inputs/sample_epoch.npz
+    # open notebooks/05_evaluation_and_benchmarking.ipynb (outputs embedded)
+    # or run the dashboard:
+    streamlit run app/streamlit_app.py
 ```
 
 **Expected output:**

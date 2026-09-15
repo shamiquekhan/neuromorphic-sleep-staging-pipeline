@@ -52,21 +52,21 @@ model-index:
           name: Sleep Stage Classification
         dataset:
           type: sleep-edf-expanded
-          name: Sleep-EDF Expanded (92 subjects, PhysioNet)
+          name: Sleep-EDF Expanded (52 persons / 92 records, PhysioNet)
           config: default
           split: test
           revision: main
         metrics:
           - type: accuracy
-            value: 0.877
+            value: 0.8766
             name: Accuracy
             verified: false
           - type: cohen_kappa
-            value: 0.763
+            value: 0.762
             name: Cohen's Kappa
             verified: false
           - type: f1
-            value: 0.730
+            value: 0.728
             name: Macro F1
             verified: false
           - type: f1
@@ -82,9 +82,17 @@ widget:
 
 # NeuroSleep — Light-Weight Sleep Stage Model
 
-**99,477 parameters, 87.7% accuracy (κ=0.763) — small enough for edge/wearable deployment, scoring Wake/N1/N2/N3/REM from 4-channel PSG.**
+**99,477 parameters, 87.30% ± 0.33% accuracy (κ=0.738, macro-F1=0.724, person-level 10-fold CV over 52 persons, seeds 42/43/44) — small enough for edge/wearable deployment, scoring Wake/N1/N2/N3/REM from 4-channel PSG.**
 
-> **Quick links:** [GitHub](https://github.com/shamiquekhan/neuromorphic-sleep-staging-pipeline) · [Live Demo](https://huggingface.co/spaces/shamiquekhan/neurosleep-demo) · [Kaggle](https://www.kaggle.com/shamiquekhan/neurosleep-final)
+> **Evidence note:** these are the **primary benchmark** numbers
+> (EXP-BENCH-PERSON: 92-record / 52-person eligible cohort from 100
+> downloaded Sleep-EDF Expanded records, from-scratch training,
+> person-level 10-fold cross-validation, seeds 42/43/44, causal
+> unique-epoch protocol). The notebook pipeline (Notebooks 01→05 of the
+> source repo) reproduces training end-to-end and reports 88.64%
+> accuracy / κ 0.773 on 15 held-out subjects.
+
+> **Quick links:** [GitHub](https://github.com/shamiquekhan/neuromorphic-sleep-staging-pipeline) · [Live Demo](https://huggingface.co/spaces/shamiquekhan/neurosleep-demo)
 
 A compact PyTorch model for five-stage sleep-stage classification from polysomnography signals. Processes 300 seconds of context (10 × 30-second epochs) and classifies each epoch into Wake, N1, N2, N3, or REM. Designed for edge deployment on resource-constrained devices.
 
@@ -169,26 +177,29 @@ Wake / N1 / N2 / N3 / REM
 | 3 | N3 | Deep sleep |
 | 4 | REM | Rapid eye movement sleep |
 
-## Evaluation (92 subjects, 10-fold subject-level CV, 3 seeds)
+## Evaluation (92-subject eligible cohort, 10-fold subject-level CV, seed 42)
 
 | Metric | Value |
 |--------|-------|
-| Accuracy | 87.7% ± 2.7% |
-| Cohen's Kappa | 0.763 ± 0.043 |
-| Macro F1 | 0.730 ± 0.037 |
-| Weighted F1 | 89.0% ± 2.1% |
+| Accuracy | 87.66% ± 2.22% (95% CI [86.07, 89.25]%) |
+| Cohen's Kappa | 0.762 ± 0.039 (95% CI [0.734, 0.790]) |
+| Macro F1 | 0.728 ± 0.036 (95% CI [0.702, 0.754]) |
+| Weighted F1 | 88.95% ± 1.97% (95% CI [87.54, 90.36]%) |
 
-### Per-Class Performance (Full Fine-Tuning)
+### Per-Class Performance (From-Scratch Primary Benchmark)
 
 | Stage | F1 | Precision | Recall |
 |-------|-----|-----------|--------|
-| Wake | 0.964 ± 0.016 | 0.995 | 0.936 |
-| N1 | **0.445 ± 0.061** | 0.330 | 0.712 |
-| N2 | 0.768 ± 0.041 | 0.878 | 0.687 |
-| N3 | 0.681 ± 0.114 | 0.562 | 0.896 |
-| REM | 0.771 ± 0.078 | 0.772 | 0.785 |
+| Wake | 0.967 ± 0.009 | 0.995 | 0.936 |
+| N1 | **0.452 ± 0.064** | 0.330 | 0.712 |
+| N2 | 0.767 ± 0.041 | 0.878 | 0.687 |
+| N3 | 0.688 ± 0.120 | 0.562 | 0.896 |
+| REM | 0.764 ± 0.073 | 0.772 | 0.785 |
 
-> **Honest assessment:** Overall accuracy (87.7%) is strong with balanced performance across all five stages. N1 is the most challenging stage (F1=0.445) due to its transitional nature and low prevalence (~4.6% of epochs).
+> **Honest assessment:** N1 is the most challenging stage (F1=0.452)
+> due to its transitional nature and low prevalence (~4.6% of epochs).
+> This is a single-seed estimate (seed 42); the three-seed protocol is
+> in progress.
 
 ## Preprocessing
 
@@ -203,14 +214,16 @@ See the [source repo](https://github.com/shamiquekhan/neuromorphic-sleep-staging
 
 ## Training Details
 
-- **Dataset:** Sleep-EDF Expanded (92 subjects, PhysioNet)
+- **Dataset:** Sleep-EDF Expanded — 92-subject eligible cohort from 100
+  downloaded records (8 wake-only excluded), PhysioNet
+- **Initialization:** from scratch (random init)
 - **Optimizer:** AdamW (lr=3e-4, weight_decay=1e-4)
 - **Epochs:** 20 (early stopping patience=5)
 - **Class weights:** N1=2x, REM=2x
 - **Supervision:** All-position (every epoch in 10-epoch window)
 - **Gradient clipping:** max_norm=1.0
 - **Mixed precision:** True (CUDA)
-- **Seeds:** 42, 43, 44 (30 folds per method)
+- **Seed:** 42 (seeds 43/44 pending)
 
 ## LoRA Adaptation (Parameter-Efficient Fine-Tuning)
 
@@ -244,7 +257,13 @@ model = apply_lora(model, lora_config)
 # trainable params: 1,448 || all params: 99,477 || trainable%: 1.43%
 ```
 
-### LoRA vs Full Fine-Tuning (100-Subject Benchmark)
+### LoRA vs Full Fine-Tuning (quarantined internal comparison)
+
+> **Evidence status:** the adaptation study's base checkpoint was
+> trained on 15 subjects that overlap the evaluation folds
+> (contaminated; ~+2.5pp inflation). These numbers are retained for
+> like-for-like internal comparison only and must not be cited as
+> generalization results. See `docs/adaptation.md` in the source repo.
 
 | Method | Trainable Params | Accuracy | Macro F1 |
 |--------|-----------------|----------|----------|
@@ -252,7 +271,13 @@ model = apply_lora(model, lora_config)
 | LoRA CNN+Head | 1,448 | 83.6% | 0.674 |
 | **Full Fine-Tuning** | **99,477** | **87.7%** | **0.730** |
 
-LoRA CNN+Head uses **68.7× fewer trainable parameters** while retaining **95.4% of full FT accuracy**.
+**Honest reading:** the tested LoRA CNN+Head configuration trains
+**68.7× fewer parameters** than full fine-tuning, but in this
+(contaminated) run produced lower accuracy and substantially lower
+macro-F1 (0.674 vs 0.730). Whether low-rank adaptation — including
+adapting the GRU, which holds 90.3% of the parameter budget — can close
+the gap is an open research question being re-run on a leak-free base
+checkpoint.
 
 ## Intended Use
 
@@ -264,10 +289,11 @@ LoRA CNN+Head uses **68.7× fewer trainable parameters** while retaining **95.4%
 ## Limitations
 
 - **Not clinically validated** — do not use for diagnosis or clinical decision-making
-- N1 classification is challenging (F1=0.445) due to brief, transitional light sleep
-- Trained on Sleep-EDF Expanded (92 subjects); generalizability should be validated
+- N1 classification is challenging (F1=0.452) due to brief, transitional light sleep
+- Trained on Sleep-EDF Expanded (92-record / 52-person cohort); cross-dataset generalizability should be validated
 - Requires 4-channel PSG (Fpz-Cz, Pz-Oz, EOG, EMG) — single-channel EEG not supported
 - Class distribution is Wake-dominant (~68%) from untrimmed recordings
+- The architecture is a conventional differentiable CNN–GRU designed for edge-deployment constraints, not a spiking/neuromorphic network
 
 ## Resources
 
@@ -275,7 +301,7 @@ LoRA CNN+Head uses **68.7× fewer trainable parameters** while retaining **95.4%
 |----------|------|
 | **Source Code** | [GitHub](https://github.com/shamiquekhan/neuromorphic-sleep-staging-pipeline) |
 | **Live Demo** | [Hugging Face Space](https://huggingface.co/spaces/shamique/neurosleep-demo) |
-| **Reproduce** | [Kaggle Notebook](https://www.kaggle.com/shamiquekhan/neurosleep-final) |
+| **Reproduce** | Notebooks 01→05 in the source repo |
 | **Model Weights** | This page |
 
 ## Citation

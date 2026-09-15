@@ -4,6 +4,16 @@
 
 The system classifies 30-second sleep epochs into five AASM stages (Wake, N1, N2, N3, REM) from multi-channel polysomnography (PSG) signals. The architecture is designed for **edge deployment** with fewer than 100K trainable parameters.
 
+> **Config contract (post-audit fix, Sept 2026):** every layer is now
+> built from `StudentConfig` (`src/sleep_staging/config.py`). The
+> pre-fix model hardcoded its widths (stem 8, encoder 32, Gabor out 16,
+> feature dim 272) while the config advertised different values
+> (stem 10, Gabor out 32) — config edits silently changed nothing.
+> `StudentConfig` defaults now describe the trained 99,477-parameter
+> architecture exactly, and `forward` validates the input contract
+> (shape `[B, 10, 4, 3000]`, finite values) before any compute.
+> Verified by `tests/test_model_contract.py`.
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    INPUT: 10 × 30s PSG Epochs                  │
@@ -163,9 +173,19 @@ g(t) = exp(-t² / (2σ²)) × cos(2π × f₀ × t)
 ```
 
 Where:
-- `f₀` = center frequency (learnable, initialized 0.5–30 Hz)
-- `σ` = bandwidth (learnable)
+- `f₀` = center frequency (learnable, **constrained to 0.5–30 Hz by construction**)
+- `σ` = bandwidth (learnable, **positive by construction**)
 - `t` = time index
+
+> **Band constraint (post-audit fix, Sept 2026):** the pre-fix
+> implementation initialized `f₀` in 0.5–30 Hz but stored it as an
+> unconstrained parameter — trained fold checkpoints drifted as far as
+> −4.8 Hz and +39.4 Hz. Center frequencies are now stored as a raw
+> parameter mapped through a sigmoid into the band (and bandwidths
+> through a softplus into positive values), so the documented range
+> holds *by construction*, under any optimizer, any learning rate.
+> Legacy checkpoints load with out-of-band values clamped into the band
+> and flagged (`_legacy_gabor_clamped`).
 
 **Why Gabor:**
 - Sleep stages are characterized by different oscillatory content
@@ -183,7 +203,7 @@ The Gabor branch averages all 4 raw channels (2 EEG, EOG, EMG) into a single sig
 |----------|-------|
 | Number of filters | 8 |
 | Kernel size | 51 samples |
-| Frequency range | 0.5–30 Hz |
+| Frequency range | 0.5–30 Hz (guaranteed by construction) |
 | Output per channel | 8 features |
 | Total output | 4 × 8 = 32 features |
 
@@ -356,9 +376,11 @@ The final architecture evolved through these stages:
 | Improved Teacher | 193,197 | 79.28% | Historical |
 | Baseline Student | 567,749 | 90.25% | Historical |
 | Improved Student (4 subj) | 99,477 | 87.34% | Historical |
-| **Improved Student (15 subj)** | **99,477** | **87.5% ± 3.2%** | **Final** |
+| Improved Student (15 subj dev, EXP-DEV-15SUBJ) | 99,477 | 93.0% ± 1.0% | Archived (development only) |
+| **Improved Student (92-subject primary, EXP-BENCH-92SUBJ)** | **99,477** | **87.66% ± 2.22% (seed 42)** | **Primary** |
 
 The Improved Student is the only model used for exhibition and deployment.
+See [`results.md`](results.md) for the full evidence hierarchy.
 
 ---
 
