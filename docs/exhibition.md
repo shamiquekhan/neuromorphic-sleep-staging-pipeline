@@ -102,31 +102,48 @@ Epoch  3: N2     (confidence: 89.1%)
 ### Minute 5: Results & Impact (60 seconds)
 
 **Script:**
-> "Our final model achieves 87.5% test accuracy with Cohen's kappa of 0.763 across 15 subjects from Sleep-EDF Expanded. The model has only 99,477 parameters — small enough for edge deployment on microcontrollers. Most notably, we achieved 72% F1 on N1 sleep staging, up from 0% in the baseline, by expanding subject diversity. This demonstrates that efficient deep learning can automate sleep classification while remaining practical for resource-constrained devices."
+> "Our historical exhibition model achieves **88.64% accuracy** with Cohen's kappa of **0.7725** on 15 held-out subjects from Sleep-EDF Expanded under the legacy all-position protocol. The model has only **99,477 parameters** — small enough for edge deployment on microcontrollers. 
+
+> **Important:** This historical result (88.64%) uses the legacy all-position evaluation protocol which scores overlapping sequence windows. The primary research benchmark (person-level 10-fold CV, causal unique-epoch protocol) yields 87.30% accuracy. The two protocols are not directly comparable."
 
 **Show:**
-- Official result block
-- N1 improvement (0% → 72%)
+- Historical exhibition result block
 - Parameter count comparison
 - Latency measurement
 - Edge deployment potential
+- Protocol distinction note
 
-**Key result block:**
+**Historical Exhibition Result (EXP-EXHIBITION-15SUBJ):**
 ```
-87.5%
-TEST ACCURACY
+88.64%
+HISTORICAL EXHIBITION ACCURACY (legacy protocol)
 
-0.763
+0.7725
 COHEN'S κ
 
-0.720
-N1 F1 SCORE
+0.7186
+MACRO F1
 
 99,477
 PARAMETERS
 
-8.5 ms/batch
+8.86 ms/batch
 CPU LATENCY
+```
+
+**Primary Research Benchmark (EXP-BENCH-PERSON):**
+```
+87.30% ± 0.33%
+PERSON-LEVEL ACCURACY (causal protocol)
+
+0.738 ± 0.010
+COHEN'S κ
+
+0.724 ± 0.005
+MACRO F1
+
+99,477
+PARAMETERS
 ```
 
 ---
@@ -154,10 +171,11 @@ CPU LATENCY
 ### Section C: Dataset
 
 ```
-Sleep-EDF
+Sleep-EDF Expanded
 EEG + EOG + EMG
-11,128 processed epochs
-Subject-level split
+92-record eligible cohort (52 persons)
+Person-level 10-fold CV (primary)
+Subject-level 70/15/15 split (exhibition)
 ```
 
 ---
@@ -198,40 +216,34 @@ Parametric Gabor FEB
 
 ### Section F: Results
 
-**Large typography:**
+**Large typography — Historical Exhibition Result (EXP-EXHIBITION-15SUBJ):**
 
 ```
-87.5%
-TEST ACCURACY
+88.64%
+HISTORICAL EXHIBITION ACCURACY
+(Legacy All-Position Protocol)
 
-0.763
+0.7725
 COHEN'S κ
 
-0.720
-N1 F1 SCORE
+0.7186
+MACRO F1
 
 99,477
 PARAMETERS
 ```
 
----
-
-### Section G: LoRA Adaptation
-
-**Parameter-Efficient Adaptation:**
-
-```
-LoRA r=8: 552 trainable params (0.55%)
-    → κ = 0.8092 (94.2% of full fine-tuning)
-    → Merge diff: 0.00e+00
-    → Adapter reload: 0.00e+00
-```
-
-**Key message:** "The same 99K-parameter backbone can be adapted to new subjects using only 552 trainable parameters — less than 1% of the full model."
+**Small text note:** "Primary research benchmark (EXP-BENCH-PERSON): 87.30% ± 0.33% accuracy, 0.738 ± 0.010 κ, causal unique-epoch protocol."
 
 ---
 
-### Section G: Deployment
+### Section G: LoRA Adaptation (Quarantined)
+
+> **Note:** The LoRA adaptation study used a contaminated base checkpoint and record-level folds with person-level leakage. Results are retained in `docs/adaptation.md` for internal comparison only and must not be presented as valid person-generalization estimates.
+
+---
+
+### Section H: Deployment
 
 ```
 Compact model
@@ -245,7 +257,7 @@ Edge / MCU deployment
 
 ---
 
-### Section H: Team
+### Section I: Team
 
 | Member | Role |
 |--------|------|
@@ -314,6 +326,9 @@ A: They reduce computational cost by ~77% compared to standard convolutions whil
 **Q: Why is accuracy not enough?**
 A: Class imbalance means a model can have high accuracy while performing poorly on minority stages. Cohen's kappa and F1 are more informative.
 
+**Q: What's the difference between 88.64% and 87.30%?**
+A: The 88.64% is the historical exhibition result under the legacy all-position protocol (scoring overlapping windows). The 87.30% is the primary research benchmark under the causal unique-epoch protocol (one prediction per unique epoch, person-level splits). The stricter protocol yields a more honest person-generalization estimate.
+
 ### Deployment Questions
 
 **Q: Can this run on a microcontroller?**
@@ -351,7 +366,8 @@ A: No. This is a research prototype. Clinical validation would require larger, m
 - [ ] Start with problem statement
 - [ ] Show signal processing pipeline
 - [ ] Demonstrate live inference
-- [ ] Present official result
+- [ ] Present historical exhibition result (88.64%, legacy protocol)
+- [ ] Clarify primary benchmark is 87.30% (causal protocol)
 - [ ] Answer questions confidently
 - [ ] Acknowledge limitations honestly
 
@@ -364,5 +380,5 @@ A: No. This is a research prototype. Clinical validation would require larger, m
 
 ---
 
-*Last updated: August 2026*
+*Last updated: September 2026*
 *Project: Neuromorphic Sleep Stage Scoring — VIT Bhopal University*

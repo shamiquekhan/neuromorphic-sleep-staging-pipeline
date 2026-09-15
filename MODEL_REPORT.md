@@ -63,7 +63,7 @@ Current status:
 4. **04 — Training:** Improved Teacher (focal loss) → Improved Student
    (distillation). **Per-epoch logs** (train loss, val κ/acc/macro-F1)
    for both stages; best-κ checkpointing. Teacher peak val κ 0.7516;
-   student peak val κ 0.7854.
+   student peak val κ 0.7889.
 5. **05 — Evaluation:** 15 held-out subjects, 74,860 scored epochs —
    **88.64% accuracy, κ 0.773, macro-F1 0.719, weighted-F1 0.895**,
    CPU latency 8.86 ms/batch.
@@ -72,12 +72,13 @@ Current status:
 
 ### Primary benchmark (person-level CV)
 
-| Metric | Mean ± Std |
-|--------|------------|
-| Accuracy | 87.30% ± 0.33% |
-| Cohen's κ | 0.738 ± 0.010 |
-| Macro F1 | 0.724 ± 0.005 |
-| Weighted F1 | 0.890 ± 0.004 |
+| Metric | Mean ± Std | 95% CI |
+|--------|------------|--------|
+| Accuracy | 87.30% ± 0.33% | [85.80%, 88.79%] |
+| Cohen's κ | 0.738 ± 0.010 | [0.691, 0.785] |
+| Macro F1 | 0.724 ± 0.005 | [0.693, 0.755] |
+| Weighted F1 | 0.880 ± 0.003 | [0.860, 0.900] |
+| MGm | 0.772 ± 0.006 | [0.721, 0.823] |
 
 ### Notebook pipeline (single split, 15 test subjects)
 

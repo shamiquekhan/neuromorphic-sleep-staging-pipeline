@@ -18,18 +18,18 @@ per-epoch training logs.
 1. **Primary:** person-level benchmark (EXP-BENCH-PERSON, 52-person
    10-fold CV, seeds 42/43/44) — **87.30% ± 0.33% accuracy,
    κ 0.738 ± 0.010, macro-F1 0.724 ± 0.005** →
-   `docs/results.md`, `results/benchmark_person_level/`
-2. **Notebook pipeline:** single 70/15/15 subject split, end-to-end run
+   `docs/RESULTS.md`, `results/research/EXP-BENCH-PERSON/`
+2. **Historical Exhibition:** single 70/15/15 subject split, end-to-end run
    of notebooks 01→05 (distilled student, 15 held-out test subjects) —
-   **88.64% accuracy, κ 0.773, macro-F1 0.719** →
+   **88.64% accuracy, κ 0.773, macro-F1 0.719** (legacy all-position protocol) →
    `notebooks/05_evaluation_and_benchmarking.ipynb`,
-   `results/final/notebook_pipeline_result.csv`
+   `results/exhibition/EXP-EXHIBITION-15SUBJ/`
 3. **Quarantined:** adaptation study (Frozen / LoRA / Full-FT) —
    contaminated base checkpoint + record-level folds; internal
    comparison only → `docs/adaptation.md`
 
 All benchmark numbers regenerate from raw fold evidence:
-`python scripts/summarize_benchmark.py`.
+`python scripts/summarize_person_benchmark.py --results-dir results/research/EXP-BENCH-PERSON`.
 
 ## Primary Model
 
@@ -48,11 +48,11 @@ All benchmark numbers regenerate from raw fold evidence:
 
 | Notebook | Role | Key output |
 |----------|------|-----------|
-| 01 data import & dataset collection | manifest, pairing audit, subject split | `data/manifests/sleep_edf.csv` |
+| 01 data import & dataset collection | manifest, pairing audit, subject split | `data/manifests/exhibition_15subj_v1.json` |
 | 02 data preprocessing | filter → epoch → QC → normalize → cache | `data/cache/*.npz` + `cache_index.csv` |
 | 03 exploratory data analysis | class balance, QC burden, spectra, transitions | diagnostics (in-notebook) |
-| 04 model architecture & training | teacher + distilled student, per-epoch logs | `artifacts/teacher_improved_best.pt`, `artifacts/final/student_full_finetuned.pt` |
-| 05 evaluation & benchmarking | held-out test metrics, confusion matrix, latency | `results/final/notebook_pipeline_result.csv` |
+| 04 model architecture & training | teacher + distilled student, per-epoch logs | `artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/teacher_improved_best.pt`, `artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/student_best.pt` |
+| 05 evaluation & benchmarking | held-out test metrics, confusion matrix, latency | `results/exhibition/EXP-EXHIBITION-15SUBJ/` |
 | 06 LoRA adaptation (extension) | adapter machinery demo | research extension only |
 
 ## Key Files
@@ -60,16 +60,18 @@ All benchmark numbers regenerate from raw fold evidence:
 | File | Description |
 |------|-------------|
 | `notebooks/01–06_*.ipynb` | **The complete pipeline** (run in order) |
-| `docs/results.md` | **Single authoritative results document** |
-| `configs/benchmark_person_level.yaml` | Primary benchmark config (EXP-BENCH-PERSON) |
+| `docs/RESULTS.md` | **Single authoritative results document** |
+| `configs/experiments/person_level_cv.yaml` | Primary benchmark config (EXP-BENCH-PERSON) |
+| `configs/experiments/exhibition_15subj.yaml` | Historical exhibition config (EXP-EXHIBITION-15SUBJ) |
 | `data/manifests/person_folds_52subj.json` | Person-level folds (52 persons, 10 folds) |
+| `data/manifests/exhibition_15subj_v1.json` | Exhibition 70/15/15 split |
 | `scripts/generate_person_folds.py` | Generates person-level folds |
-| `scripts/summarize_benchmark.py` | Regenerates result tables + CIs from evidence |
+| `scripts/summarize_person_benchmark.py` | Regenerates result tables + CIs from evidence |
 | `scripts/verify_protocol.py` | Leakage (record + person level) + config-consistency gate |
-| `scripts/run_100_subject_benchmark.py` | Primary benchmark runner |
-| `scripts/train_adaptation.py` | Frozen / LoRA / Full-FT runner |
+| `scripts/run_person_level_benchmark.py` | Primary benchmark runner |
+| `scripts/protocol_fingerprint.py` | Pre-run consistency verification |
 | `docs/lora.md` | LoRA mathematics, targets, verification guarantees |
-| `docs/adaptation.md` | Three-regime protocol + contamination record |
+| `docs/adaptation.md` | Three-regime protocol + contamination record (quarantined) |
 | `app/streamlit_app.py` | Dashboard |
 | `ROADMAP.md` | Experiment status + remaining work |
 
@@ -86,8 +88,8 @@ jupyter nbconvert --to notebook --execute notebooks/01_data_import_and_dataset_c
 # Dashboard
 streamlit run app/streamlit_app.py
 
-# Regenerate result tables from fold evidence
-python scripts/summarize_benchmark.py
+# Regenerate primary benchmark result tables from fold evidence
+python scripts/summarize_person_benchmark.py --results-dir results/research/EXP-BENCH-PERSON
 
 # Verify protocol integrity
 python scripts/verify_protocol.py

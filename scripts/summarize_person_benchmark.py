@@ -1,14 +1,14 @@
-"""Summarize fold-level benchmark evidence with 95% confidence intervals.
+"""Summarize fold-level person-level benchmark evidence with 95% confidence intervals.
 
-Reads results/benchmark_92_subject/fold_summary.csv (one row per fold,
-from-scratch 92-subject benchmark) and emits mean, sample std, and a
-t-based 95% CI per metric. The unit of analysis is the fold (subject
+Reads results/research/EXP-BENCH-PERSON/fold_summary.csv (one row per fold,
+from-scratch person-level benchmark) and emits mean, sample std, and a
+t-based 95% CI per metric. The unit of analysis is the fold (person
 group), not the epoch.
 
 Usage:
-    python scripts/summarize_benchmark.py [--results-dir results/benchmark_92_subject]
+    python scripts/summarize_person_benchmark.py [--results-dir results/research/EXP-BENCH-PERSON]
 
-Writes results/benchmark_92_subject/summary_with_ci.json and prints a
+Writes results/research/EXP-BENCH-PERSON/summary_with_ci.json and prints a
 markdown table suitable for direct inclusion in docs/results.md.
 """
 
@@ -21,7 +21,7 @@ import math
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-DEFAULT_RESULTS_DIR = REPO / "results" / "benchmark_92_subject"
+DEFAULT_RESULTS_DIR = REPO / "results" / "research" / "EXP-BENCH-PERSON"
 
 # t(0.975, df) for two-sided 95% CI; keys are degrees of freedom (n - 1).
 T975 = {9: 2.262, 29: 2.045}

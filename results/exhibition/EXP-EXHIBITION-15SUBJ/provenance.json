@@ -1,0 +1,14 @@
+{
+  "experiment_id": "EXP-EXHIBITION-15SUBJ",
+  "git_commit": "fea0b6594b3d759ac53a34fb444c46ac92bae7d4",
+  "manifest_sha256": "f5e61111657f72b0265cc327242af7c22189f23b8b838d336a6bbbf1d9873885",
+  "teacher_checkpoint_sha256": "4710e5b3567ec9e9055a3d8f1b32fe33799fd3583d3d634ad7c6d1595b6274cb",
+  "student_checkpoint_sha256": "76e13f57fb28f4a7659ff8086c6292a1057831ff9c94ae770ac83ecbb77bc885",
+  "environment": {
+    "python": "3.11",
+    "pytorch": "2.6",
+    "cuda": "available"
+  },
+  "seed": 42,
+  "created_at": "2026-09-15T18:00:00Z"
+}

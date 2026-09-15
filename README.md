@@ -52,40 +52,54 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 
 ## Final Results
 
-### 100-Subject Benchmark (Authoritative)
+### Primary Benchmark: Person-Level 10-Fold CV (EXP-BENCH-PERSON)
 
-**Dataset:** Sleep-EDF Expanded (92 subjects, 10-fold subject-level CV)
+**Dataset:** Sleep-EDF Expanded — 92-record eligible cohort (52 persons), 10-fold person-level CV
 **Seeds:** 3 seeds × 10 folds = 30 folds per method
-**Model:** Improved Student — Full Fine-Tuning (99,477 params)
+**Model:** Improved Student — Trained from Scratch (99,477 params)
+**Protocol:** Causal unique-epoch evaluation (stride=1, last-epoch supervision)
+
+| Metric | Mean ± Std | 95% CI |
+|--------|------------|--------|
+| **Accuracy** | **87.30% ± 0.33%** | [85.80%, 88.79%] |
+| **Cohen's Kappa** | **0.738 ± 0.010** | [0.691, 0.785] |
+| **Macro F1** | **0.724 ± 0.005** | [0.693, 0.755] |
+| **Weighted F1** | **0.880 ± 0.003** | [0.860, 0.900] |
+| **MGm** | **0.772 ± 0.006** | [0.721, 0.823] |
+| **Parameters** | **99,477** | |
+
+### Per-Class Performance (Person-Level, 30 Folds)
+
+| Stage | F1 | 95% CI |
+|-------|-----|--------|
+| Wake | 0.960 ± 0.026 | [0.950, 0.970] |
+| N1 | **0.445 ± 0.087** | [0.413, 0.478] |
+| N2 | 0.733 ± 0.163 | [0.672, 0.794] |
+| N3 | 0.700 ± 0.112 | [0.658, 0.742] |
+| REM | 0.782 ± 0.116 | [0.739, 0.826] |
+
+### Historical Exhibition Result (EXP-EXHIBITION-15SUBJ)
+
+> **Note:** This is a historical fixed 70/15/15 subject split under the legacy all-position protocol. Not the primary research benchmark.
 
 | Metric | Value |
 |--------|-------|
-| **Accuracy** | **87.7% ± 2.7%** |
-| **Cohen's Kappa** | **0.763 ± 0.043** |
-| **Macro F1** | **0.730 ± 0.037** |
-| **Weighted F1** | **89.0% ± 2.1%** |
-| **MGm** | **0.797 ± 0.040** |
-| **Parameters** | **99,477** |
+| **Accuracy** | **88.64%** |
+| **Cohen's Kappa** | **0.7725** |
+| **Macro F1** | **0.7186** |
+| **Weighted F1** | **0.8953** |
+| **Test Subjects** | 15 (held-out) |
+| **Protocol** | Legacy all-position (stride=5) |
 
-### Per-Class Performance (Full Fine-Tuning, 30 Folds)
+### Quarantined: Legacy Record-Level Benchmark
 
-| Stage | F1 | Precision | Recall |
-|-------|-----|-----------|--------|
-| Wake | 0.964 ± 0.016 | 0.995 ± 0.003 | 0.936 ± 0.031 |
-| N1 | **0.445 ± 0.061** | 0.330 ± 0.065 | 0.712 ± 0.070 |
-| N2 | 0.768 ± 0.041 | 0.878 ± 0.043 | 0.687 ± 0.063 |
-| N3 | 0.681 ± 0.114 | 0.562 ± 0.135 | 0.896 ± 0.075 |
-| REM | 0.771 ± 0.078 | 0.772 ± 0.077 | 0.785 ± 0.118 |
+> **Warning:** The legacy "92-subject" benchmark used record-level folds with person-level leakage (SC4ss1/SC4ss2 = same person in train and test). Results are **record-level estimates only**, not person-generalization.
 
-### Adaptation Method Comparison
-
-| Model | Trainable Params | Accuracy | κ | Macro F1 |
-|-------|----------------:|---------:|----:|---------:|
-| Frozen Base | 0 (0%) | 87.1% ± 3.6% | 0.738 ± 0.077 | 0.673 ± 0.074 |
-| LoRA CNN+Head (r=8) | 1,448 (1.43%) | 83.6% ± 3.7% | 0.693 ± 0.057 | 0.674 ± 0.045 |
-| **Full Fine-Tuning** | **99,477 (100%)** | **87.7% ± 2.7%** | **0.763 ± 0.043** | **0.730 ± 0.037** |
-
-> **Key finding:** Full fine-tuning achieves the strongest overall and stage-balanced performance. LoRA CNN+Head uses 68.7× fewer trainable parameters while retaining 95.4% of full FT accuracy.
+| Metric | Value (Quarantined) |
+|--------|---------------------|
+| Accuracy | 87.66% ± 2.22% |
+| Cohen's κ | 0.763 ± 0.043 |
+| Macro F1 | 0.730 ± 0.037 |
 
 ---
 
@@ -151,108 +165,127 @@ neurosleep/
 │
 ├── src/sleep_staging/                    # Core Python package
 │   ├── models/
-│   │   └── improved_student.py           # ImprovedStudent architecture (99,477 params)
+│   │   ├── improved_student.py           # ImprovedStudent architecture (99,477 params)
+│   │   └── improved_teacher.py           # ImprovedTeacher for distillation
 │   ├── adaptation/
-│   │   └── lora.py                       # LoRA implementation (LoRALinear, LoRAConv1d)
+│   │   └── lora.py                       # LoRA implementation
 │   ├── inference/
-│   │   └── predictor.py                  # Inference engine with batch processing
+│   │   └── predictor.py                  # Inference engine
 │   ├── data/
-│   │   ├── loader.py                     # Cached subject loading (.npz files)
-│   │   ├── labels.py                     # Stage mapping, canonical subject list
-│   │   └── dataset.py                    # EEG dataset handling
+│   │   ├── loader.py                     # Cached subject loading
+│   │   ├── labels.py                     # Stage mapping
+│   │   └── dataset.py                    # Dataset handling
 │   ├── preprocessing/
 │   │   ├── filtering.py                  # Bandpass + notch filters
 │   │   └── quality.py                    # Signal quality control
 │   ├── training/
-│   │   └── cross_dataset.py              # SequenceDataset, class weights, training loop
+│   │   └── cross_dataset.py              # SequenceDataset, training loop
 │   ├── evaluation/
 │   │   └── metrics.py                    # Accuracy, κ, F1, per-class metrics
 │   ├── visualization/
 │   │   ├── hypnogram.py                  # Hypnogram plotting
 │   │   └── signals.py                    # Signal visualization
-│   ├── config.py                         # StudentConfig, PreprocessingConfig, paths
+│   ├── config.py                         # StudentConfig, PreprocessingConfig
 │   └── utils/                            # Utility functions
 │
-├── app/                                  # Streamlit dashboard (Swiss design)
+├── app/                                  # Streamlit dashboard
 │   ├── streamlit_app.py                  # Main entry point
 │   ├── components.py                     # Reusable UI components
 │   ├── state.py                          # Session state management
 │   └── pages/
-│       ├── 01_Dashboard.py               # Main dashboard with inference
+│       ├── 01_Dashboard.py               # Main dashboard
 │       ├── 02_Signal_Viewer.py           # Raw signal visualization
 │       ├── 03_Sleep_Night_Explorer.py    # Hypnogram explorer
 │       └── 04_Model_Information.py       # Architecture & results
 │
 ├── scripts/                              # CLI entry points
-│   ├── train_adaptation.py               # Frozen / LoRA / Full FT benchmark
-│   ├── run_100_subject_benchmark.py      # 100-subject from-scratch training
-│   ├── aggregate_adaptation_results.py   # Fold-level multi-seed aggregation
+│   ├── run_person_level_benchmark.py     # Primary benchmark training
+│   ├── summarize_person_benchmark.py     # Fold-level aggregation
 │   ├── protocol_fingerprint.py           # Pre-run consistency verification
-│   ├── evaluate_final_model.py           # Evaluate final checkpoint
-│   ├── run_4fold_simple.py               # Development 4-fold CV
+│   ├── verify_protocol.py                # Protocol integrity check
+│   ├── generate_person_folds.py          # Person-level fold generation
+│   ├── audit_repository.py               # Repository consistency audit
 │   ├── download_sleep_edf_expanded.py    # Dataset download
 │   ├── prepare_dataset.py                # Data preparation
-│   ├── smoke_test_lora.py                # LoRA verification tests
-│   └── audit_100_subjects.py             # Dataset quality audit
+│   └── quarantine/                       # Legacy scripts (archived)
+│       ├── run_100_subject_benchmark.py
+│       ├── train_adaptation.py
+│       └── aggregate_adaptation_results.py
 │
 ├── configs/                              # YAML configuration files
-│   ├── full_100_subject.yaml             # 100-subject benchmark config
-│   ├── final.yaml                        # 15-subject development config
-│   └── benchmark_canonical.yaml          # Canonical benchmark config
+│   ├── experiments/
+│   │   ├── exhibition_15subj.yaml        # Historical exhibition (EXP-EXHIBITION-15SUBJ)
+│   │   └── person_level_cv.yaml          # Primary benchmark (EXP-BENCH-PERSON)
+│   └── model/
+│       └── improved_student.yaml         # Model architecture spec
 │
 ├── artifacts/                            # Model checkpoints
-│   └── final/
-│       └── student_full_finetuned.pt     # Authoritative final checkpoint
+│   ├── exhibition/
+│   │   └── EXP-EXHIBITION-15SUBJ/
+│   │       └── seed-42/
+│   │           ├── teacher_improved_best.pt
+│   │           ├── student_best.pt
+│   │           └── provenance.json
+│   ├── research/
+│   │   └── EXP-BENCH-PERSON/
+│   └── quarantine/                       # Legacy checkpoints
+│       └── student_full_finetuned_generic.pt
 │
 ├── results/                              # Evaluation results
-│   ├── 100_subject_adaptation/           # Adaptation comparison study
-│   │   ├── final/                        # 3-seed aggregate (authoritative)
-│   │   │   ├── aggregate_metrics.json    # Mean ± std across 30 folds
-│   │   │   ├── overall_comparison.csv    # Overall metrics
-│   │   │   ├── per_class_comparison.csv  # Per-stage metrics
-│   │   │   └── FINAL_ADAPTATION_RESULTS.md
-│   │   ├── frozen/                       # Frozen base results
-│   │   ├── lora_r8_enc.0.pw_enc.1.pw_head/  # LoRA CNN+Head results
-│   │   └── full_finetune/                # Full FT results
-│   ├── full_100_subject/                 # From-scratch benchmark (seed 42)
-│   ├── audit/                            # Protocol verification
-│   │   ├── benchmark_comparison.json     # Original vs adaptation comparison
-│   │   ├── benchmark_side_by_side.json   # Side-by-side config comparison
-│   │   └── protocol_fingerprint_seed42.json  # Reference fingerprint
-│   └── final/                            # 15-subject development results
+│   ├── exhibition/
+│   │   └── EXP-EXHIBITION-15SUBJ/        # Historical exhibition results
+│   ├── research/
+│   │   └── EXP-BENCH-PERSON/             # Primary benchmark results
+│   └── quarantine/                       # Legacy/contaminated results
+│       ├── legacy_benchmark_92subj/
+│       └── legacy_adaptation/
 │
 ├── data/
 │   ├── manifests/
-│   │   ├── canonical_subject_folds_92subj.json  # 10-fold CV splits
-│   │   ├── canonical_subject_folds.json         # 4-fold development splits
-│   │   └── sleep_edf_expanded.json              # Subject metadata
+│   │   ├── exhibition_15subj_v1.json     # Exhibition split manifest
+│   │   ├── person_folds_52subj.json      # Person-level 10-fold CV (52 persons)
+│   │   ├── person_groups.json            # SC4ss1/SC4ss2 person mapping
+│   │   └── sleep_edf.csv                 # Subject metadata
 │   └── cache/
-│       └── sleep_edf/                    # Cached .npz files (92 subjects)
+│       └── sleep_edf/                    # Cached .npz files
 │
 ├── tests/                                # Pytest test suite
+│   ├── test_model_contract.py            # Model I/O contract
+│   ├── test_sequence_dataset.py          # Sequence dataset tests
 │   ├── test_lora.py                      # LoRA wrapping tests
 │   ├── test_lora_conv1d.py              # Conv1d LoRA tests
-│   ├── test_model_new.py                # Model architecture tests
+│   ├── test_checkpoint.py               # Checkpoint loading tests
 │   ├── test_evaluation.py               # Metrics tests
-│   └── test_checkpoint.py               # Checkpoint loading tests
+│   └── test_seed.py                      # Deterministic execution
 │
 ├── docs/                                 # Documentation
-│   ├── results.md                        # Authoritative results document
-│   ├── LIMITATIONS.md                    # Per-class analysis & limitations
+│   ├── EXPERIMENTS.md                    # Experiment registry (authoritative)
+│   ├── RESULTS.md                        # Validated metrics (authoritative)
+│   ├── REPRODUCIBILITY.md                # Reproduction guide
+│   ├── adaptation.md                     # Quarantined adaptation study
 │   ├── architecture.md                   # Architecture deep dive
 │   ├── dataset.md                        # Dataset documentation
 │   ├── methodology.md                    # Training methodology
 │   └── team.md                           # Team contributions
 │
-├── notebooks/                            # Jupyter notebooks (analysis)
+├── notebooks/                            # Jupyter notebooks (canonical pipeline)
+│   ├── 01_data_import_and_dataset_collection.ipynb
+│   ├── 02_data_preprocessing.ipynb
+│   ├── 03_exploratory_data_analysis.ipynb
+│   ├── 04_model_architecture_and_training.ipynb
+│   ├── 05_evaluation_and_benchmarking.ipynb
+│   └── 06_lora_adaptation_and_evaluation.ipynb (historical)
+│
 ├── deployment/                           # Deployment artifacts
-│   ├── app.py                            # Deployment app
-│   └── config/inference.yaml             # Inference config
+│   ├── app.py
+│   └── config/inference.yaml
 │
 ├── hf_model_card.md                      # Hugging Face model card
 ├── MODEL_REPORT.md                       # Detailed model report
 ├── GUIDE.md                              # Project guide
+├── ROADMAP.md                            # Development roadmap
 ├── requirements.txt                      # Python dependencies
+├── requirements-lock.txt                 # Locked dependencies
 └── pyproject.toml                        # Package configuration
 ```
 
@@ -317,26 +350,36 @@ for i in range(10):
     print(f"Epoch {i}: {STAGE_NAMES[preds[0, i].item()]} ({probs[0, i, preds[0, i]].item():.2%})")
 ```
 
-### Evaluate the Final Model
+### Evaluate the Final Model (Exhibition)
 
 ```bash
-python scripts/evaluate_final_model.py
+python scripts/verify_protocol.py
+# Then run Notebook 05 for full evaluation
 ```
 
-### Run 100-Subject Benchmark
+### Run Person-Level Benchmark (Primary)
 
 ```bash
-# Full fine-tuning (seed 42)
-python scripts/train_adaptation.py --mode full_finetune --seed 42 --device cuda
+# Verify protocol first
+python scripts/verify_protocol.py
 
-# Frozen base
-python scripts/train_adaptation.py --mode frozen --seed 42 --device cuda
+# Single fold, seed 42
+python scripts/run_person_level_benchmark.py --fold 0 --seed 42
 
-# LoRA CNN+Head
-python scripts/train_adaptation.py --mode lora --targets enc.0.pw,enc.1.pw,head --rank 8 --alpha 16 --seed 42 --device cuda
+# All folds, seed 42
+for fold in {0..9}; do
+    python scripts/run_person_level_benchmark.py --fold $fold --seed 42
+done
 
-# Aggregate all seeds
-python scripts/aggregate_adaptation_results.py
+# Multi-seed (seeds 42, 43, 44)
+for seed in 42 43 44; do
+    for fold in {0..9}; do
+        python scripts/run_person_level_benchmark.py --fold $fold --seed $seed
+    done
+done
+
+# Summarize results
+python scripts/summarize_person_benchmark.py --results-dir results/research/EXP-BENCH-PERSON
 ```
 
 ---
@@ -365,10 +408,12 @@ python scripts/aggregate_adaptation_results.py
 
 ### Cross-Validation Splits
 
-- **Method:** 10-fold subject-level CV
-- **Fold assignment:** Canonical (canonical_subject_folds_92subj.json)
-- **No data leakage:** Each subject appears in exactly one fold's test set
-- **All-position supervision:** Every epoch in the 10-epoch window is supervised
+- **Method:** 10-fold person-level CV (whole persons, both nights)
+- **Fold assignment:** Person-level (person_folds_52subj.json)
+- **Validation:** Fixed 5 persons (both nights), stratified by age decade
+- **No person leakage:** Each person appears in exactly one fold's test set
+- **Training supervision:** All-position (stride=5, training signal only)
+- **Evaluation protocol:** Causal unique-epoch (stride=1, last-epoch only)
 
 ---
 
@@ -392,11 +437,15 @@ python scripts/aggregate_adaptation_results.py
 ### Reproducibility
 
 ```bash
-# Save protocol fingerprint
+# Verify protocol integrity
+python scripts/verify_protocol.py
+
+# Save protocol fingerprint (for person-level benchmark)
 python scripts/protocol_fingerprint.py --seed 42 --mode full_finetune --save-reference
 
 # Verify protocol matches
 python scripts/protocol_fingerprint.py --seed 43 --mode full_finetune
+python scripts/protocol_fingerprint.py --seed 44 --mode full_finetune
 ```
 
 The fingerprint includes:
@@ -410,7 +459,11 @@ The fingerprint includes:
 
 ---
 
-## Adaptation Methods
+## Adaptation Methods (Quarantined)
+
+> **Note:** The adaptation study (Frozen / LoRA / Full-FT) used a contaminated base checkpoint and record-level folds with person-level leakage. Results are retained in `docs/adaptation.md` for internal comparison only and must not be reported as valid person-generalization estimates.
+
+For historical reference, the quarantined scripts are in `scripts/quarantine/`.
 
 ### Frozen Base
 

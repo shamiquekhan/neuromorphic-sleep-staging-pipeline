@@ -83,10 +83,12 @@ class TestConv1dLoRAIntegration:
         """Load model with checkpoint."""
         model = ImprovedStudent()
         ckpt = torch.load(
-            "artifacts/final/student_full_finetuned.pt",
+            "artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/student_best.pt",
             map_location="cpu",
-            weights_only=True,
+            weights_only=False,
         )
+        if "model_state_dict" in ckpt:
+            ckpt = ckpt["model_state_dict"]
         model.load_state_dict(ckpt)
         return model
 

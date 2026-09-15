@@ -1,0 +1,118 @@
+# NeuroSleep — Person-Level 10-Fold CV (Primary Research Benchmark)
+# ==================================================================
+# This is the PRIMARY benchmark configuration as of September 2026.
+# It uses person-level splits (52 persons, 92 records) with causal evaluation.
+#
+# KEY DISTINCTION FROM LEGACY:
+# - Split: person-level 10-fold CV (whole persons assigned to train/test)
+# - Training: all-position supervision (stride=5) — training signal only
+# - Evaluation: causal_unique_epoch (stride=1, last-epoch supervision)
+# - Exactly one prediction per unique (person, epoch) with provenance
+# - Supersedes EXP-BENCH-92SUBJ (record-level folds with person leakage)
+
+experiment:
+  id: EXP-BENCH-PERSON
+  name: "Person-Level 10-Fold CV Benchmark"
+  status: primary
+  description: "Person-level 10-fold CV over 52 persons, causal unique-epoch protocol"
+
+dataset:
+  name: Sleep-EDF Expanded
+  records_downloaded: 100
+  records_excluded_wake_only: 8
+  records_eligible: 92
+  persons_eligible: 52
+  split_level: person
+  manifest: data/manifests/sleep_edf_expanded.json
+  folds_manifest: data/manifests/person_folds_52subj.json
+  person_groups: data/manifests/person_groups.json
+
+sequence:
+  length: 10
+  train_stride: 5
+  eval_stride: 1
+  eval_supervision: last_epoch
+  eval_protocol: causal_unique_epoch
+  epoch_seconds: 30
+  samples_per_epoch: 3000
+
+channels:
+  - Fpz-Cz
+  - Pz-Oz
+  - EOG
+  - EMG
+
+sampling_rate: 100
+n_channels: 4
+n_classes: 5
+
+classes:
+  Wake: 0
+  N1: 1
+  N2: 2
+  N3: 3
+  REM: 4
+
+training:
+  initialization: from_scratch
+  seed: 42
+  seeds_planned: [42, 43, 44]
+  seeding: seed_everything (python/numpy/torch/cuda/cudnn; deterministic cudnn)
+  epochs: 20
+  batch_size: 32
+  learning_rate: 3.0e-4
+  weight_decay: 1.0e-4
+  grad_clip: 1.0
+  loss: weighted_cross_entropy
+  class_weights:
+    N1: 2.0
+    REM: 2.0
+  scheduler: cosine
+  warmup_fraction: 0.1
+  early_stopping_patience: 5
+  checkpoint_selection: val_macro_f1
+  device: auto
+  mixed_precision: true
+  pin_memory: true
+  num_workers: 4
+  # training windows use all positions; reporting is causal last-epoch
+  supervision: all_position_train_only
+
+model:
+  name: ImprovedStudent
+  parameters: 99477
+  n_classes: 5
+  architecture:
+    gru_hidden: 64
+    gru_layers: 2
+    stem_width: 8
+    encoder_channels: [32, 32]
+    gabor_n_filters: 8
+    gabor_out_dim: 16
+    gabor_kernel_size: 51
+
+evaluation:
+  method: 10-fold person-level CV
+  folds: 10
+  person_level: true
+  unit_of_analysis: unique_scored_epoch
+  protocol: causal_unique_epoch
+  seeds: [42, 43, 44]
+  test_stride: 1
+  test_supervision: last_epoch
+
+metrics:
+  - accuracy
+  - kappa
+  - macro_f1
+  - weighted_f1
+  - mgm
+  - per_class_f1
+  - per_class_recall
+  - per_class_precision
+  - confusion_matrix
+
+output:
+  results_dir: results/research/EXP-BENCH-PERSON
+  per_fold_dir: results/research/EXP-BENCH-PERSON/fold_{fold:02d}
+  artifacts_dir: artifacts/research/EXP-BENCH-PERSON

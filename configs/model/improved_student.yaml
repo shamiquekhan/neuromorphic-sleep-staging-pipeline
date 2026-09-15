@@ -1,0 +1,80 @@
+# NeuroSleep — Improved Student Model Configuration
+# ================================================
+# This describes the trained Improved Student architecture exactly.
+# Changing any value changes the architecture and invalidates existing checkpoints.
+
+model:
+  name: ImprovedStudent
+  class_path: sleep_staging.models.improved_student.ImprovedStudent
+  parameters: 99477
+
+architecture:
+  # Multi-resolution stem
+  stem:
+    n_channels: 4
+    stem_width: 8
+    short_kernel: 25
+    short_stride: 6
+    long_kernel: 200
+    long_stride: 25
+
+  # Depthwise-separable encoder (2 blocks)
+  encoder:
+    channels: [32, 32]
+    kernel_size: 5
+    stride: 2
+    padding: 2
+
+  # Pooling
+  pool:
+    type: AdaptiveAvgPool1d
+    output_size: 8
+
+  # Parametric Gabor FEB
+  gabor:
+    n_filters: 8
+    out_dim: 16
+    kernel_size: 51
+    freq_min_hz: 0.5
+    freq_max_hz: 30.0
+    sigma_init: 0.02
+    # Constrained parameterization:
+    #   freq_hz = 0.5 + 29.5 * sigmoid(freq_raw)  -> [0.5, 30] Hz
+    #   sigma   = softplus(sigma_raw) + 1e-4      -> positive
+
+  # GRU + Head
+  gru:
+    input_dim: 272  # encoder_channels[1] * 8 + gabor_out_dim = 32*8 + 16
+    hidden_size: 64
+    num_layers: 2
+    batch_first: true
+
+  head:
+    in_features: 64
+    out_features: 5
+
+input:
+  seq_len: 10
+  n_channels: 4
+  epoch_seconds: 30
+  sampling_rate: 100
+  samples_per_epoch: 3000
+  expected_shape: [batch, 10, 4, 3000]
+
+output:
+  expected_shape: [batch, 10, 5]
+  classes:
+    0: Wake
+    1: N1
+    2: N2
+    3: N3
+    4: REM
+
+checkpoint_compatibility:
+  legacy_keys:
+    gabor_freq: "normalized frequency (maps to freq_raw via inverse sigmoid)"
+    gabor_sigma: "unconstrained sigma (maps to sigma_raw via inverse softplus)"
+  current_keys:
+    gabor_freq_raw: "unconstrained, mapped to [0.5, 30] Hz via sigmoid"
+    gabor_sigma_raw: "unconstrained, mapped to positive via softplus"
+  note: "load_state_dict handles both legacy and current key formats"
