@@ -1,0 +1,2 @@
+model,parameters,dataset,test_accuracy,cohen_kappa,macro_f1,weighted_f1,macro_gmean,cpu_latency_ms_per_batch,f1_wake,f1_n1,f1_n2,f1_n3,f1_rem
+Improved Student — Full Fine-Tuning,99477,"Sleep-EDF Expanded (92 subjects, 10-fold CV, 3 seeds)",0.8766,0.7632,0.7302,0.8898,0.796,8.5,0.9659,0.4504,0.7725,0.6832,0.7788
