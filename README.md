@@ -82,7 +82,7 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 
 > **Note:** The current deployable checkpoint (`artifacts/standalone_99k/student_99477_best.pt`) is the Improved Student trained from scratch with supervised class-weighted cross-entropy on the exhibition 70/15/15 subject split (seed 42).
 >
-> **Protocol distinction (do not mix these up):**
+> **Protocol distinction :**
 > - **EXP-BENCH-PERSON** (above) — the primary research/generalization benchmark: person-level 10-fold CV, causal unique-epoch evaluation. The 87.30% is the honest person-generalization estimate.
 > - **EXP-STANDALONE-99K** (below) — the deployable standalone exhibition run: fixed 70/15/15 subject split, all-position protocol. The 90.57% is **not comparable** to the 87.30% — different evaluation semantics.
 
