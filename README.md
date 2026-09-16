@@ -78,9 +78,13 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 | N3 | 0.700 ± 0.112 | [0.658, 0.742] |
 | REM | 0.782 ± 0.116 | [0.739, 0.826] |
 
-### Deployed Standalone Result (Notebooks 01→05, supervised CE)
+### Deployed Standalone Result (EXP-STANDALONE-99K — Notebooks 01→05, supervised CE)
 
 > **Note:** The current deployable checkpoint (`artifacts/standalone_99k/student_99477_best.pt`) is the Improved Student trained from scratch with supervised class-weighted cross-entropy on the exhibition 70/15/15 subject split (seed 42).
+>
+> **Protocol distinction (do not mix these up):**
+> - **EXP-BENCH-PERSON** (above) — the primary research/generalization benchmark: person-level 10-fold CV, causal unique-epoch evaluation. The 87.30% is the honest person-generalization estimate.
+> - **EXP-STANDALONE-99K** (below) — the deployable standalone exhibition run: fixed 70/15/15 subject split, all-position protocol. The 90.57% is **not comparable** to the 87.30% — different evaluation semantics.
 
 | Metric | Value |
 |--------|-------|
@@ -258,8 +262,10 @@ neurosleep/
 │   ├── 01_data_import_and_dataset_collection.ipynb
 │   ├── 02_data_preprocessing.ipynb
 │   ├── 03_exploratory_data_analysis.ipynb
-│   ├── 04_student_99k_complete_training.ipynb
-│   ├── 05_evaluation_and_benchmarking.ipynb
+│   ├── 04_student_99k_complete_training.ipynb   # complete single-file experiment:
+│   │                                             #   architecture + training + eval + plots
+│   │                                             #   + stats + checkpoint/metrics export
+│   ├── 05_evaluation_and_benchmarking.ipynb      # official result verification + export
 │   └── 06_lora_adaptation_and_evaluation.ipynb (historical)
 │
 ├── deployment/                           # Deployment artifacts
@@ -624,14 +630,16 @@ training:
   batch_size: 16
   scheduler: cosine with 10% warmup
   gradient_clip: 1.0
-  supervision: all_position
+  supervision: all_position_train_only   # training signal only
 
 evaluation:
-  primary: 10-fold person-level CV, seeds [42, 43, 44]
-  standalone: exhibition 70/15/15 subject split, seed 42
+  primary: 10-fold person-level CV, seeds [42, 43, 44]   # EXP-BENCH-PERSON
+  eval_protocol: causal_unique_epoch   # stride=1, last-epoch supervision
+  standalone: exhibition 70/15/15 subject split, seed 42 # EXP-STANDALONE-99K
+  eval_supervision: last_epoch
   sequence_length: 10
   stride: 5
-  supervision: all_position
+  supervision: all_position_train_only
 ```
 
 ---

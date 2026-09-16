@@ -131,7 +131,7 @@ pip install -r requirements.txt && pip install -e .
 jupyter nbconvert --to notebook --execute notebooks/01_data_import_and_dataset_collection.ipynb --inplace
 jupyter nbconvert --to notebook --execute notebooks/02_data_preprocessing.ipynb --inplace
 jupyter nbconvert --to notebook --execute notebooks/03_exploratory_data_analysis.ipynb --inplace
-jupyter nbconvert --to notebook --execute notebooks/04_model_architecture_and_training.ipynb --inplace
+jupyter nbconvert --to notebook --execute notebooks/04_student_99k_complete_training.ipynb --inplace
 jupyter nbconvert --to notebook --execute notebooks/05_evaluation_and_benchmarking.ipynb --inplace
 
 # Dashboard
