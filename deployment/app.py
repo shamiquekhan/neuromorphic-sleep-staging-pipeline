@@ -42,10 +42,10 @@ header {visibility: hidden;}
 def load_predictor():
     """Load the final model checkpoint."""
     model_dir = Path(__file__).resolve().parent / "model"
-    checkpoint = model_dir / "student_full_finetuned.pt"
+    checkpoint = model_dir / "student_99477_best.pt"
     if not checkpoint.exists():
         # Fallback: try relative to deployment parent
-        checkpoint = Path(__file__).resolve().parent.parent / "artifacts" / "final" / "student_full_finetuned.pt"
+        checkpoint = Path(__file__).resolve().parent.parent / "artifacts" / "standalone_99k" / "student_99477_best.pt"
     return SleepStagePredictor(checkpoint_path=str(checkpoint), device="cpu")
 
 @st.cache_data

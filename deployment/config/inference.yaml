@@ -1,7 +1,7 @@
 model:
   name: Improved Student
   parameters: 99477
-  checkpoint: student_full_finetuned.pt
+  checkpoint: student_99477_best.pt
 
 input:
   sequence_length: 10
@@ -25,9 +25,9 @@ classes:
   - REM
 
 results:
-  accuracy: 0.930
-  accuracy_std: 0.010
-  kappa: 0.861
-  kappa_std: 0.027
-  macro_f1: 0.794
-  macro_f1_std: 0.036
+  accuracy: 0.8730
+  accuracy_std: 0.0033
+  kappa: 0.738
+  kappa_std: 0.010
+  macro_f1: 0.724
+  macro_f1_std: 0.005

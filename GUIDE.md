@@ -19,12 +19,12 @@ per-epoch training logs.
    10-fold CV, seeds 42/43/44) — **87.30% ± 0.33% accuracy,
    κ 0.738 ± 0.010, macro-F1 0.724 ± 0.005** →
    `docs/RESULTS.md`, `results/research/EXP-BENCH-PERSON/`
-2. **Historical Exhibition:** single 70/15/15 subject split, end-to-end run
-   of notebooks 01→05 (distilled student, 15 held-out test subjects) —
-   **88.64% accuracy, κ 0.773, macro-F1 0.719** (legacy all-position protocol) →
-   `notebooks/05_evaluation_and_benchmarking.ipynb`,
-   `results/exhibition/EXP-EXHIBITION-15SUBJ/`
-3. **Quarantined:** adaptation study (Frozen / LoRA / Full-FT) —
+2. **Deployed standalone run:** notebooks 01→05, supervised CE,
+   exhibition 70/15/15 split — **90.57% accuracy,
+   κ 0.808, macro-F1 0.749** → `results/standalone_99k/`,
+   `artifacts/standalone_99k/student_99477_best.pt`,
+   `results/final/notebook_pipeline_result.csv`
+4. **Quarantined:** adaptation study (Frozen / LoRA / Full-FT) —
    contaminated base checkpoint + record-level folds; internal
    comparison only → `docs/adaptation.md`
 
@@ -35,12 +35,14 @@ All benchmark numbers regenerate from raw fold evidence:
 
 | Property | Value |
 |----------|-------|
-| Model | Improved Student (distilled from Improved Teacher) |
+| Model | Improved Student (from scratch, supervised CE) |
 | Parameters | 99,477 |
 | Accuracy (person-level, 3 seeds × 10 folds) | 87.30% ± 0.33% |
 | Cohen's κ | 0.738 ± 0.010 |
 | Macro F1 | 0.724 ± 0.005 |
-| CPU latency | ~8.9 ms/batch |
+| Accuracy (standalone exhibition split, seed 42) | 90.57% (κ 0.808) |
+| CPU latency | 6.2 ms/batch (measured) |
+| Checkpoint | `artifacts/standalone_99k/student_99477_best.pt` |
 | Dataset | Sleep-EDF Expanded — 92 records / 52 persons |
 | Config | `configs/benchmark_person_level.yaml` |
 
@@ -51,24 +53,22 @@ All benchmark numbers regenerate from raw fold evidence:
 | 01 data import & dataset collection | manifest, pairing audit, subject split | `data/manifests/exhibition_15subj_v1.json` |
 | 02 data preprocessing | filter → epoch → QC → normalize → cache | `data/cache/*.npz` + `cache_index.csv` |
 | 03 exploratory data analysis | class balance, QC burden, spectra, transitions | diagnostics (in-notebook) |
-| 04 model architecture & training | teacher + distilled student, per-epoch logs | `artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/teacher_improved_best.pt`, `artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/student_best.pt` |
-| 05 evaluation & benchmarking | held-out test metrics, confusion matrix, latency | `results/exhibition/EXP-EXHIBITION-15SUBJ/` |
+| 04 student 99k complete training | supervised CE student (from scratch), per-epoch logs | `artifacts/standalone_99k/student_99477_best.pt` |
+| 05 evaluation & benchmarking | held-out test metrics, confusion matrix, latency | `results/standalone_99k/`, `results/final/notebook_pipeline_result.csv` |
 | 06 LoRA adaptation (extension) | adapter machinery demo | research extension only |
 
 ## Key Files
 
 | File | Description |
 |------|-------------|
-| `notebooks/01–06_*.ipynb` | **The complete pipeline** (run in order) |
+| `notebooks/01–05_*.ipynb` | **The complete pipeline** (run in order) |
 | `docs/RESULTS.md` | **Single authoritative results document** |
 | `configs/experiments/person_level_cv.yaml` | Primary benchmark config (EXP-BENCH-PERSON) |
-| `configs/experiments/exhibition_15subj.yaml` | Historical exhibition config (EXP-EXHIBITION-15SUBJ) |
 | `data/manifests/person_folds_52subj.json` | Person-level folds (52 persons, 10 folds) |
 | `data/manifests/exhibition_15subj_v1.json` | Exhibition 70/15/15 split |
 | `scripts/generate_person_folds.py` | Generates person-level folds |
 | `scripts/summarize_person_benchmark.py` | Regenerates result tables + CIs from evidence |
 | `scripts/verify_protocol.py` | Leakage (record + person level) + config-consistency gate |
-| `scripts/run_person_level_benchmark.py` | Primary benchmark runner |
 | `scripts/protocol_fingerprint.py` | Pre-run consistency verification |
 | `docs/lora.md` | LoRA mathematics, targets, verification guarantees |
 | `docs/adaptation.md` | Three-regime protocol + contamination record (quarantined) |
@@ -106,11 +106,11 @@ src/sleep_staging/      Core package (models, adaptation, data, training, evalua
 app/                    Streamlit dashboard
 scripts/                CLI tools
 tests/                  Test suite (92 tests)
-artifacts/              Final checkpoints (student + teacher)
+artifacts/              Deployed checkpoint (standalone_99k)
 results/                Evaluation evidence (see evidence hierarchy)
 configs/                Canonical experiment definitions
 data/                   Manifests (tracked) + cache/raw (local only)
-docs/                   Documentation (results.md is the numbers source of truth)
+docs/                   Documentation (RESULTS.md is the numbers source of truth)
 huggingface/            Hub model card + demo space assets
 deployment/             Docker deployment
 ```

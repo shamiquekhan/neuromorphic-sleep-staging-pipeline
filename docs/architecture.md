@@ -274,22 +274,21 @@ The Gabor branch averages all 4 raw channels (2 EEG, EOG, EMG) into a single sig
 
 ---
 
-## Knowledge Distillation
+## Training Objective
 
-The student is trained using a teacher-guided objective:
+The student is trained from scratch with a supervised, class-weighted
+objective — there is no teacher model and no distillation:
 
 ```
-L_total = α_ce × L_CE + α_kl × L_KL + α_feat × L_Feature
+L_total = L_CE(weighted)
 ```
 
-| Component | Weight | Description |
-|-----------|--------|-------------|
-| L_CE | 1.0 | Hard-label cross-entropy |
-| L_KL | 1.0 | Softened teacher-student KL divergence |
-| L_Feature | 0.5 | MSE feature alignment |
-| Temperature | 4.0 | Softmax temperature for distillation |
-
-**Note:** The teacher exists only during training. The final checkpoint is the student alone.
+| Component | Description |
+|-----------|-------------|
+| L_CE | Class-weighted hard-label cross-entropy |
+| Class weights | Log-normalized inverse-frequency (train partition only) |
+| Optimizer | AdamW, lr 3e-4, weight decay 1e-4 |
+| Temperature | n/a — single supervised objective |
 
 ---
 
@@ -299,7 +298,7 @@ L_total = α_ce × L_CE + α_kl × L_KL + α_feat × L_Feature
 |----------|-------|-------------------|
 | Parameters | 99,477 | < 400 KB at FP32 |
 | Input size | 30,000 samples | 120 KB per epoch |
-| CPU latency | 8.5 ms/batch | Real-time capable |
+| CPU latency | 6.2 ms/batch (measured) | Real-time capable |
 | Operations | Depthwise-separable + GRU | MCU-friendly |
 
 ### Quantization Readiness
@@ -373,14 +372,11 @@ The final architecture evolved through these stages:
 | Variant | Parameters | Accuracy | Status |
 |---------|-----------|----------|--------|
 | Baseline Teacher | 303,789 | 79.12% | Historical |
-| Improved Teacher | 193,197 | 79.28% | Historical |
-| Baseline Student | 567,749 | 90.25% | Historical |
-| Improved Student (4 subj) | 99,477 | 87.34% | Historical |
-| Improved Student (15 subj dev, EXP-DEV-15SUBJ) | 99,477 | 93.0% ± 1.0% | Archived (development only) |
-| **Improved Student (92-subject primary, EXP-BENCH-92SUBJ)** | **99,477** | **87.66% ± 2.22% (seed 42)** | **Primary** |
+| **Improved Student (person-level primary, EXP-BENCH-PERSON)** | **99,477** | **87.30% ± 0.33% (seeds 42/43/44)** | **Primary** |
+| Improved Student (standalone notebooks, 70/15/15 split) | 99,477 | 90.57% (κ 0.808, seed 42) | Complete — `results/standalone_99k/` |
 
 The Improved Student is the only model used for exhibition and deployment.
-See [`results.md`](results.md) for the full evidence hierarchy.
+See [`RESULTS.md`](RESULTS.md) for the full evidence hierarchy.
 
 ---
 

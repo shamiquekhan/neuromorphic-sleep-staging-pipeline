@@ -1,0 +1,44 @@
+{
+  "architecture": {
+    "parameters": 99477,
+    "input_shape": [
+      1,
+      10,
+      4,
+      3000
+    ],
+    "context_seconds": 300,
+    "feature_dim": 272,
+    "gru_hidden": 64,
+    "gru_layers": 2,
+    "gabor_filters": 8,
+    "gabor_output_dim": 16,
+    "classes": [
+      "Wake",
+      "N1",
+      "N2",
+      "N3",
+      "REM"
+    ]
+  },
+  "training": {
+    "epochs": 20,
+    "batch_size": 16,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "seed": 42,
+    "device": "cuda",
+    "training_seconds": 1089.004376411438,
+    "best_validation_epoch": 18,
+    "best_validation_kappa": 0.8274039393884121
+  },
+  "test": {
+    "accuracy": 0.9056505476890195,
+    "cohen_kappa": 0.8079613589399208,
+    "macro_f1": 0.7489878740066903,
+    "weighted_f1": 0.911545176995215,
+    "n_labels": 74860,
+    "parameter_count": 99477,
+    "training_seconds": 1089.004376411438
+  }
+}

@@ -80,19 +80,18 @@ jupyter nbconvert --to notebook --execute notebooks/03_exploratory_data_analysis
 
 ### Notebook 04: Model Architecture & Training
 ```bash
-jupyter nbconvert --to notebook --execute notebooks/04_model_architecture_and_training.ipynb
+jupyter nbconvert --to notebook --execute notebooks/04_student_99k_complete_training.ipynb
 ```
-**Runtime:** ~45 minutes on GTX 1650  
+**Runtime:** ~18 minutes on GTX 1650  
 **Outputs:**
-- `artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/teacher_improved_best.pt`
-- `artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/student_best.pt`
+- `artifacts/standalone_99k/student_99477_best.pt`
 - Per-epoch training logs embedded in notebook
 
 ### Notebook 05: Evaluation & Benchmarking
 ```bash
 jupyter nbconvert --to notebook --execute notebooks/05_evaluation_and_benchmarking.ipynb
 ```
-**Outputs:** Results in `results/exhibition/EXP-EXHIBITION-15SUBJ/` and `results/research/EXP-BENCH-PERSON/`
+**Outputs:** Results in `results/standalone_99k/` and `results/research/EXP-BENCH-PERSON/`
 
 ---
 
@@ -156,15 +155,13 @@ Every canonical checkpoint includes a `provenance.json`:
 ```bash
 python -c "
 import hashlib, json
-with open('artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/provenance.json') as f:
+with open('results/research/EXP-BENCH-PERSON/provenance.json') as f:
     p = json.load(f)
-for key in ['teacher_checkpoint_sha256', 'student_checkpoint_sha256']:
-    path = 'artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/' + ('teacher_improved_best.pt' if 'teacher' in key else 'student_best.pt')
-    h = hashlib.sha256()
-    with open(path, 'rb') as f:
-        for chunk in iter(lambda: f.read(65536), b''):
-            h.update(chunk)
-    print(key, h.hexdigest() == p[key])
+h = hashlib.sha256()
+with open('artifacts/standalone_99k/student_99477_best.pt', 'rb') as f:
+    for chunk in iter(lambda: f.read(65536), b''):
+        h.update(chunk)
+print('student_99477_best.pt sha256:', h.hexdigest())
 "
 ```
 
@@ -205,19 +202,15 @@ pytest tests/ -v
 ## Expected Outputs
 
 ### Notebook 04 Training Logs
-**Teacher (20 epochs):**
-- Peak val κ: 0.7516 at epoch 14
-- Final val κ: 0.7351 at epoch 20
-
-**Student (20 epochs):**
-- Peak val κ: 0.7889 at epoch 20
-- Final val κ: 0.7889 at epoch 20
+**Student 99k (20 epochs, seed 42):**
+- Peak val κ: 0.8274 at epoch 18
+- Final val κ: 0.8219 at epoch 20
 
 ### Notebook 05 Test Metrics
-**EXP-EXHIBITION-15SUBJ (legacy):**
-- Accuracy: 88.64%
-- κ: 0.7725
-- Macro F1: 0.7186
+**EXP-STANDALONE-99K (deployed checkpoint):**
+- Accuracy: 90.57%
+- κ: 0.8080
+- Macro F1: 0.7490
 
 **EXP-BENCH-PERSON (primary):**
 - Accuracy: 87.30% ± 0.33%

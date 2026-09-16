@@ -134,7 +134,7 @@ if nb_result:
     section_title("Notebook Pipeline — Single-Split Exhibition Run")
     st.caption(
         "End-to-end run through notebooks 01→05: manifest → preprocessing → "
-        "EDA → teacher + distilled student training (20 epochs each, per-epoch "
+        "EDA → standalone 99k student training (supervised CE, 20 epochs, per-epoch "
         "logs in the notebook) → evaluation on 15 held-out test subjects. "
         "Reproduces the full pipeline in one pass."
     )
@@ -163,8 +163,7 @@ if nb_result:
 
 if not primary_metrics and not nb_result:
     st.warning(
-        "No results found. Run the notebooks (01→05) or "
-        "scripts/run_100_subject_benchmark.py first."
+        "No results found. Run the notebooks (01→05) first."
     )
 
 # ── Reproducibility ─────────────────────────────────────────────────────
@@ -189,7 +188,7 @@ st.markdown(
     "<strong>Dataset:</strong> Sleep-EDF Expanded — 92-record eligible cohort / 52 persons (PhysioNet)<br>"
     "<strong>Training window:</strong> 10 &times; 30 s epochs (300 s context)<br>"
     "<strong>Primary model:</strong> Improved Student (from scratch, 99,477 params)<br>"
-    "<strong>Training:</strong> Knowledge distillation from Improved Teacher + class weighting<br>"
+    "<strong>Training:</strong> Supervised class-weighted cross-entropy (from scratch)<br>"
     "<strong>Evaluation:</strong> Primary: 10-fold person-level CV, seeds 42/43/44 &middot; "
     "Notebook pipeline: single 70/15/15 subject split"
     "</div>",

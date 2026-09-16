@@ -11,10 +11,10 @@ The final model (Improved Student, 99,477 parameters) is designed for edge deplo
 | Property | Value |
 |----------|-------|
 | Framework | PyTorch |
-| Checkpoint | `artifacts/final/student_full_finetuned.pt` |
+| Checkpoint | `artifacts/standalone_99k/student_99477_best.pt` |
 | Parameters | 99,477 |
 | Model size (FP32) | ~400 KB |
-| CPU latency | 8.5 ms/batch |
+| CPU latency | 6.2 ms/batch (measured, 50 runs) |
 | Input shape | [1, 10, 4, 3000] |
 | Output shape | [1, 10, 5] |
 
@@ -124,7 +124,7 @@ from src.models.improved_student import ImprovedStudent
 
 # Load model
 model = ImprovedStudent(n_classes=5)
-checkpoint = torch.load("artifacts/final/student_full_finetuned.pt", weights_only=True)
+checkpoint = torch.load("artifacts/standalone_99k/student_99477_best.pt", weights_only=False)
 if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
     model.load_state_dict(checkpoint["model_state_dict"])
 else:
@@ -336,7 +336,7 @@ At 100 Hz sampling, the system can process epochs in real-time with significant 
 
 1. **Quantization-Aware Training (QAT):** Train with quantization simulation for better INT8 accuracy
 2. **Pruning:** Remove redundant weights to further reduce model size
-3. **Knowledge Distillation to Smaller Models:** Distill into <50K parameter models
+3. **Parameter-Efficient Fine-Tuning:** Extend the LoRA machinery (`src/sleep_staging/adaptation/`) for per-patient personalization
 4. **ONNX Runtime Mobile:** Optimize for mobile devices
 5. **WebAssembly:** Browser-based inference for web demos
 

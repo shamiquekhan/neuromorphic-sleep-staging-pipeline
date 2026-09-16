@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src ./src
 COPY deployment/app.py .
 COPY deployment/config ./config
-COPY artifacts/final ./model
+COPY artifacts/standalone_99k ./model
 COPY results/final ./results/final
 
 ENV PYTHONPATH=/app/src

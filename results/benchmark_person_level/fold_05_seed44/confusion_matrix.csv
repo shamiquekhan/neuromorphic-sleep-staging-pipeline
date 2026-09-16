@@ -1,6 +1,0 @@
-,pred_Wake,pred_N1,pred_N2,pred_N3,pred_REM
-true_Wake,15608,1044,22,8,169
-true_N1,38,618,156,1,76
-true_N2,4,489,2697,191,99
-true_N3,0,2,189,741,0
-true_REM,0,118,118,0,1506

@@ -35,7 +35,8 @@ as a generalization result.
 
 | Tier | Experiment | Status | Evidence |
 |------|-----------|--------|----------|
-| **Primary** | EXP-BENCH-PERSON — from-scratch, person-level 10-fold CV over 52 persons, fixed (causal unique-epoch) protocol | **Complete (seeds 42/43/44, 30 folds)** | `results/benchmark_person_level/` |
+| **Primary** | EXP-BENCH-PERSON — from-scratch, person-level 10-fold CV over 52 persons, fixed (causal unique-epoch) protocol | **Complete (seeds 42/43/44, 30 folds)** | `results/research/EXP-BENCH-PERSON/` |
+| **Deployed** | EXP-STANDALONE-99K — notebooks 01→05, supervised CE, exhibition 70/15/15 split, all-position protocol | Complete (seed 42): 90.57% / κ 0.808 | `results/standalone_99k/`, `artifacts/standalone_99k/student_99477_best.pt` |
 | Superseded | EXP-BENCH-92SUBJ — from-scratch, record-level folds (person-leaky), legacy protocol | 87.66% ± 2.22% is a **record-level** estimate only | recorded here (evidence removed in the Sept 2026 cleanup) |
 | Quarantined | EXP-ADAPT-* — Frozen / LoRA / Full-FT from the 15-record-era base checkpoint | **Contaminated** — base checkpoint's training records overlap 12 eval test folds and 3 validation folds; frozen baseline inflated ~+2.5pp | `docs/adaptation.md` (evidence removed in the Sept 2026 cleanup) |
 | Archived | EXP-DEV-15SUBJ — 15-record development benchmark (93.0%) | Historical only; small cohort; do not cite as final | `docs/archive/development_15_subject.md`, `results/final/` |
@@ -107,11 +108,12 @@ persons / 92 records.
 - N1 remains the bottleneck (F1 0.445, precision ~0.31 vs recall
   ~0.69 — the model over-predicts N1 relative to its ~4.6% base
   rate). This is a core research direction, not a cosmetic issue.
-- Per-fold evidence: `results/benchmark_person_level/fold_XX/`
+- Per-fold evidence: `results/research/EXP-BENCH-PERSON/fold_XX/`
   (seed 42) and `fold_XX_seed43/` / `fold_XX_seed44/`
-  (metrics, confusion matrices, per-epoch predictions with
-  probabilities and provenance, training history, checkpoints);
+  (metrics, confusion matrices, training history);
   cross-seed aggregate in `summary_multiseed.json`.
+  Per-fold prediction dumps and fold checkpoints are regenerable and
+  not tracked (see `.gitignore`).
 
 ---
 
@@ -163,6 +165,29 @@ Reading notes:
   compensate for a completely frozen GRU (90.3% of parameters) —
   remains **open** until re-run on a leak-free base checkpoint over
   person-level folds (`docs/adaptation.md` §4).
+
+---
+
+## Standalone Notebook Run — EXP-STANDALONE-99K (deployed checkpoint)
+
+End-to-end run of notebooks 01→05 on the exhibition 70/15/15 subject
+split (seed 42): supervised class-weighted cross-entropy,
+20 epochs, batch 16, AdamW 3e-4, all-position
+protocol (not comparable to the causal unique-epoch primary above).
+
+```
+Accuracy   = 90.57%   (74,860 test epochs, 15 held-out subjects)
+Cohen's κ  = 0.8080
+Macro F1   = 0.7490
+Weighted F1 = 0.9115
+Per-class F1 (W/N1/N2/N3/REM) = 0.978 / 0.477 / 0.823 / 0.705 / 0.762
+Best validation κ = 0.8274 @ epoch 18/20
+CPU latency = 6.2 ms/batch (measured, input [1,10,4,3000])
+```
+
+Evidence: `results/standalone_99k/`, checkpoint
+`artifacts/standalone_99k/student_99477_best.pt`, dashboard row
+`results/final/notebook_pipeline_result.csv`.
 
 ---
 

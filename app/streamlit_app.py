@@ -59,46 +59,22 @@ with col_side:
     )
 
 # ── Final Metrics Banner ────────────────────────────────────────────────
-import json as _json
-_agg_path = Path(__file__).resolve().parents[2] / "results" / "100_subject_adaptation" / "final" / "aggregate_metrics.json"
-metrics_100 = {}
-if _agg_path.exists():
-    with open(_agg_path) as _f:
-        metrics_100 = _json.load(_f)
-
-if metrics_100 and "full_finetune" in metrics_100:
-    ft = metrics_100["full_finetune"]["overall"]
+metrics = load_final_metrics()
+if metrics:
+    acc = metrics.get("accuracy", {})
+    kappa = metrics.get("cohen_kappa", {})
+    macro = metrics.get("macro_f1", {})
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-    section_title("Final Results (100-Subject Benchmark)")
+    section_title("Final Results — Person-Level Benchmark (EXP-BENCH-PERSON)")
     st.markdown(
         f'<div class="swiss-grid-4">'
-        f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{ft["accuracy"]["mean"]:.1%}</div>'
-        f'<div class="sz-caption">&plusmn; {ft["accuracy"]["std"]:.1%}</div></div>'
-        f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{ft["kappa"]["mean"]:.3f}</div>'
-        f'<div class="sz-caption">&plusmn; {ft["kappa"]["std"]:.3f}</div></div>'
-        f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{ft["macro_f1"]["mean"]:.3f}</div>'
-        f'<div class="sz-caption">&plusmn; {ft["macro_f1"]["std"]:.3f}</div></div>'
+        f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{acc.get("mean",0):.1%}</div></div>'
+        f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{kappa.get("mean",0):.3f}</div></div>'
+        f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{macro.get("mean",0):.3f}</div></div>'
         f'<div><div class="sz-label">Parameters</div><div class="sz-display">99,477</div></div>'
         f'</div>',
         unsafe_allow_html=True,
     )
-else:
-    metrics = load_final_metrics()
-    if metrics:
-        acc = metrics.get("accuracy", {})
-        kappa = metrics.get("cohen_kappa", {})
-        macro = metrics.get("macro_f1", {})
-        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-        section_title("Final Results")
-        st.markdown(
-            f'<div class="swiss-grid-4">'
-            f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{acc.get("mean",0):.1%}</div></div>'
-            f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{kappa.get("mean",0):.3f}</div></div>'
-            f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{macro.get("mean",0):.3f}</div></div>'
-            f'<div><div class="sz-label">Parameters</div><div class="sz-display">99,477</div></div>'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
 
 st.markdown(
     '<div style="border-top:1px solid #e0e0e0;margin-top:3rem;padding:1rem 0;font-size:0.6rem;'

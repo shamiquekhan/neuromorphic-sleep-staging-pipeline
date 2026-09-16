@@ -102,33 +102,33 @@ Epoch  3: N2     (confidence: 89.1%)
 ### Minute 5: Results & Impact (60 seconds)
 
 **Script:**
-> "Our historical exhibition model achieves **88.64% accuracy** with Cohen's kappa of **0.7725** on 15 held-out subjects from Sleep-EDF Expanded under the legacy all-position protocol. The model has only **99,477 parameters** — small enough for edge deployment on microcontrollers. 
+> "Our deployed model achieves **90.57% accuracy** with Cohen's kappa of **0.808** on 15 held-out subjects from Sleep-EDF Expanded (trained end-to-end by the notebook pipeline). The model has only **99,477 parameters** — small enough for edge deployment on microcontrollers. 
 
-> **Important:** This historical result (88.64%) uses the legacy all-position evaluation protocol which scores overlapping sequence windows. The primary research benchmark (person-level 10-fold CV, causal unique-epoch protocol) yields 87.30% accuracy. The two protocols are not directly comparable."
+> **Important:** The deployed standalone result uses the all-position evaluation protocol which scores overlapping sequence windows. The primary research benchmark (person-level 10-fold CV, causal unique-epoch protocol) yields 87.30% accuracy. The two protocols are not directly comparable."
 
 **Show:**
-- Historical exhibition result block
+- Deployed standalone result block
 - Parameter count comparison
 - Latency measurement
 - Edge deployment potential
 - Protocol distinction note
 
-**Historical Exhibition Result (EXP-EXHIBITION-15SUBJ):**
+**Deployed Standalone Model (Notebooks 01→05, supervised CE):**
 ```
-88.64%
-HISTORICAL EXHIBITION ACCURACY (legacy protocol)
+90.57%
+STANDALONE TEST ACCURACY (all-position protocol)
 
-0.7725
+0.8080
 COHEN'S κ
 
-0.7186
+0.7490
 MACRO F1
 
 99,477
 PARAMETERS
 
-8.86 ms/batch
-CPU LATENCY
+6.2 ms/batch
+CPU LATENCY (measured)
 ```
 
 **Primary Research Benchmark (EXP-BENCH-PERSON):**
@@ -140,6 +140,21 @@ PERSON-LEVEL ACCURACY (causal protocol)
 COHEN'S κ
 
 0.724 ± 0.005
+MACRO F1
+
+99,477
+PARAMETERS
+```
+
+**Deployed Standalone Model (Notebooks 01→05, supervised CE):**
+```
+90.57%
+STANDALONE TEST ACCURACY (all-position protocol)
+
+0.8080
+COHEN'S κ
+
+0.7490
 MACRO F1
 
 99,477
@@ -175,7 +190,7 @@ Sleep-EDF Expanded
 EEG + EOG + EMG
 92-record eligible cohort (52 persons)
 Person-level 10-fold CV (primary)
-Subject-level 70/15/15 split (exhibition)
+Subject-level 70/15/15 split (deployed model)
 ```
 
 ---
@@ -216,24 +231,24 @@ Parametric Gabor FEB
 
 ### Section F: Results
 
-**Large typography — Historical Exhibition Result (EXP-EXHIBITION-15SUBJ):**
+**Large typography — Deployed Standalone Result (Notebooks 01→05):**
 
 ```
-88.64%
-HISTORICAL EXHIBITION ACCURACY
-(Legacy All-Position Protocol)
+90.57%
+STANDALONE TEST ACCURACY
+(Supervised CE, All-Position Protocol)
 
-0.7725
+0.8080
 COHEN'S κ
 
-0.7186
+0.7490
 MACRO F1
 
 99,477
 PARAMETERS
 ```
 
-**Small text note:** "Primary research benchmark (EXP-BENCH-PERSON): 87.30% ± 0.33% accuracy, 0.738 ± 0.010 κ, causal unique-epoch protocol."
+**Small text note:** "Primary research benchmark (EXP-BENCH-PERSON): 87.30% ± 0.33% accuracy, 0.738 ± 0.010 κ, causal unique-epoch protocol. Deployed standalone checkpoint (supervised CE, notebooks 01→05): 90.57% accuracy, κ 0.808."
 
 ---
 
@@ -326,13 +341,13 @@ A: They reduce computational cost by ~77% compared to standard convolutions whil
 **Q: Why is accuracy not enough?**
 A: Class imbalance means a model can have high accuracy while performing poorly on minority stages. Cohen's kappa and F1 are more informative.
 
-**Q: What's the difference between 88.64% and 87.30%?**
-A: The 88.64% is the historical exhibition result under the legacy all-position protocol (scoring overlapping windows). The 87.30% is the primary research benchmark under the causal unique-epoch protocol (one prediction per unique epoch, person-level splits). The stricter protocol yields a more honest person-generalization estimate.
+**Q: What's the difference between 90.57% and 87.30%?**
+A: The 90.57% is the deployed standalone model (supervised cross-entropy, notebooks 01→05) under the all-position protocol on a fixed 70/15/15 subject split. The 87.30% is the primary research benchmark under the stricter causal unique-epoch protocol (one prediction per unique epoch, person-level splits) — the honest person-generalization estimate.
 
 ### Deployment Questions
 
 **Q: Can this run on a microcontroller?**
-A: Yes. The model has 99,477 parameters (~400 KB at FP32) and 8.5 ms latency, suitable for ARM Cortex-M7 class devices.
+A: Yes. The model has 99,477 parameters (~400 KB at FP32) and 6.2 ms measured CPU latency per 10-epoch batch, suitable for ARM Cortex-M7 class devices.
 
 **Q: What is the memory footprint?**
 A: ~400 KB for weights, plus ~120 KB for input buffer. Total < 1 MB, fitting on most microcontrollers.
@@ -366,8 +381,8 @@ A: No. This is a research prototype. Clinical validation would require larger, m
 - [ ] Start with problem statement
 - [ ] Show signal processing pipeline
 - [ ] Demonstrate live inference
-- [ ] Present historical exhibition result (88.64%, legacy protocol)
-- [ ] Clarify primary benchmark is 87.30% (causal protocol)
+- [ ] Present deployed standalone result (90.57%, κ 0.808)
+- [ ] Clarify primary benchmark (87.30%, causal protocol)
 - [ ] Answer questions confidently
 - [ ] Acknowledge limitations honestly
 

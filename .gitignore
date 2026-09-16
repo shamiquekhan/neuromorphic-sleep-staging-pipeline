@@ -68,5 +68,9 @@ notebooks/data/
 
 # Primary benchmark: keep metrics/confusion/history + seed aggregates;
 # exclude regenerable per-fold prediction dumps and fold checkpoints
-results/benchmark_person_level/**/predictions.csv
-results/benchmark_person_level/**/best_model.pt
+results/research/EXP-BENCH-PERSON/**/predictions.csv
+results/research/EXP-BENCH-PERSON/**/best_model.pt
+results/benchmark_person_level/
+
+# Agent worktrees (never commit)
+.kilo/

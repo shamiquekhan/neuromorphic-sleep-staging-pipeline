@@ -20,9 +20,9 @@ This document provides a transparent, evidence-based assessment of every sleep s
 > leak at person level in 10/10 folds (a test record's same-person mate
 > sits in train). The 87.66% ± 2.22% record-level number is therefore
 > an optimistic, record-level estimate. The person-level primary
-> benchmark (EXP-BENCH-PERSON, `person_folds_52subj.json`) is in
-> progress; its fold-1 result (82.4% vs 86.4% record-level on the same
-> test records) already quantifies the inflation at ~4pp for that fold.
+> benchmark (EXP-BENCH-PERSON, `person_folds_52subj.json`, seeds
+> 42/43/44) is complete: **87.30% ± 0.33%** accuracy, κ 0.738 ± 0.010
+> — the honest person-generalization estimate.
 > See [`results.md`](results.md).
 
 ---
@@ -489,15 +489,11 @@ Present the expanded results honestly:
 
 | File | Description |
 |------|-------------|
-| `results/final/final_metrics.json` | 15-subject 4-fold CV results (current best) |
-| `results/n1_diagnosis/N1_DIAGNOSIS_REPORT.md` | Detailed N1 pipeline audit |
-| `results/benchmark_person_level/` | Person-level primary benchmark evidence (seeds 42/43/44) |
-| `results/final/notebook_pipeline_result.csv` | Notebook-pipeline single-split result |
-| `artifacts/final/student_full_finetuned.pt` | Best trained checkpoint (full fine-tuning) |
-| `artifacts/final/student_full_finetuned.pt` | Final deployable student checkpoint |
-| `notebooks/04_model_architecture_and_training.ipynb` | Canonical training (teacher + distilled student, per-epoch logs) |
-| `scripts/download_sleep_edf_expanded.py` | PhysioNet download script |
-| `scripts/preprocess_sleep_edf_expanded.py` | MNE preprocessing pipeline |
+| `results/research/EXP-BENCH-PERSON/final_metrics.json` | Person-level primary benchmark (30 folds / 3 seeds) |
+| `results/standalone_99k/` | Standalone notebook-pipeline run (seed 42) |
+| `results/final/notebook_pipeline_result.csv` | Deployed standalone notebook-pipeline result row |
+| `artifacts/standalone_99k/student_99477_best.pt` | Final deployable student checkpoint (99,477 params) |
+| `notebooks/04_student_99k_complete_training.ipynb` | Standalone supervised training (per-epoch logs) |
 | `results/lora_cv_results.json` | LoRA cross-validation results |
 | `results/per_class_results.json` | Per-class F1/recall across all models |
 

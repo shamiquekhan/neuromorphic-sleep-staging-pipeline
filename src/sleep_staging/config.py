@@ -6,8 +6,7 @@ from typing import Dict
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-CHECKPOINT_PATH = PROJECT_ROOT / "artifacts" / "final" / "student_full_finetuned.pt"
-FALLBACK_CHECKPOINT_PATH = PROJECT_ROOT / "artifacts" / "student_improved_best.pt"
+CHECKPOINT_PATH = PROJECT_ROOT / "artifacts" / "standalone_99k" / "student_99477_best.pt"
 RESULTS_PATH = PROJECT_ROOT / "results" / "final" / "final_metrics.json"
 CACHE_DIR = PROJECT_ROOT / "data" / "cache" / "sleep_edf"
 SLEEP_EDF_CACHE_DIR = PROJECT_ROOT / "data" / "cache" / "sleep_edf"
@@ -31,7 +30,7 @@ class StudentConfig:
     """Configuration for the Improved Student model.
 
     Defaults describe the trained architecture exactly (99,477
-    parameters; matches artifacts/final and all fold checkpoints).
+    parameters; matches the deployed standalone_99k checkpoint).
     Changing any of these values changes the architecture and
     invalidates existing checkpoints — `ImprovedStudent` now builds
     every layer from this config, so the mismatch between documented

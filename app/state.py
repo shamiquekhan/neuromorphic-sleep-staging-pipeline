@@ -5,15 +5,13 @@ from pathlib import Path
 
 import streamlit as st
 
-from sleep_staging.config import CHECKPOINT_PATH, FALLBACK_CHECKPOINT_PATH, RESULTS_PATH, StudentConfig
+from sleep_staging.config import CHECKPOINT_PATH, RESULTS_PATH, StudentConfig
 
 
 def _resolve_checkpoint() -> Path:
-    """Return the final checkpoint, falling back to base if needed."""
+    """Return the deployed 99,477-parameter checkpoint."""
     if CHECKPOINT_PATH.exists():
         return CHECKPOINT_PATH
-    if FALLBACK_CHECKPOINT_PATH.exists():
-        return FALLBACK_CHECKPOINT_PATH
     raise FileNotFoundError(f"No checkpoint found at {CHECKPOINT_PATH}")
 
 

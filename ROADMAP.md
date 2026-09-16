@@ -12,8 +12,8 @@ Status legend: ☐ not started · ◐ partially done · ✔ done · ⛔ blocked
 
 | ID | Experiment | Status | Evidence |
 |----|-----------|--------|----------|
-| **EXP-NOTEBOOK-PIPELINE** | End-to-end notebooks 01→05: manifest → cache → EDA → teacher + distilled student → held-out test evaluation | ✔ **complete: 88.64% acc, κ 0.773, macro-F1 0.719 on 15 test subjects** | `notebooks/01–05`, `results/final/notebook_pipeline_result.csv` |
-| **EXP-BENCH-PERSON** | Person-level from-scratch benchmark, 52 persons / 92 records, causal unique-epoch protocol | ✔ **complete (seeds 42/43/44): 87.30% ± 0.33%, κ 0.738, macro-F1 0.724 — the primary** | `results/benchmark_person_level/` |
+| **EXP-BENCH-PERSON** | Person-level from-scratch benchmark, 52 persons / 92 records, causal unique-epoch protocol | ✔ **complete (seeds 42/43/44): 87.30% ± 0.33%, κ 0.738, macro-F1 0.724 — the primary** | `results/research/EXP-BENCH-PERSON/` |
+| **EXP-STANDALONE-99K** | Notebooks 01→05, supervised CE, exhibition 70/15/15 split | ✔ **complete (seed 42): 90.57% acc, κ 0.808 — deployed checkpoint** | `results/standalone_99k/`, `artifacts/standalone_99k/student_99477_best.pt`, `results/final/notebook_pipeline_result.csv` |
 | EXP-BENCH-92SUBJ | 92-record benchmark on record-level folds | ✔ complete — **superseded** (folds leak at person level) | removed; recorded in `docs/results.md` |
 | EXP-ADAPT-FROZEN / -LORA-R8-CNNHEAD / -FULLFT | Adaptation regimes from one base checkpoint | ⛔ **quarantined — contaminated base + record-level folds** | removed; recorded in `docs/adaptation.md` |
 | EXP-LORA-R{2,4,16} / TARGET-ABLATION | LoRA rank + target ablations (person-level folds, leak-free base) | ☐ planned (machinery ready: `src/sleep_staging/adaptation/`, Notebook 06) | — |
@@ -45,13 +45,13 @@ cohort is **52 persons**. Consequences:
   scored epoch; no double counting
 - ✔ **Notebook pipeline made canonical** — Notebooks 01→05 execute
   end-to-end from raw EDFs to final metrics with per-epoch training
-  logs; Notebook 04 trains teacher + student and saves checkpoints
+  logs; Notebook 04 trains the standalone 99k student and saves its checkpoint
 - ✔ **Repository cleanup** — stale results/configs/scripts, duplicate
   notebooks, quarantined artifacts, and ~10 GB of legacy caches removed;
   the notebooks + primary benchmark evidence are the single pipeline
 - ✔ **Person-level primary benchmark** — 3 seeds × 10 folds complete,
   CIs computed, `results/research/EXP-BENCH-PERSON/final_metrics.json` regenerated
-- ✔ **Experiment configs created** — `configs/experiments/exhibition_15subj.yaml`, `configs/experiments/person_level_cv.yaml`
+- ✔ **Experiment configs created** — `configs/experiments/person_level_cv.yaml`
 - ✔ **Authoritative docs created** — `docs/EXPERIMENTS.md`, `docs/RESULTS.md`, `docs/REPRODUCIBILITY.md`
 - ✔ **Audit script added** — `scripts/audit_repository.py`
 
@@ -64,7 +64,7 @@ cohort is **52 persons**. Consequences:
 | P1 | LoRA rank ablation (r = 2/4/8/16) on person-level folds from a leak-free base | machinery + notebook ready |
 | P1 | LoRA target-module matrix (head / CNN / Gabor / GRU) | GRU-target LoRA code is implemented (`LoRALinear` on GRU linear layers) |
 | P2 | Cross-dataset validation (SHHS) | `src/sleep_staging/data/shhs.py` loader exists |
-| P2 | Statistical testing — paired fold-level Wilcoxon, bootstrap CIs | aggregate script scaffolding in `scripts/summarize_benchmark.py` |
+| P2 | Statistical testing — paired fold-level Wilcoxon, bootstrap CIs | aggregate scaffolding in `scripts/summarize_person_benchmark.py` |
 | P3 | SNN/neuromorphic conversion study | original motivation; see README terminology note |
 
 ---
@@ -75,8 +75,12 @@ cohort is **52 persons**. Consequences:
    package and `scripts/` are its engineering mirror (tested, reusable).
 2. Notebook 05 is the only place the notebook-pipeline test metrics are
    published; the multi-fold benchmark lives in
-   `results/benchmark_person_level/` + `docs/results.md`.
-3. Re-run Notebooks 01→05 in order after any change to data, caching,
+   `results/research/EXP-BENCH-PERSON/` + `docs/results.md`.
+3. Notebook 04 is the standalone supervised training entry point
+   (`04_student_99k_complete_training.ipynb`); its checkpoint
+   (`artifacts/standalone_99k/student_99477_best.pt`) is the deployable
+   model consumed by the Streamlit app, deployment/, and docs.
+4. Re-run Notebooks 01→05 in order after any change to data, caching,
    architecture, or training; per-epoch logs must remain visible.
-4. Do not regenerate the manifest split with a different seed once
+5. Do not regenerate the manifest split with a different seed once
    caches exist.

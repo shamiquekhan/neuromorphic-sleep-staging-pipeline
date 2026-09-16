@@ -4,9 +4,10 @@
 
 NeuroSleep investigates compact multi-resolution convolutional-recurrent
 sleep staging under a strict parameter budget. The final deployable model
-— the **Improved Student** (99,477 parameters) — is trained via knowledge
-distillation from an Improved Teacher, entirely within the notebook
-pipeline (Notebooks 01→05), and evaluated on held-out test subjects.
+— the **Improved Student** (99,477 parameters) — is trained from scratch
+with supervised class-weighted cross-entropy in the notebook pipeline
+(Notebooks 01→05), and evaluated on held-out
+test subjects.
 
 > **Cohort correction (Sept 2026):** PhysioNet's SC records are two
 > nights per person (`SC4ss1`/`SC4ss2` = same person). The "92-subject"
@@ -20,10 +21,10 @@ Current status:
 - **Person-level benchmark (EXP-BENCH-PERSON, primary, seeds 42/43/44,
   30 folds):** accuracy **87.30% ± 0.33%**, κ **0.738 ± 0.010**,
   macro-F1 **0.724 ± 0.005** — the honest person-generalization estimate
-- **Notebook pipeline (single 70/15/15 subject split):** accuracy
-  **88.64%**, κ **0.773**, macro-F1 **0.719** on 15 held-out test
-  subjects — the end-to-end exhibition run (Notebooks 01→05, per-epoch
-  training logs embedded in Notebook 04)
+- **Standalone notebook run (deployed checkpoint, single 70/15/15
+  subject split, supervised CE):** accuracy **90.57%**, κ **0.808**,
+  macro-F1 **0.749** on 15 held-out test subjects — per-epoch training
+  logs in Notebook 04; checkpoint `artifacts/standalone_99k/student_99477_best.pt`
 - **Adaptation study (Frozen / LoRA / Full-FT):** quarantined —
   contaminated base checkpoint and record-level folds; retained in
   `docs/adaptation.md` as a like-for-like internal comparison only
@@ -36,8 +37,8 @@ Current status:
 | Parameters | 99,477 (~400 KB FP32) |
 | Input | 10 × 30 s epochs × 4 channels @ 100 Hz (300 s context) |
 | Output | Per-epoch probabilities over {Wake, N1, N2, N3, REM} |
-| Training | Knowledge distillation: focal-loss teacher (20 epochs), then CE + softened-KL student (20 epochs), AdamW 3e-4, cosine schedule, class-weighted |
-| Deployment | CPU inference ~8.9 ms per 10-epoch batch |
+| Training | Supervised class-weighted cross-entropy (from scratch), AdamW 3e-4, cosine schedule with 10% warmup, 20 epochs |
+| Deployment | CPU inference 6.2 ms per 10-epoch batch (measured); checkpoint `artifacts/standalone_99k/student_99477_best.pt` |
 
 ### Parameter budget
 
@@ -60,13 +61,13 @@ Current status:
 3. **03 — EDA:** class imbalance (~68% Wake), artifact burden, per-stage
    spectral fingerprints, 87.5% self-transition probability — motivating
    multi-scale features + temporal context.
-4. **04 — Training:** Improved Teacher (focal loss) → Improved Student
-   (distillation). **Per-epoch logs** (train loss, val κ/acc/macro-F1)
-   for both stages; best-κ checkpointing. Teacher peak val κ 0.7516;
-   student peak val κ 0.7889.
+4. **04 — Training:** Improved Student from scratch, supervised
+   class-weighted cross-entropy. **Per-epoch logs**
+   (train loss, val κ/acc/macro-F1); best-κ checkpointing; best val κ
+   0.8274 @ epoch 18/20.
 5. **05 — Evaluation:** 15 held-out subjects, 74,860 scored epochs —
-   **88.64% accuracy, κ 0.773, macro-F1 0.719, weighted-F1 0.895**,
-   CPU latency 8.86 ms/batch.
+   **90.57% accuracy, κ 0.808, macro-F1 0.749, weighted-F1 0.912**,
+   CPU latency 6.2 ms/batch (measured).
 
 ## Evaluation Results
 
@@ -80,21 +81,21 @@ Current status:
 | Weighted F1 | 0.880 ± 0.003 | [0.860, 0.900] |
 | MGm | 0.772 ± 0.006 | [0.721, 0.823] |
 
-### Notebook pipeline (single split, 15 test subjects)
+### Standalone notebook run (deployed checkpoint, single split, 15 test subjects)
 
 | Metric | Value |
 |--------|-------|
-| Accuracy | 88.64% |
-| Cohen's κ | 0.7725 |
-| Macro F1 | 0.7186 |
-| Weighted F1 | 0.8953 |
-| Macro geometric mean | 0.7655 |
-| F1 (Wake / N1 / N2 / N3 / REM) | 0.970 / 0.440 / 0.791 / 0.685 / 0.707 |
-| CPU latency | 8.86 ms/batch |
+| Accuracy | 90.57% |
+| Cohen's κ | 0.8080 |
+| Macro F1 | 0.7490 |
+| Weighted F1 | 0.9115 |
+| Macro geometric mean | 0.7808 |
+| F1 (Wake / N1 / N2 / N3 / REM) | 0.978 / 0.477 / 0.823 / 0.705 / 0.762 |
+| CPU latency | 6.2 ms/batch (measured) |
 
 ### Known limitations
 
-- **N1 remains the weakest class** (F1 0.44) — consistent with the
+- **N1 remains the weakest class** (F1 0.477) — consistent with the
   literature; N1 is transitional, rare (~4.6%), and visually ambiguous.
 - N3 recall is high but precision moderate; N2/N3 boundary confusion
   dominates remaining errors.
@@ -103,8 +104,9 @@ Current status:
 
 ## Reproducibility
 
-- Notebooks 01→05 execute deterministically (seed 42) in ~35 minutes on
-  one GTX-1650-class GPU including preprocessing.
+- Notebooks 01→05 execute deterministically (seed 42) in well under an
+  hour on one GTX-1650-class GPU including preprocessing; Notebook 04
+  alone trains in ~18 minutes.
 - Package code is covered by 92 passing tests (`pytest tests/`).
 - Protocol integrity gates: `scripts/verify_protocol.py`,
   `scripts/protocol_fingerprint.py`.

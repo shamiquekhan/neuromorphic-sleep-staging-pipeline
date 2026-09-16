@@ -12,13 +12,13 @@ A compact deep-learning system that classifies 30-second sleep epochs into five 
 |----------|-------|
 | **Title** | Neuromorphic Sleep Stage Scoring |
 | **Venue** | VIT Bhopal University |
-| **Final Model** | Improved Student (distilled from Improved Teacher) |
+| **Final Model** | Improved Student (trained from scratch, supervised CE) |
 | **Parameters** | 99,477 |
 | **Primary Benchmark** (person-level CV, 3 seeds × 10 folds) | **87.30% ± 0.33% acc · κ 0.738 · macro-F1 0.724** |
-| **Notebook Pipeline** (15 held-out test subjects) | **88.64% acc · κ 0.773 · macro-F1 0.719** |
-| **CPU Latency** | ~8.9 ms/batch |
+| **Deployed Standalone Run** (15 held-out test subjects, seed 42) | **90.57% acc · κ 0.808 · macro-F1 0.749** |
+| **CPU Latency** | 6.2 ms/batch (measured) |
 | **Dataset** | Sleep-EDF Expanded (92 records / 52 persons) |
-| **Checkpoint** | `artifacts/final/student_full_finetuned.pt` |
+| **Checkpoint** | `artifacts/standalone_99k/student_99477_best.pt` |
 
 ---
 
@@ -57,8 +57,8 @@ Raw PSG Signals (EEG + EOG + EMG)
         ▼
 ┌─────────────────────────────────┐
 │ Notebook 04 — Training          │
-│ focal-loss Teacher → distilled  │
-│ Student (per-epoch logs)        │
+│ standalone 99k Student,         │
+│ supervised CE (per-epoch logs)  │
 └─────────────────────────────────┘
         │
         ▼
@@ -76,10 +76,10 @@ Raw PSG Signals (EEG + EOG + EMG)
 
 | Benchmark | Accuracy | Cohen's κ | Macro F1 | Evidence |
 |-----------|---------:|----------:|---------:|----------|
-| **Person-level primary** (10-fold CV over 52 persons, seeds 42/43/44) | 87.30% ± 0.33% | 0.738 ± 0.010 | 0.724 ± 0.005 | `results/benchmark_person_level/` |
-| **Notebook pipeline** (single split, 15 test subjects) | 88.64% | 0.773 | 0.719 | `notebooks/05_evaluation_and_benchmarking.ipynb` |
+| **Person-level primary** (10-fold CV over 52 persons, seeds 42/43/44) | 87.30% ± 0.33% | 0.738 ± 0.010 | 0.724 ± 0.005 | `results/research/EXP-BENCH-PERSON/` |
+| **Deployed standalone run** (single split, 15 test subjects, seed 42) | 90.57% | 0.808 | 0.749 | `results/standalone_99k/` |
 
-Per-class F1 (notebook pipeline): Wake 0.970 · N2 0.791 · REM 0.707 · N3 0.685 · N1 0.440.
+Per-class F1 (deployed standalone run): Wake 0.978 · N2 0.823 · REM 0.762 · N3 0.705 · N1 0.477.
 
 ---
 
@@ -112,7 +112,7 @@ scripts/            CLI entry points (benchmark, folds, summarize, verify)
 app/                Streamlit dashboard
 tests/              92 passing tests
 docs/               results.md is the numbers source of truth
-artifacts/          Final checkpoints (student + teacher)
+artifacts/          Deployed checkpoint (standalone_99k)
 results/            Primary benchmark evidence + notebook result
 configs/            benchmark_person_level.yaml (primary)
 data/               Manifests (tracked) + cache/raw (local only)

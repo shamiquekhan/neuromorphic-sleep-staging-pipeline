@@ -10,7 +10,7 @@ This document is the **single source of truth** for all experiment definitions, 
 | Experiment ID | Name | Status | Description | Config | Results |
 |---------------|------|--------|-------------|--------|---------|
 | **EXP-BENCH-PERSON** | Person-Level 10-Fold CV Benchmark | **PRIMARY** | Person-level 10-fold CV over 52 persons, causal unique-epoch protocol | `configs/experiments/person_level_cv.yaml` | `results/research/EXP-BENCH-PERSON/` |
-| **EXP-EXHIBITION-15SUBJ** | Exhibition 15-Subject Holdout | **HISTORICAL** | Fixed 70/15/15 subject split, legacy all-position protocol | `configs/experiments/exhibition_15subj.yaml` | `results/exhibition/EXP-EXHIBITION-15SUBJ/` |
+| **EXP-STANDALONE-99K** | Standalone Notebooks 01→05 Run (supervised CE) | **DEPLOYED** | Fixed 70/15/15 subject split, all-position protocol, supervised class-weighted CE | notebooks 04/05, seed 42 | `results/standalone_99k/` |
 
 ---
 
@@ -52,43 +52,41 @@ This document is the **single source of truth** for all experiment definitions, 
 
 ---
 
-## EXP-EXHIBITION-15SUBJ (Historical Exhibition)
+## EXP-STANDALONE-99K (Standalone Notebook Run — Deployed Checkpoint)
 
 ### Overview
-- **Dataset:** Sleep-EDF Expanded — 100 records (52 unique persons)
-- **Split:** Fixed 70/15/15 subject-level split (70 train, 15 val, 15 test)
-- **Protocol:** Legacy all-position evaluation (stride=5, all positions scored)
+- **Dataset:** Sleep-EDF Expanded — exhibition manifest, 70 train / 15 val / 15 test subjects
+- **Split:** Fixed 70/15/15 subject-level split (`data/manifests/exhibition_15subj_v1.json`)
+- **Protocol:** All-position (stride 5, every position supervised)
 - **Seed:** 42
-- **Training:** Teacher (focal loss) → Student (distillation), 20 epochs each, batch=16
-- **Model:** Improved Student (99,477 params) distilled from Improved Teacher (193,197 params)
+- **Training:** Improved Student from scratch, supervised class-weighted cross-entropy, 20 epochs, batch 16, AdamW 3e-4
+- **Model:** Improved Student (99,477 params)
 
-### Results (15 held-out test subjects)
+### Results (15 held-out test subjects, 74,860 epochs)
 
 | Metric | Value |
 |--------|-------|
-| Accuracy | 88.64% |
-| Cohen's κ | 0.7725 |
-| Macro F1 | 0.7186 |
-| Weighted F1 | 0.8953 |
-| Macro Geometric Mean | 0.7655 |
+| Accuracy | 90.57% |
+| Cohen's κ | 0.8080 |
+| Macro F1 | 0.7490 |
+| Weighted F1 | 0.9115 |
+| Macro Geometric Mean | 0.7808 |
+| CPU latency (measured) | 6.2 ms/batch |
 
 ### Per-Class F1
 
 | Stage | F1 |
 |-------|-----|
-| Wake | 0.970 |
-| N1 | 0.440 |
-| N2 | 0.791 |
-| N3 | 0.685 |
-| REM | 0.707 |
-
-### Status: HISTORICAL
-> This experiment uses the **legacy all-position protocol** which scores overlapping sequence windows. The primary research benchmark (EXP-BENCH-PERSON) uses the stricter causal unique-epoch protocol. Results are not directly comparable.
+| Wake | 0.978 |
+| N1 | 0.477 |
+| N2 | 0.823 |
+| N3 | 0.705 |
+| REM | 0.762 |
 
 ### Artifacts
-- Teacher: `artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/teacher_improved_best.pt`
-- Student: `artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/student_best.pt`
-- Provenance: `artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/provenance.json`
+- Checkpoint: `artifacts/standalone_99k/student_99477_best.pt` (best epoch 18, val κ 0.8274)
+- Results: `results/standalone_99k/` (history, metrics, confusion matrix, plots)
+- Dashboard/deployment result row: `results/final/notebook_pipeline_result.csv`
 
 ---
 
@@ -96,8 +94,8 @@ This document is the **single source of truth** for all experiment definitions, 
 
 | Experiment | Reason | Location |
 |------------|--------|----------|
-| Legacy 92-Subject Record-Level CV | Person-level leakage in 10/10 folds (SC4ss1/SC4ss2 = same person) | `results/quarantine/legacy_benchmark_92subj/` |
-| Adaptation Study (Frozen/LoRA/Full-FT) | Contaminated base checkpoint + record-level folds | `results/quarantine/legacy_adaptation/` |
+| Legacy 92-Subject Record-Level CV | Person-level leakage in 10/10 folds (SC4ss1/SC4ss2 = same person) | evidence removed; recorded in `docs/results.md` |
+| Adaptation Study (Frozen/LoRA/Full-FT) | Contaminated base checkpoint + record-level folds | evidence removed; recorded in `docs/adaptation.md` |
 
 ---
 
@@ -108,7 +106,7 @@ This document is the **single source of truth** for all experiment definitions, 
 - Training stride: 5
 - Evaluation stride: 5
 - Supervision: All positions (every epoch in window gets a loss)
-- Used by: EXP-EXHIBITION-15SUBJ
+- Used by: EXP-STANDALONE-99K
 
 ### Causal Unique-Epoch (`causal_unique_epoch`)
 - Sequence length: 10 epochs
@@ -125,3 +123,5 @@ This document is the **single source of truth** for all experiment definitions, 
 | Date | Change |
 |------|--------|
 | 2026-09-15 | Initial authoritative registry created. Split legacy and primary benchmarks. |
+| 2026-09-17 | Added EXP-STANDALONE-99K (standalone notebooks 01→05 supervised run, deployable checkpoint `artifacts/standalone_99k/student_99477_best.pt`). |
+| 2026-09-17 | Removed the historical distilled-student exhibition experiment (EXP-EXHIBITION-15SUBJ), teacher architecture, and its artifacts — the repository ships a single architecture. |

@@ -35,7 +35,6 @@ PERSON_FOLDS_PATH = REPO / "data" / "manifests" / "person_folds_52subj.json"
 PERSON_GROUPS_PATH = REPO / "data" / "manifests" / "person_groups.json"
 BENCH_CFG = REPO / "configs" / "experiments" / "person_level_cv.yaml"
 ADAPT_CFG = REPO / "configs" / "adaptation_92_subject.yaml"
-EXHIBITION_CKPT = REPO / "artifacts" / "exhibition" / "EXP-EXHIBITION-15SUBJ" / "seed-42" / "student_best.pt"
 LEGACY_CKPT = REPO / "artifacts" / "quarantine" / "student_full_finetuned_generic.pt"
 
 

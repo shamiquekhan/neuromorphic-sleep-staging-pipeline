@@ -1,0 +1,9 @@
+{
+  "accuracy": 0.9056505476890195,
+  "cohen_kappa": 0.8079613589399208,
+  "macro_f1": 0.7489878740066903,
+  "weighted_f1": 0.911545176995215,
+  "n_labels": 74860,
+  "parameter_count": 99477,
+  "training_seconds": 1089.004376411438
+}

@@ -58,19 +58,19 @@ model-index:
           revision: main
         metrics:
           - type: accuracy
-            value: 0.8766
+            value: 0.8730
             name: Accuracy
             verified: false
           - type: cohen_kappa
-            value: 0.762
+            value: 0.738
             name: Cohen's Kappa
             verified: false
           - type: f1
-            value: 0.728
+            value: 0.724
             name: Macro F1
             verified: false
           - type: f1
-            value: 0.890
+            value: 0.880
             name: Weighted F1
             verified: false
 widget:
@@ -82,14 +82,16 @@ widget:
 
 # NeuroSleep — Light-Weight Sleep Stage Model
 
-**99,477 parameters, 73.90% accuracy (κ=0.416, macro-F1=0.263, exhibition 15-subject holdout) — small enough for edge/wearable deployment, scoring Wake/N1/N2/N3/REM from 4-channel PSG.**
+**99,477 parameters, 90.57% accuracy (κ=0.808, macro-F1=0.749, exhibition 15-subject holdout) — small enough for edge/wearable deployment, scoring Wake/N1/N2/N3/REM from 4-channel PSG.**
 
-> **Evidence note:** these are the **notebook pipeline exhibition** numbers
-> (EXP-EXHIBITION-15SUBJ: 92-record / 52-person eligible cohort from 100
-> downloaded Sleep-EDF Expanded records, 70/15/15 subject-level split,
-> seed 42). The notebook pipeline (Notebooks 01→05 of the source repo)
-> reproduces training end-to-end and reports 73.90% accuracy / κ 0.416
-> on 15 held-out subjects (all-position evaluation, stride=5).
+> **Evidence note:** the headline numbers are the **standalone notebook
+> pipeline** results (seed 42, 92-record / 52-person eligible cohort
+> from 100 downloaded Sleep-EDF Expanded records, 70/15/15 subject-level
+> split, all-position evaluation, stride=5; supervised class-weighted
+> cross-entropy — no distillation). Under the stricter person-level
+> 10-fold causal protocol (EXP-BENCH-PERSON, seeds 42/43/44) the same
+> architecture scores **87.30% ± 0.33% accuracy / κ 0.738 ± 0.010** —
+> the honest person-generalization estimate.
 
 > **Quick links:** [GitHub](https://github.com/shamiquekhan/neuromorphic-sleep-staging-pipeline) · [Live Demo](https://huggingface.co/spaces/shamiquekhan/neurosleep-demo)
 
@@ -176,29 +178,40 @@ Wake / N1 / N2 / N3 / REM
 | 3 | N3 | Deep sleep |
 | 4 | REM | Rapid eye movement sleep |
 
-## Evaluation (92-subject eligible cohort, 10-fold subject-level CV, seed 42)
+## Evaluation
+
+### Person-Level Primary Benchmark (EXP-BENCH-PERSON, 30 folds / 3 seeds)
 
 | Metric | Value |
 |--------|-------|
-| Accuracy | 87.66% ± 2.22% (95% CI [86.07, 89.25]%) |
-| Cohen's Kappa | 0.762 ± 0.039 (95% CI [0.734, 0.790]) |
-| Macro F1 | 0.728 ± 0.036 (95% CI [0.702, 0.754]) |
-| Weighted F1 | 88.95% ± 1.97% (95% CI [87.54, 90.36]%) |
+| Accuracy | 87.30% ± 0.33% (95% CI [85.80, 88.79]%) |
+| Cohen's Kappa | 0.738 ± 0.010 (95% CI [0.691, 0.785]) |
+| Macro F1 | 0.724 ± 0.005 (95% CI [0.693, 0.755]) |
+| Weighted F1 | 0.880 ± 0.003 (95% CI [0.860, 0.900]) |
 
-### Per-Class Performance (From-Scratch Primary Benchmark)
+| Stage | F1 |
+|-------|-----|
+| Wake | 0.960 ± 0.026 |
+| N1 | **0.445 ± 0.087** |
+| N2 | 0.733 ± 0.163 |
+| N3 | 0.700 ± 0.112 |
+| REM | 0.782 ± 0.116 |
 
-| Stage | F1 | Precision | Recall |
-|-------|-----|-----------|--------|
-| Wake | 0.967 ± 0.009 | 0.995 | 0.936 |
-| N1 | **0.452 ± 0.064** | 0.330 | 0.712 |
-| N2 | 0.767 ± 0.041 | 0.878 | 0.687 |
-| N3 | 0.688 ± 0.120 | 0.562 | 0.896 |
-| REM | 0.764 ± 0.073 | 0.772 | 0.785 |
+### Standalone Notebook Run (deployed checkpoint, 15-subject holdout, seed 42)
 
-> **Honest assessment:** N1 is the most challenging stage (F1=0.452)
+| Metric | Value |
+|--------|-------|
+| Accuracy | 90.57% |
+| Cohen's Kappa | 0.8080 |
+| Macro F1 | 0.7490 |
+| Weighted F1 | 0.9115 |
+| F1 (Wake / N1 / N2 / N3 / REM) | 0.978 / 0.477 / 0.823 / 0.705 / 0.762 |
+
+> **Honest assessment:** N1 is the most challenging stage (F1≈0.45–0.48)
 > due to its transitional nature and low prevalence (~4.6% of epochs).
-> This is a single-seed estimate (seed 42); the three-seed protocol is
-> in progress.
+> The stricter person-level protocol is the reference for
+> generalization; the standalone numbers show the same architecture on
+> the fixed exhibition split.
 
 ## Preprocessing
 
@@ -213,16 +226,16 @@ See the [source repo](https://github.com/shamiquekhan/neuromorphic-sleep-staging
 
 ## Training Details
 
-- **Dataset:** Sleep-EDF Expanded — 92-subject eligible cohort from 100
-  downloaded records (8 wake-only excluded), PhysioNet
-- **Initialization:** from scratch (random init)
+- **Dataset:** Sleep-EDF Expanded — 92-record eligible cohort (52
+  persons) from 100 downloaded records (8 wake-only excluded), PhysioNet
+- **Initialization:** from scratch (random init) — supervised
+  class-weighted cross-entropy, no distillation
 - **Optimizer:** AdamW (lr=3e-4, weight_decay=1e-4)
-- **Epochs:** 20 (early stopping patience=5)
-- **Class weights:** N1=2x, REM=2x
+- **Epochs:** 20 (cosine schedule with 10% warmup, best-κ checkpointing)
+- **Class weights:** log-balanced from the training partition
 - **Supervision:** All-position (every epoch in 10-epoch window)
 - **Gradient clipping:** max_norm=1.0
-- **Mixed precision:** True (CUDA)
-- **Seed:** 42 (seeds 43/44 pending)
+- **Seeds:** 42 (standalone run); 42/43/44 (primary benchmark)
 
 ## LoRA Adaptation (Parameter-Efficient Fine-Tuning)
 
@@ -288,7 +301,7 @@ checkpoint.
 ## Limitations
 
 - **Not clinically validated** — do not use for diagnosis or clinical decision-making
-- N1 classification is challenging (F1=0.452) due to brief, transitional light sleep
+- N1 classification is challenging (F1≈0.45–0.48) due to brief, transitional light sleep
 - Trained on Sleep-EDF Expanded (92-record / 52-person cohort); cross-dataset generalizability should be validated
 - Requires 4-channel PSG (Fpz-Cz, Pz-Oz, EOG, EMG) — single-channel EEG not supported
 - Class distribution is Wake-dominant (~68%) from untrimmed recordings

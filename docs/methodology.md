@@ -30,7 +30,8 @@ The methodology centers on three commitments:
 |----|-----------|--------|
 | EXP-DEV-15SUBJ | 15-record development benchmark, 4-fold CV | Archived (historical) |
 | EXP-BENCH-92SUBJ | 92-record from-scratch benchmark, record-level folds | Complete (seed 42) — **superseded** (person leakage) |
-| **EXP-BENCH-PERSON** | Person-level from-scratch benchmark, 10-fold CV over 52 persons | **Complete** (seed 42): 85.47% ± 3.99% — **primary** |
+| **EXP-BENCH-PERSON** | Person-level from-scratch benchmark, 10-fold CV over 52 persons | **Complete** (seeds 42/43/44): 87.30% ± 0.33% — **primary** |
+| EXP-STANDALONE-99K | Notebooks 01→05 supervised run on the exhibition 70/15/15 split | Complete (seed 42): 90.57% acc, κ 0.808 — `results/standalone_99k/` |
 | EXP-ADAPT-FROZEN / -LORA-R8-CNNHEAD / -FULLFT | Three adaptation regimes from one base checkpoint | Quarantined (contaminated base + record-level folds) — re-run pending |
 | EXP-LORA-R{2,4,16}-CNNHEAD | LoRA rank ablation | Pending leak-free base + person-level folds |
 | EXP-LORA-TARGET-* | LoRA target-module matrix (head / CNN / Gabor / GRU) | Pending LoRA-GRU support |
@@ -107,10 +108,10 @@ supervision is a *training signal only* — all reported metrics come from
 the causal one-prediction-per-epoch protocol (see
 [`evaluation_protocol.md`](evaluation_protocol.md)).
 
-> Historical note: an early teacher-distillation phase existed during
-> development. The final architecture and all reported results use the
-> student model trained directly; the teacher is not part of the
-> reported pipeline.
+> Single-architecture note: the repository ships only the 99,477-parameter
+> Improved Student trained directly with supervised cross-entropy. An early
+> teacher-distillation phase was removed from the codebase in the
+> September 2026 cleanup and is not part of the reported pipeline.
 
 ## Phase 4 — Benchmarks (record-level superseded; person-level primary)
 
@@ -131,10 +132,10 @@ the causal one-prediction-per-epoch protocol (see
 - The runner refuses person-leaky folds unless `--allow-record-level` is
   passed explicitly
 
-Current evidence: person-level seed 42 complete — **85.47% ± 3.99%,
-κ 0.705, macro-F1 0.697** (primary); record-level seed 42 complete but
-superseded — see [`results.md`](results.md) for numbers, evidence
-tiers, and the single-seed caveat.
+Current evidence: person-level seeds 42/43/44 complete — **87.30% ± 0.33%,
+κ 0.738, macro-F1 0.724** (primary); the standalone notebook run adds a
+single-split reference point (90.57%, κ 0.808) — see
+[`RESULTS.md`](RESULTS.md) for numbers, evidence tiers, and caveats.
 
 ## Phase 5 — Parameter-Efficient Adaptation (EXP-ADAPT-*)
 

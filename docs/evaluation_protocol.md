@@ -77,7 +77,7 @@ nights) are assigned to train/test, with 5 fixed validation persons per
 fold. The legacy record-level folds leaked at person level —
 ``SC4ss1``/``SC4ss2`` are two nights of the same person — and are kept
 only for documented, labeled comparison. See
-``docs/results.md`` for the split history and
+``docs/RESULTS.md`` for the split history and
 ``scripts/verify_protocol.py`` for the machine checks.
 
 ## Run logs
@@ -85,8 +85,7 @@ only for documented, labeled comparison. See
 Every benchmark/adaptation/CV run tees its full console output into
 ``<results_dir>/run_logs/<name>.log`` (handled by
 ``sleep_staging.utils.runlog.tee_run_log`` — wired into
-``run_100_subject_benchmark.py``, ``train_adaptation.py``, and
-``run_development_cv.py``). These logs are committed with the results
+``train_adaptation.py`` and the development-era CV runner). These logs are committed with the results
 they produced: they contain the per-epoch training curves, the
 gap-exclusion notes, the person-disjointness guard output, and the
 per-fold test summaries — the human-readable counterpart of

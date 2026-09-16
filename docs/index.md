@@ -8,7 +8,9 @@
 ```
 docs/
 ├── index.md             # This file
-├── results.md           # SINGLE authoritative results document (numbers)
+├── RESULTS.md           # Authoritative results (EXP-BENCH-PERSON + standalone 99k)
+├── EXPERIMENTS.md       # Authoritative experiment registry
+├── REPRODUCIBILITY.md   # Reproduction guide
 ├── methodology.md       # Experimental protocol & research approach
 ├── adaptation.md        # Three-regime adaptation protocol + contamination record
 ├── lora.md              # LoRA mathematics, targets, guarantees
@@ -16,6 +18,7 @@ docs/
 ├── dataset.md           # Dataset documentation
 ├── deployment.md        # Edge deployment guide
 ├── LIMITATIONS.md       # Per-class analysis & limitations
+├── evaluation_protocol.md # Protocol definitions
 ├── exhibition.md        # Exhibition/demo guide
 ├── team.md              # Team roles
 └── archive/
@@ -24,11 +27,12 @@ docs/
 
 ## Evidence Hierarchy (applies to every document)
 
-1. **Primary:** 92-subject from-scratch benchmark (EXP-BENCH-92SUBJ) —
-   `results.md`
-2. **Quarantined:** adaptation study (EXP-ADAPT-*) — `adaptation.md`
-3. **Archived:** 15-subject development benchmark (EXP-DEV-15SUBJ) —
-   `archive/development_15_subject.md`
+1. **Primary:** person-level from-scratch benchmark (EXP-BENCH-PERSON,
+   52 persons, seeds 42/43/44) — `RESULTS.md`,
+   `results/research/EXP-BENCH-PERSON/`
+2. **Standalone notebook pipeline:** single 70/15/15 subject split,
+   supervised CE (seed 42) — `results/standalone_99k/`
+3. **Quarantined:** adaptation study — `adaptation.md`
 
 ## Documentation by Audience
 
@@ -36,7 +40,8 @@ docs/
 
 | Document | Description |
 |----------|-------------|
-| `results.md` | Authoritative metrics with 95% CIs and evidence status |
+| `RESULTS.md` | Authoritative metrics with 95% CIs and evidence status |
+| `EXPERIMENTS.md` | Authoritative experiment registry |
 | `methodology.md` | Experimental design, regimes, disjointness requirement |
 | `adaptation.md` / `lora.md` | Adaptation protocol, LoRA math and ablations |
 | `architecture.md` | Design decisions and parameter analysis |
@@ -56,7 +61,7 @@ docs/
 | Document | Description |
 |----------|-------------|
 | `exhibition.md` | Demo script, poster layout, Q&A |
-| `results.md` | Authoritative result block for display |
+| `RESULTS.md` | Authoritative result block for display |
 | `team.md` | Team roles |
 
 ## Quick Reference
@@ -69,42 +74,37 @@ docs/
 
 | Tier | Experiment | Status |
 |------|-----------|--------|
-| Primary | EXP-BENCH-PERSON (person-level CV, 52 persons) | **Complete** (seed 42): 85.47% ± 3.99% |
-| Superseded | EXP-BENCH-92SUBJ (record-level) — 87.66% ± 2.22% | Record-level estimate only |
+| Primary | EXP-BENCH-PERSON (person-level CV, 52 persons, seeds 42/43/44) | **Complete**: 87.30% ± 0.33% |
+| Standalone | Notebooks 01→05 supervised run (seed 42) | Complete: 90.57% (κ 0.808) |
 | Quarantined | EXP-ADAPT-* | Contaminated base + leaky folds |
 | Archived | EXP-DEV-15SUBJ (93.0%) | Historical |
 
-### Primary Result (Person-Level, seed 42)
+### Primary Result (Person-Level, 30 folds / 3 seeds)
 
 ```
 Improved Student — from scratch, person-level folds (52 persons)
-Accuracy  = 85.47% ± 3.99%  (95% CI [82.62, 88.33]%)
-Kappa     = 0.705 ± 0.128   (95% CI [0.613, 0.797])
-Macro F1  = 0.697 ± 0.082   (95% CI [0.639, 0.756])
+Accuracy   = 87.30% ± 0.33%  (95% CI [85.80, 88.79]%)
+Kappa      = 0.738 ± 0.010   (95% CI [0.691, 0.785])
+Macro F1   = 0.724 ± 0.005   (95% CI [0.693, 0.755])
+Weighted F1 = 0.880 ± 0.003  (95% CI [0.860, 0.900])
 Parameters = 99,477
 ```
 
-> Person-level numbers above are the honest primary (single seed; seeds
-> 43/44 pending). Do **not** cite the archived 15-record result (93.0%)
-> or the quarantined adaptation numbers as final.
+> Do **not** cite the archived 15-record result (93.0%) or the
+> quarantined adaptation numbers as final.
 
 ### Run Commands
 
 ```bash
-# Generate person-level folds (idempotent, seeded)
-python scripts/build_person_groups.py
-python scripts/generate_person_folds.py
-
-# Primary benchmark (person-level; refuses leaky folds)
-python scripts/run_100_subject_benchmark.py --seed 42 --device cuda \
-    --folds-manifest data/manifests/person_folds_52subj.json \
-    --output-dir results/benchmark_person_level
-
-# Regenerate result tables + CIs from fold evidence
-python scripts/summarize_benchmark.py --results-dir results/benchmark_person_level
-
 # Verify protocol integrity (record + person level)
 python scripts/verify_protocol.py
+
+# Regenerate result tables + CIs from fold evidence
+python scripts/summarize_person_benchmark.py --results-dir results/research/EXP-BENCH-PERSON
+
+# Run the notebook pipeline (raw EDFs → metrics)
+jupyter nbconvert --to notebook --execute notebooks/04_student_99k_complete_training.ipynb --inplace
+jupyter nbconvert --to notebook --execute notebooks/05_evaluation_and_benchmarking.ipynb --inplace
 
 # Tests
 python -m pytest tests/ -v
@@ -125,5 +125,5 @@ streamlit run app/streamlit_app.py
 
 ---
 
-*Last updated: September 2026*
+*Last updated: September 17, 2026*
 *Project: NeuroSleep — VIT Bhopal University*

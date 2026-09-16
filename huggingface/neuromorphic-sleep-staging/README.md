@@ -60,40 +60,50 @@ Parametric Gabor Feature Extraction
 
 ## Training
 
-- **Dataset:** Sleep-EDF Expanded (15 subjects, PhysioNet)
-- **Method:** Full fine-tuning
-- **Optimizer:** AdamW (lr=3e-4, weight_decay=1e-2)
-- **Epochs:** 15
-- **Class weights:** N1=2x, REM=2x
+- **Dataset:** Sleep-EDF Expanded (92-record eligible cohort / 52
+  persons, PhysioNet; exhibition 70/15/15 subject-level split for the
+  deployed checkpoint)
+- **Method:** From scratch — supervised class-weighted cross-entropy
+  (no distillation)
+- **Optimizer:** AdamW (lr=3e-4, weight_decay=1e-4)
+- **Epochs:** 20 (cosine schedule with 10% warmup, best-κ checkpointing)
 - **Supervision:** All-position (every epoch in sequence)
-- **Cross-validation:** 4-fold subject-level CV
 
 ## Evaluation
 
-> **Evidence status:** this checkpoint is the **15-subject
-> development-era model** (EXP-DEV-15SUBJ, 4-fold subject-level CV).
-> The metrics below are development-benchmark results and must not be
-> cited as the project's primary generalization result. The primary
-> benchmark (EXP-BENCH-92SUBJ: 92-subject eligible cohort from 100
-> downloaded Sleep-EDF Expanded records, from-scratch training,
-> 10-fold subject-level CV, seed 42) reports **87.66% ± 2.22%
-> accuracy, κ 0.762, macro-F1 0.728** — see the source repository's
-> `docs/results.md`.
+> **Evidence status:** the deployed checkpoint is the **standalone
+> notebook-pipeline model** (seed 42, exhibition 70/15/15 subject split,
+> all-position protocol): **90.57% accuracy, κ 0.808, macro-F1 0.749**
+> on 15 held-out test subjects. Under the stricter person-level 10-fold
+> causal protocol (EXP-BENCH-PERSON, seeds 42/43/44, 30 folds) the same
+> architecture reports **87.30% ± 0.33% accuracy, κ 0.738 ± 0.010,
+> macro-F1 0.724** — the honest person-generalization estimate. See the
+> source repository's `docs/RESULTS.md`.
 
-- **Accuracy (15-subject dev benchmark):** 93.0% ± 1.0%
-- **Cohen's Kappa:** 0.861 ± 0.027
-- **Macro F1:** 0.794 ± 0.036
-- **Weighted F1:** 0.935 ± 0.007
+- **Accuracy (deployed standalone checkpoint):** 90.57%
+- **Cohen's Kappa:** 0.8080
+- **Macro F1:** 0.7490
+- **Weighted F1:** 0.9115
 
-### Per-Class F1
+### Per-Class F1 (standalone checkpoint)
 
-| Stage | F1 | Precision | Recall |
-|-------|-----|-----------|--------|
-| Wake | 0.983 ± 0.011 | 1.000 | 0.967 |
-| N1 | 0.682 ± 0.090 | 1.000 | 0.552 |
-| N2 | 0.912 ± 0.044 | 1.000 | 0.848 |
-| N3 | 0.958 ± 0.016 | 1.000 | 0.912 |
-| REM | 0.966 ± 0.017 | 1.000 | 0.930 |
+| Stage | F1 |
+|-------|-----|
+| Wake | 0.978 |
+| N1 | 0.477 |
+| N2 | 0.823 |
+| N3 | 0.705 |
+| REM | 0.762 |
+
+### Person-Level Primary Benchmark (same architecture, stricter protocol)
+
+| Stage | F1 |
+|-------|-----|
+| Wake | 0.960 |
+| N1 | 0.445 |
+| N2 | 0.733 |
+| N3 | 0.700 |
+| REM | 0.782 |
 
 ## Intended Use
 
@@ -106,7 +116,7 @@ Research and educational sleep-stage classification. This model is designed for:
 ## Limitations
 
 - This model is **not clinically validated** and should not be used for diagnosis or clinical decision-making
-- N1 classification remains challenging (F1=0.682) due to the brief and transitional nature of light sleep
+- N1 classification remains challenging (F1≈0.45–0.48) due to the brief and transitional nature of light sleep
 - Performance may vary across different PSG设备 and recording protocols
 - Trained on Sleep-EDF Expanded; generalizability to other datasets should be validated
 

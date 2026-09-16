@@ -39,7 +39,7 @@ from sklearn.metrics import confusion_matrix
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
-sys.path.insert(0, str(REPO / "scripts"))
+sys.path.insert(0, str(REPO / "scripts" / "quarantine"))
 
 def load_folds_from_path(path):
     with open(path) as f:

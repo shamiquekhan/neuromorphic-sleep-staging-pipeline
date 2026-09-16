@@ -27,7 +27,7 @@ import torch
 
 # ── Paths ──────────────────────────────────────────────────────────────
 FOLDS_PATH = REPO / "data" / "manifests" / "person_folds_52subj.json"
-CHECKPOINT_PATH = REPO / "artifacts" / "exhibition" / "EXP-EXHIBITION-15SUBJ" / "seed-42" / "student_best.pt"
+CHECKPOINT_PATH = REPO / "artifacts" / "standalone_99k" / "student_99477_best.pt"
 CONFIG_PATH = REPO / "configs" / "experiments" / "person_level_cv.yaml"
 REFERENCE_PATH = REPO / "results" / "audit" / "protocol_fingerprint_seed42.json"
 

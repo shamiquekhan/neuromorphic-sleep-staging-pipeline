@@ -78,18 +78,19 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 | N3 | 0.700 ± 0.112 | [0.658, 0.742] |
 | REM | 0.782 ± 0.116 | [0.739, 0.826] |
 
-### Historical Exhibition Result (EXP-EXHIBITION-15SUBJ)
+### Deployed Standalone Result (Notebooks 01→05, supervised CE)
 
-> **Note:** This is a historical fixed 70/15/15 subject split under the legacy all-position protocol. Not the primary research benchmark.
+> **Note:** The current deployable checkpoint (`artifacts/standalone_99k/student_99477_best.pt`) is the Improved Student trained from scratch with supervised class-weighted cross-entropy on the exhibition 70/15/15 subject split (seed 42).
 
 | Metric | Value |
 |--------|-------|
-| **Accuracy** | **88.64%** |
-| **Cohen's Kappa** | **0.7725** |
-| **Macro F1** | **0.7186** |
-| **Weighted F1** | **0.8953** |
-| **Test Subjects** | 15 (held-out) |
-| **Protocol** | Legacy all-position (stride=5) |
+| **Accuracy** | **90.57%** |
+| **Cohen's Kappa** | **0.8080** |
+| **Macro F1** | **0.7490** |
+| **Weighted F1** | **0.9115** |
+| **Best validation** | κ 0.8274 @ epoch 18/20 |
+| **CPU latency (measured)** | 6.2 ms/batch |
+| **Evidence** | `results/standalone_99k/` |
 
 ### Quarantined: Legacy Record-Level Benchmark
 
@@ -166,17 +167,17 @@ neurosleep/
 ├── src/sleep_staging/                    # Core Python package
 │   ├── models/
 │   │   ├── improved_student.py           # ImprovedStudent architecture (99,477 params)
-│   │   └── improved_teacher.py           # ImprovedTeacher for distillation
+│   │   └── components.py                 # Stem, depthwise-separable blocks, Gabor FEB
 │   ├── adaptation/
 │   │   └── lora.py                       # LoRA implementation
 │   ├── inference/
-│   │   └── predictor.py                  # Inference engine
+│   │   └── engine.py                     # Inference engine
 │   ├── data/
 │   │   ├── loader.py                     # Cached subject loading
 │   │   ├── labels.py                     # Stage mapping
-│   │   └── dataset.py                    # Dataset handling
+│   │   └── sequence_dataset.py           # Sequence dataset handling
 │   ├── preprocessing/
-│   │   ├── filtering.py                  # Bandpass + notch filters
+│   │   ├── filters.py                    # Bandpass + notch filters
 │   │   └── quality.py                    # Signal quality control
 │   ├── training/
 │   │   └── cross_dataset.py              # SequenceDataset, training loop
@@ -199,46 +200,31 @@ neurosleep/
 │       └── 04_Model_Information.py       # Architecture & results
 │
 ├── scripts/                              # CLI entry points
-│   ├── run_person_level_benchmark.py     # Primary benchmark training
-│   ├── summarize_person_benchmark.py     # Fold-level aggregation
+│   ├── summarize_person_benchmark.py     # Fold-level aggregation + CIs
 │   ├── protocol_fingerprint.py           # Pre-run consistency verification
 │   ├── verify_protocol.py                # Protocol integrity check
 │   ├── generate_person_folds.py          # Person-level fold generation
 │   ├── audit_repository.py               # Repository consistency audit
-│   ├── download_sleep_edf_expanded.py    # Dataset download
-│   ├── prepare_dataset.py                # Data preparation
-│   └── quarantine/                       # Legacy scripts (archived)
-│       ├── run_100_subject_benchmark.py
-│       ├── train_adaptation.py
-│       └── aggregate_adaptation_results.py
+│   └── train_adaptation.py               # Adaptation-study runner (see docs/adaptation.md)
 │
 ├── configs/                              # YAML configuration files
 │   ├── experiments/
-│   │   ├── exhibition_15subj.yaml        # Historical exhibition (EXP-EXHIBITION-15SUBJ)
 │   │   └── person_level_cv.yaml          # Primary benchmark (EXP-BENCH-PERSON)
 │   └── model/
 │       └── improved_student.yaml         # Model architecture spec
 │
 ├── artifacts/                            # Model checkpoints
-│   ├── exhibition/
-│   │   └── EXP-EXHIBITION-15SUBJ/
-│   │       └── seed-42/
-│   │           ├── teacher_improved_best.pt
-│   │           ├── student_best.pt
-│   │           └── provenance.json
-│   ├── research/
-│   │   └── EXP-BENCH-PERSON/
-│   └── quarantine/                       # Legacy checkpoints
-│       └── student_full_finetuned_generic.pt
+│   ├── standalone_99k/
+│   │   └── student_99477_best.pt         # Deployable checkpoint (99,477 params)
+│   └── lora/                             # LoRA adapter (extension demo)
 │
 ├── results/                              # Evaluation results
-│   ├── exhibition/
-│   │   └── EXP-EXHIBITION-15SUBJ/        # Historical exhibition results
 │   ├── research/
 │   │   └── EXP-BENCH-PERSON/             # Primary benchmark results
-│   └── quarantine/                       # Legacy/contaminated results
-│       ├── legacy_benchmark_92subj/
-│       └── legacy_adaptation/
+│   ├── standalone_99k/                   # Deployed standalone run results
+│   └── final/
+│       ├── final_metrics.json            # Dashboard data source (primary)
+│       └── notebook_pipeline_result.csv  # Deployed standalone result row
 │
 ├── data/
 │   ├── manifests/
@@ -272,7 +258,7 @@ neurosleep/
 │   ├── 01_data_import_and_dataset_collection.ipynb
 │   ├── 02_data_preprocessing.ipynb
 │   ├── 03_exploratory_data_analysis.ipynb
-│   ├── 04_model_architecture_and_training.ipynb
+│   ├── 04_student_99k_complete_training.ipynb
 │   ├── 05_evaluation_and_benchmarking.ipynb
 │   └── 06_lora_adaptation_and_evaluation.ipynb (historical)
 │
@@ -350,11 +336,21 @@ for i in range(10):
     print(f"Epoch {i}: {STAGE_NAMES[preds[0, i].item()]} ({probs[0, i, preds[0, i]].item():.2%})")
 ```
 
-### Evaluate the Final Model (Exhibition)
+### Evaluate the Final Model
 
 ```bash
 python scripts/verify_protocol.py
 # Then run Notebook 05 for full evaluation
+```
+
+### Reproduce the Deployed Standalone Model
+
+```bash
+# 1. Execute the standalone training notebook (~18 min on one GPU)
+jupyter nbconvert --to notebook --execute notebooks/04_student_99k_complete_training.ipynb --inplace
+
+# 2. Re-evaluate on the 15 held-out test subjects
+jupyter nbconvert --to notebook --execute notebooks/05_evaluation_and_benchmarking.ipynb --inplace
 ```
 
 ### Run Person-Level Benchmark (Primary)
@@ -363,24 +359,14 @@ python scripts/verify_protocol.py
 # Verify protocol first
 python scripts/verify_protocol.py
 
-# Single fold, seed 42
-python scripts/run_person_level_benchmark.py --fold 0 --seed 42
-
-# All folds, seed 42
-for fold in {0..9}; do
-    python scripts/run_person_level_benchmark.py --fold $fold --seed 42
-done
-
-# Multi-seed (seeds 42, 43, 44)
-for seed in 42 43 44; do
-    for fold in {0..9}; do
-        python scripts/run_person_level_benchmark.py --fold $fold --seed $seed
-    done
-done
-
-# Summarize results
+# The benchmark is complete (seeds 42/43/44, 30 folds) and its evidence
+# lives in results/research/EXP-BENCH-PERSON/. To regenerate the summary:
 python scripts/summarize_person_benchmark.py --results-dir results/research/EXP-BENCH-PERSON
 ```
+
+The fold runner used for this benchmark is preserved in the project
+history (`scripts/run_person_level_benchmark.py`); the completed result
+evidence is authoritative.
 
 ---
 
@@ -546,7 +532,7 @@ The project includes a Swiss-design Streamlit dashboard with 4 pages:
 streamlit run app/streamlit_app.py
 ```
 
-The dashboard automatically loads results from `results/100_subject_adaptation/final/aggregate_metrics.json`.
+The dashboard automatically loads results from `results/final/final_metrics.json` (primary benchmark) and `results/final/notebook_pipeline_result.csv` (deployed standalone run).
 
 ---
 
@@ -590,41 +576,33 @@ path = hf_hub_download(
 
 ## Reproduction
 
-### Full Benchmark
+### Notebooks (canonical pipeline)
 
 ```bash
-# 1. Verify protocol
-python scripts/protocol_fingerprint.py --seed 42 --mode full_finetune --save-reference
-
-# 2. Run all 3 modes × 3 seeds
-for seed in 42 43 44; do
-  python scripts/train_adaptation.py --mode frozen --seed $seed --device cuda
-  python scripts/train_adaptation.py --mode lora --targets enc.0.pw,enc.1.pw,head --rank 8 --alpha 16 --seed $seed --device cuda
-  python scripts/train_adaptation.py --mode full_finetune --seed $seed --device cuda
-done
-
-# 3. Aggregate results
-python scripts/aggregate_adaptation_results.py
+# Run in order; 04 trains the deployed model, 05 evaluates it
+jupyter nbconvert --to notebook --execute notebooks/01_data_import_and_dataset_collection.ipynb --inplace
+jupyter nbconvert --to notebook --execute notebooks/02_data_preprocessing.ipynb --inplace
+jupyter nbconvert --to notebook --execute notebooks/03_exploratory_data_analysis.ipynb --inplace
+jupyter nbconvert --to notebook --execute notebooks/04_student_99k_complete_training.ipynb --inplace
+jupyter nbconvert --to notebook --execute notebooks/05_evaluation_and_benchmarking.ipynb --inplace
 ```
 
-### Expected Output
+### Primary Benchmark
 
-```
-FINAL ADAPTATION BENCHMARK — ALL SEEDS AGGREGATED
-======================================================================
-  Model                  Params     Accuracy            κ     Macro F1
-----------------------------------------------------------------------
-  Frozen                      0 0.8706±0.0362 0.7378±0.0773 0.6725±0.0740
-  LoRA CNN+Head           1,448 0.8361±0.0366 0.6934±0.0572 0.6736±0.0454
-  Full Fine-Tuning       99,477 0.8766±0.0267 0.7632±0.0427 0.7302±0.0367
-======================================================================
-```
+Already complete — see `results/research/EXP-BENCH-PERSON/` and
+`docs/RESULTS.md`. Regenerate the summary with
+`python scripts/summarize_person_benchmark.py --results-dir results/research/EXP-BENCH-PERSON`.
+
+### Adaptation study (quarantined — do not cite as generalization)
+
+See `docs/adaptation.md` for the contamination record. The runner
+`scripts/train_adaptation.py` is retained for a future leak-free re-run.
 
 ---
 
 ## Configuration
 
-The final model configuration is in `configs/full_100_subject.yaml`:
+The model configuration is in `configs/model/improved_student.yaml`:
 
 ```yaml
 model:
@@ -633,7 +611,7 @@ model:
 
 data:
   dataset: Sleep-EDF Expanded
-  subjects: 92
+  cohort: 92 records / 52 persons
   channels: [Fpz-Cz, Pz-Oz, EOG, EMG]
   sampling_rate: 100
   epoch_seconds: 30
@@ -643,16 +621,14 @@ training:
   lr: 3e-4
   weight_decay: 1e-4
   epochs: 20
-  early_stopping_patience: 5
-  batch_size: 32
-  class_weights:
-    N1: 2.0
-    REM: 2.0
-  mixed_precision: true
+  batch_size: 16
+  scheduler: cosine with 10% warmup
+  gradient_clip: 1.0
+  supervision: all_position
 
 evaluation:
-  method: 10-fold subject-level CV
-  seeds: [42, 43, 44]
+  primary: 10-fold person-level CV, seeds [42, 43, 44]
+  standalone: exhibition 70/15/15 subject split, seed 42
   sequence_length: 10
   stride: 5
   supervision: all_position

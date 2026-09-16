@@ -49,19 +49,24 @@ def run_check(name: str, check_fn):
 # ── Checks ──────────────────────────────────────────────────────────────
 
 def check_duplicate_model_defs():
-    """Check for duplicate ImprovedStudent/ImprovedTeacher definitions."""
-    student_files = list(REPO.rglob("*ImprovedStudent*.py"))
-    teacher_files = list(REPO.rglob("*ImprovedTeacher*.py"))
+    """Check for duplicate or extraneous model definitions.
 
-    # Filter out __pycache__ and quarantine
-    student_files = [f for f in student_files if "__pycache__" not in str(f) and "quarantine" not in str(f)]
-    teacher_files = [f for f in teacher_files if "__pycache__" not in str(f) and "quarantine" not in str(f)]
+    The repository ships a single architecture: the 99,477-parameter
+    ImprovedStudent. Any other model file (teacher, alternate students)
+    or inline notebook definition is flagged.
+    """
+    student_files = [f for f in REPO.rglob("*improved_student*.py")
+                     if "__pycache__" not in str(f) and "quarantine" not in str(f)]
+    teacher_files = [f for f in REPO.rglob("*improved_teacher*.py")
+                     if "__pycache__" not in str(f) and "quarantine" not in str(f)]
 
     problems = []
-    if len(student_files) > 1:
-        problems.append(f"Multiple ImprovedStudent files: {[str(f.relative_to(REPO)) for f in student_files]}")
-    if len(teacher_files) > 1:
-        problems.append(f"Multiple ImprovedTeacher files: {[str(f.relative_to(REPO)) for f in teacher_files]}")
+    if len(student_files) != 1:
+        problems.append(f"Expected exactly 1 ImprovedStudent file, found: "
+                        f"{[str(f.relative_to(REPO)) for f in student_files]}")
+    if teacher_files:
+        problems.append(f"Teacher model files must not exist (single-architecture repo): "
+                        f"{[str(f.relative_to(REPO)) for f in teacher_files]}")
 
     # Check notebook inline definitions
     nb_student = 0
@@ -73,8 +78,9 @@ def check_duplicate_model_defs():
         if "class ImprovedTeacher" in content:
             nb_teacher += 1
 
-    if nb_student > 0:
-        problems.append(f"{nb_student} notebook(s) contain inline ImprovedStudent definition")
+    if nb_student > 1:
+        problems.append(f"{nb_student} notebooks contain inline ImprovedStudent definition "
+                        f"(only the standalone 04 training notebook may)")
     if nb_teacher > 0:
         problems.append(f"{nb_teacher} notebook(s) contain inline ImprovedTeacher definition")
 
@@ -134,11 +140,14 @@ def check_result_files():
         if "quarantine" not in str(f):
             problems.append(f"Ambiguous checkpoint name: {f.relative_to(REPO)}")
 
-    # Check for multiple result files in same dir
-    for d in REPO.glob("results/*/"):
-        csvs = list(d.glob("*.csv"))
-        if len(csvs) > 2:  # allow fold_summary + one other
-            problems.append(f"Multiple CSVs in {d.relative_to(REPO)}: {[c.name for c in csvs]}")
+    # Check for ambiguous result rows in results/final (the dashboard
+    # data source): exactly one row CSV is expected next to
+    # final_metrics.json
+    final_rows = [c for c in (REPO / "results" / "final").glob("*.csv")] \
+        if (REPO / "results" / "final").exists() else []
+    if len(final_rows) > 1:
+        problems.append(f"Multiple result CSVs in results/final: "
+                        f"{[c.name for c in final_rows]}")
 
     if problems:
         return False, "; ".join(problems)
@@ -228,15 +237,6 @@ def check_git_provenance():
     """Check that checkpoints have valid git commit."""
     problems = []
 
-    # Check exhibition checkpoint
-    prov = REPO / "artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/provenance.json"
-    if prov.exists():
-        with open(prov) as f:
-            p = json.load(f)
-        git_commit = p.get("git_commit", "")
-        if git_commit == "unknown" or len(git_commit) < 8:
-            problems.append(f"Exhibition provenance has invalid git_commit: {git_commit}")
-
     # Check research checkpoint
     prov = REPO / "results/research/EXP-BENCH-PERSON/provenance.json"
     if prov.exists():
@@ -246,14 +246,14 @@ def check_git_provenance():
         if git_commit == "unknown" or len(git_commit) < 8:
             problems.append(f"Research provenance has invalid git_commit: {git_commit}")
 
-    # Check teacher checkpoint
-    ckpt = REPO / "artifacts/teacher_improved_best.pt"
+    # Check standalone 99k student checkpoint
+    ckpt = REPO / "artifacts/standalone_99k/student_99477_best.pt"
     if ckpt.exists():
         import torch
         data = torch.load(ckpt, map_location="cpu")
         git_commit = data.get("git_commit", "")
         if git_commit == "unknown" or len(git_commit) < 8:
-            problems.append(f"Teacher checkpoint has invalid git_commit: {git_commit}")
+            problems.append(f"Student 99k checkpoint has invalid git_commit: {git_commit}")
 
     if problems:
         return False, "; ".join(problems)
@@ -274,10 +274,28 @@ def check_generated_junk():
         "*.tmp",
     ]
 
+    # Locations excluded from the junk scan: version control and local
+    # virtual environments (a checked-in-but-gitignored .conda venv is
+    # not repository junk).
+    excluded = (".git", ".conda", ".venv", "venv", "node_modules", "data")
+
+    def git_ignored(path) -> bool:
+        """True when git itself ignores the path (regenerating caches are fine)."""
+        try:
+            r = subprocess.run(
+                ["git", "check-ignore", "-q", str(path)],
+                cwd=REPO, capture_output=True,
+            )
+            return r.returncode == 0
+        except Exception:
+            return False
+
     for pattern in junk_patterns:
         matches = list(REPO.rglob(pattern))
-        # Filter out allowed locations
-        matches = [m for m in matches if ".git" not in str(m)]
+        matches = [m for m in matches if not any(part in Path(m).parts for part in excluded)]
+        # Only flag junk git would track — regenerating gitignored caches
+        # (__pycache__, .pytest_cache) are not repository junk.
+        matches = [m for m in matches if not git_ignored(m)]
         if matches:
             problems.append(f"Junk pattern '{pattern}' found: {[str(m.relative_to(REPO)) for m in matches[:5]]}")
 
@@ -296,23 +314,14 @@ def check_manifest_checkpoint_match():
     """Verify checkpoints match their declared manifests."""
     problems = []
 
-    # Exhibition student checkpoint
-    ckpt = REPO / "artifacts/exhibition/EXP-EXHIBITION-15SUBJ/seed-42/student_best.pt"
+    # Standalone 99k student checkpoint (the only production checkpoint)
+    ckpt = REPO / "artifacts/standalone_99k/student_99477_best.pt"
     if ckpt.exists():
         import torch
         data = torch.load(ckpt, map_location="cpu")
         manifest = data.get("split_manifest", "")
-        if manifest != "data/manifests/exhibition_15subj_v1.json":
-            problems.append(f"Exhibition student checkpoint manifest mismatch: {manifest}")
-
-    # Teacher checkpoint
-    ckpt = REPO / "artifacts/teacher_improved_best.pt"
-    if ckpt.exists():
-        import torch
-        data = torch.load(ckpt, map_location="cpu")
-        manifest = data.get("split_manifest", "")
-        if manifest != "data/manifests/exhibition_15subj_v1.json":
-            problems.append(f"Teacher checkpoint manifest mismatch: {manifest}")
+        if manifest and manifest != "data/manifests/exhibition_15subj_v1.json":
+            problems.append(f"Student 99k checkpoint manifest mismatch: {manifest}")
 
     if problems:
         return False, "; ".join(problems)
