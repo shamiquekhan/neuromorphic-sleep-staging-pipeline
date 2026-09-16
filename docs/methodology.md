@@ -91,8 +91,8 @@ Deliverable: cached per-subject `.npz` epochs (`data/cache/sleep_edf/`).
 | Module | Parameters | Share |
 |--------|-----------:|------:|
 | Multi-Resolution Stem (parallel Conv1d, kernels 25/200) | 7,232 | 7.27% |
-| Depthwise-Separable Encoder (2 blocks) | 2,304 | 2.32% |
-| Parametric Gabor Filters (8 learnable, 0.5–30 Hz) | 144 | 0.14% |
+| Depthwise-Separable Encoder (2 blocks) | 1,904 | 1.91% |
+| Parametric Gabor Filters (8 learnable, 0.5–30 Hz) | 160 | 0.16% |
 | 2-Layer GRU (hidden 64, 300-s context) | 89,856 | 90.33% |
 | Linear Head | 325 | 0.33% |
 

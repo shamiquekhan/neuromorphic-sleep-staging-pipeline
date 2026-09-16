@@ -140,8 +140,8 @@ Wake / N1 / N2 / N3 / REM
 | Module | Parameters | Description |
 |--------|------------|-------------|
 | Stem (Short + Long) | 7,232 | Multi-resolution feature extraction |
-| Encoder (2 blocks) | 2,304 | Depthwise-separable CNN |
-| Gabor FEB | 144 | Parametric spectral features |
+| Encoder (2 blocks) | 1,904 | Depthwise-separable CNN |
+| Gabor FEB (incl. projection) | 160 | Parametric spectral features |
 | GRU | 89,856 | Temporal context modeling |
 | Head | 325 | 5-class classification |
 | **Total** | **99,477** | |
@@ -311,13 +311,13 @@ from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 from sleep_staging.models.improved_student import ImprovedStudent
 
-# Download checkpoint
+# Download checkpoint (single-file safetensors — see hf_model_card.md)
 path = hf_hub_download(
     repo_id="shamique/Light-Weight-Neuromorphic-Sleep-Stage-Model",
     filename="student_full_finetuned.safetensors",
 )
 
-# Load model
+# Load model (strict loading verifies all 99,477 parameters)
 model = ImprovedStudent()
 model.load_state_dict(load_file(path, device="cpu"))
 model.eval()
@@ -509,9 +509,9 @@ model = apply_lora(model, lora_config)
 - Physiological overlap with Wake and N2
 
 **Strengths:**
-- High Wake F1 (0.964) — excellent awake detection
-- Strong N2 detection (0.768) — light sleep well-distinguished
-- Balanced performance across all stages
+- High Wake F1 (0.960) — excellent awake detection
+- Reliable N2 detection (0.733) — the most prevalent sleep stage
+- Strong REM (0.782) and N3 (0.700) performance despite low support
 
 ---
 

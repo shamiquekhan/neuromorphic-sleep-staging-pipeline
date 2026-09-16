@@ -202,7 +202,7 @@ records. Superseded by the person-level benchmark. Full record:
 ## Model Architecture (context for all results)
 
 99,477 parameters — multi-resolution stem (7,232), depthwise-separable
-encoder (2,304), parametric Gabor filters (144), 2-layer GRU hidden 64
+encoder (1,904), parametric Gabor filters incl. projection (160), 2-layer GRU hidden 64
 (89,856 — 90.3% of the parameter budget), linear head (325).
 Input `[B, 10, 4, 3000]` @ 100 Hz; output per-epoch 5-class logits over
 a 300-second context.

@@ -45,8 +45,8 @@ Current status:
 | Module | Parameters |
 |--------|-----------:|
 | Multi-Resolution Stem | 7,232 |
-| Depthwise-Separable Encoder | 2,304 |
-| Gabor Feature Extraction | 144 |
+| Depthwise-Separable Encoder | 1,904 |
+| Gabor Feature Extraction (incl. projection) | 160 |
 | GRU (2 layers, hidden 64) | 89,856 |
 | Head | 325 |
 | **Total** | **99,477** |

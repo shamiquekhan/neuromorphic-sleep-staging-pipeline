@@ -153,8 +153,8 @@ Wake / N1 / N2 / N3 / REM
 | Module | Parameters |
 |--------|------------|
 | Stem (S+L) | 7,232 |
-| Encoder (2 blocks) | 2,304 |
-| Gabor FEB | 144 |
+| Encoder (2 blocks) | 1,904 |
+| Gabor FEB (incl. projection) | 160 |
 | GRU | 89,856 |
 | Head | 325 |
 | **Total** | **99,477** |
