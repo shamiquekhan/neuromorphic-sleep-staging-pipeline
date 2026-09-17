@@ -59,14 +59,6 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 **Model:** Improved Student — Trained from Scratch (99,477 params)
 **Protocol:** Causal unique-epoch evaluation (stride=1, last-epoch supervision)
 
-| Metric | Mean ± Std | 95% CI |
-|--------|------------|--------|
-| **Accuracy** | **87.30% ± 0.33%** | [85.80%, 88.79%] |
-| **Cohen's Kappa** | **0.738 ± 0.010** | [0.691, 0.785] |
-| **Macro F1** | **0.724 ± 0.005** | [0.693, 0.755] |
-| **Weighted F1** | **0.880 ± 0.003** | [0.860, 0.900] |
-| **MGm** | **0.772 ± 0.006** | [0.721, 0.823] |
-| **Parameters** | **99,477** | |
 
 ### Per-Class Performance (Person-Level, 30 Folds)
 
@@ -80,11 +72,6 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 
 ### Deployed Standalone Result (EXP-STANDALONE-99K — Notebooks 01→05, supervised CE)
 
-> **Note:** The current deployable checkpoint (`artifacts/standalone_99k/student_99477_best.pt`) is the Improved Student trained from scratch with supervised class-weighted cross-entropy on the exhibition 70/15/15 subject split (seed 42).
->
-> **Protocol distinction :**
-> - **EXP-BENCH-PERSON** (above) — the primary research/generalization benchmark: person-level 10-fold CV, causal unique-epoch evaluation. The 87.30% is the honest person-generalization estimate.
-> - **EXP-STANDALONE-99K** (below) — the deployable standalone exhibition run: fixed 70/15/15 subject split, all-position protocol. The 90.57% is **not comparable** to the 87.30% — different evaluation semantics.
 
 | Metric | Value |
 |--------|-------|
@@ -95,16 +82,6 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 | **Best validation** | κ 0.8274 @ epoch 18/20 |
 | **CPU latency (measured)** | 6.2 ms/batch |
 | **Evidence** | `results/standalone_99k/` |
-
-### Quarantined: Legacy Record-Level Benchmark
-
-> **Warning:** The legacy "92-subject" benchmark used record-level folds with person-level leakage (SC4ss1/SC4ss2 = same person in train and test). Results are **record-level estimates only**, not person-generalization.
-
-| Metric | Value (Quarantined) |
-|--------|---------------------|
-| Accuracy | 87.66% ± 2.22% |
-| Cohen's κ | 0.763 ± 0.043 |
-| Macro F1 | 0.730 ± 0.037 |
 
 ---
 
@@ -479,20 +456,7 @@ model = apply_lora(model, lora_config)
 # trainable params: 1,448 || all params: 99,477 || trainable%: 1.43%
 ```
 
-### Full Fine-Tuning
-
-- Load pre-trained checkpoint
-- Train all 99,477 parameters
-- Best overall performance
-
-### Comparison
-
-| Method | Params | Accuracy | κ | Macro F1 | Accuracy Retention |
-|--------|-------:|---------:|----:|---------:|-------------------:|
-| Frozen | 0 | 87.1% | 0.738 | 0.673 | 99.3% |
-| LoRA CNN+Head | 1,448 | 83.6% | 0.693 | 0.674 | 95.4% |
-| **Full FT** | **99,477** | **87.7%** | **0.763** | **0.730** | **100%** |
-
+#
 ---
 
 ## Evaluation
@@ -653,7 +617,7 @@ evaluation:
 | Shailendra Bhatt | Exploratory Data Analysis |
 | Shamique Khan | Model Development & Training |
 | Aasir Jaffer Lone | Model Evaluation & Performance |
-|Prachi Kamboj| Project Documentation |
+|Prachi Kamboj| Project Documentation and Model Report |
 
 > Commits consolidated by Shamique Khan for repo hygiene. See [docs/team.md](docs/team.md) for individual contributions.
 
