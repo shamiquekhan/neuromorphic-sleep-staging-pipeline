@@ -11,28 +11,53 @@ def load_cached_subject(
     subject_id: str,
     cache_dir: str | Path | None = None,
 ) -> dict:
-    """Load a cached NPZ file for one subject.
+    """Load one cached recording for one subject.
 
-    The cache files are named ``{subject_id}_nightE0.npz`` and contain:
-        - ``epochs``: ``[n_epochs, n_channels, n_samples]``
-        - ``labels``: ``[n_epochs]`` integer stage labels.
-        - ``orig_epoch_idx`` (optional, newer caches): ``[n_epochs]``
-          index of each cached epoch within the raw 30 s annotation grid
-          of the recording. Preprocessing drops unlabeled epochs ("?",
-          movement time) before caching, so consecutive cached rows can
-          be temporally discontiguous; this key makes those gaps
-          detectable. See ``data/sequence_dataset.py``.
+    Two cache layouts are supported:
+
+    Canonical (Notebook 02, ``data/cache_full``) — ``{subject_id}_epochs.npy``
+    memory-mapped array ``[n_epochs, n_channels, n_samples]`` plus a
+    ``{subject_id}_meta.npz`` sidecar with ``labels``, ``onsets`` (sample
+    offsets), ``qc_flag`` and ``fs``. ``orig_epoch_idx`` is derived from
+    ``onsets / (fs * 30)``.
+
+    Legacy (night-1 subset, ``data/cache``) — single ``{subject_id}_nightE0.npz``
+    containing ``epochs``, ``labels`` and optionally ``orig_epoch_idx``
+    (index of each cached epoch within the raw 30 s annotation grid;
+    preprocessing drops unlabeled epochs so cached rows can be temporally
+    discontiguous — see ``data/sequence_dataset.py``).
 
     Returns:
         Dict with keys ``epochs``, ``labels``, ``subject_id``, and
-        ``orig_epoch_idx`` (None when the cache predates it).
+        ``orig_epoch_idx`` (None when unavailable).
     """
     d = Path(cache_dir) if cache_dir else CACHE_DIR
-    path = d / f"{subject_id}_nightE0.npz"
-    if not path.exists():
-        raise FileNotFoundError(f"Cache file not found: {path}")
 
-    data = np.load(path)
+    epochs_path = d / f"{subject_id}_epochs.npy"
+    meta_path = d / f"{subject_id}_meta.npz"
+    if epochs_path.exists() and meta_path.exists():
+        epochs = np.load(epochs_path, mmap_mode="r")
+        meta = np.load(meta_path)
+        orig_epoch_idx = None
+        if "onsets" in meta and "fs" in meta:
+            samples_per_epoch = float(meta["fs"]) * 30.0
+            orig_epoch_idx = np.round(
+                np.asarray(meta["onsets"]) / samples_per_epoch
+            ).astype(np.int64)
+        return {
+            "epochs": epochs,
+            "labels": np.asarray(meta["labels"]),
+            "subject_id": subject_id,
+            "orig_epoch_idx": orig_epoch_idx,
+        }
+
+    legacy_path = d / f"{subject_id}_nightE0.npz"
+    if not legacy_path.exists():
+        raise FileNotFoundError(
+            f"Cache file not found: {epochs_path} or {legacy_path}"
+        )
+
+    data = np.load(legacy_path)
     return {
         "epochs": data["epochs"],
         "labels": data["labels"],
@@ -68,8 +93,17 @@ def get_contiguous_sequence(
 
 
 def available_subjects(cache_dir: str | Path | None = None) -> list[str]:
-    """List subject IDs present in the cache directory."""
+    """List recording IDs present in the cache directory.
+
+    Canonical layout (``{id}_meta.npz``) wins when present; otherwise falls
+    back to legacy ``{id}_night*.npz`` files.
+    """
     d = Path(cache_dir) if cache_dir else CACHE_DIR
+    canonical = sorted(
+        p.stem[: -len("_meta")] for p in d.glob("*_meta.npz")
+    )
+    if canonical:
+        return canonical
     return sorted(
         p.stem.split("_night")[0]
         for p in d.glob("*_night*.npz")

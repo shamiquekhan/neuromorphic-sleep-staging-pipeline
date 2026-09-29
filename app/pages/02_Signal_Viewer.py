@@ -31,7 +31,10 @@ st.markdown('<div class="divider-thick"></div>', unsafe_allow_html=True)
 
 subjects = available_subjects()
 if not subjects:
-    st.warning("No cached data found. Run Notebook 02 first.")
+    st.warning(
+        f"No cached data found in `{CACHE_DIR}`. "
+        "Run Notebook 02 first to build `data/cache_full/`."
+    )
     st.stop()
 
 section_title("Signal Selection")

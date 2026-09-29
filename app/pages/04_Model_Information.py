@@ -110,16 +110,14 @@ if primary_metrics:
         section_title("Per-Class Performance (Primary Benchmark)")
         rows = (
             '<table class="swiss-table">'
-            '<tr><th>Stage</th><th>F1</th><th>Precision</th><th>Recall</th></tr>'
+            '<tr><th>Stage</th><th>F1 (mean &plusmn; std)</th></tr>'
         )
         for stage in ["Wake", "N1", "N2", "N3", "REM"]:
-            if stage in o["per_class"]:
-                s = o["per_class"][stage]
+            s = o["per_class"].get(stage) or {}
+            if "f1_mean" in s:
                 rows += (
                     f'<tr><td>{stage}</td>'
-                    f'<td>{s["f1_mean"]:.3f} &plusmn; {s["f1_std"]:.3f}</td>'
-                    f'<td>{s["precision_mean"]:.3f}</td>'
-                    f'<td>{s["recall_mean"]:.3f}</td></tr>'
+                    f'<td>{s["f1_mean"]:.3f} &plusmn; {s["f1_std"]:.3f}</td></tr>'
                 )
         rows += "</table>"
         st.markdown(rows, unsafe_allow_html=True)

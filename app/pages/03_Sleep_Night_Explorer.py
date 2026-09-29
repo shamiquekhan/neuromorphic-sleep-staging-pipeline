@@ -14,7 +14,7 @@ import streamlit as st
 
 from app.components import inject_swiss_css, header, section_title
 from app.state import get_predictor, init_session
-from sleep_staging.config import STAGE_NAMES
+from sleep_staging.config import CACHE_DIR, STAGE_NAMES
 from sleep_staging.data import available_subjects, get_contiguous_sequence, load_cached_subject
 from sleep_staging.visualization import create_hypnogram
 
@@ -28,7 +28,10 @@ st.markdown('<div class="divider-thick"></div>', unsafe_allow_html=True)
 
 subjects = available_subjects()
 if not subjects:
-    st.warning("No cached data found. Run Notebook 02 first.")
+    st.warning(
+        f"No cached data found in `{CACHE_DIR}`. "
+        "Run Notebook 02 first to build `data/cache_full/`."
+    )
     st.stop()
 
 subject = st.selectbox("Subject", subjects)

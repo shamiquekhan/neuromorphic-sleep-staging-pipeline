@@ -8,8 +8,27 @@ from typing import Dict
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CHECKPOINT_PATH = PROJECT_ROOT / "artifacts" / "standalone_99k" / "student_99477_best.pt"
 RESULTS_PATH = PROJECT_ROOT / "results" / "final" / "final_metrics.json"
-CACHE_DIR = PROJECT_ROOT / "data" / "cache" / "sleep_edf"
-SLEEP_EDF_CACHE_DIR = PROJECT_ROOT / "data" / "cache" / "sleep_edf"
+
+
+def _resolve_cache_dir() -> Path:
+    """Resolve the default epoch cache directory.
+
+    Prefers the canonical Notebook 02 output (``data/cache_full`` — 197
+    recordings, ``*_epochs.npy`` + ``*_meta.npz`` sidecars). Falls back to
+    the legacy night-1 cache (``data/cache``, ``*_nightE0.npz``) when the
+    canonical cache has not been built yet.
+    """
+    full = PROJECT_ROOT / "data" / "cache_full"
+    if (full / "cache_index.csv").exists():
+        return full
+    legacy = PROJECT_ROOT / "data" / "cache"
+    if legacy.exists() and any(legacy.glob("*_night*.npz")):
+        return legacy
+    return full
+
+
+CACHE_DIR = _resolve_cache_dir()
+SLEEP_EDF_CACHE_DIR = CACHE_DIR
 SHHS_CACHE_DIR = PROJECT_ROOT / "data" / "cache" / "shhs"
 RAW_DIR = PROJECT_ROOT / "data" / "raw" / "sleep_edf"
 MANIFEST_PATH = PROJECT_ROOT / "data" / "manifests" / "sleep_edf.csv"
