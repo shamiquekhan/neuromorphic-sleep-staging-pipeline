@@ -52,7 +52,44 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 
 ## Final Results
 
-### Primary Benchmark: Person-Level 10-Fold CV (EXP-BENCH-PERSON)
+### Final Submission Result — EXP-FULL-AUG30 (person-level 70/15/15 holdout)
+
+> **Protocol:** the complete Sleep-EDF Expanded corpus — **197 recordings / 100 subjects**
+> (age-effects 153/78 + sleep-telemetry 44/22), SHA-1-verified downloads, person-level
+> 70/15/15 split (seed 42): train 69 / val 15 / test 16 subjects. Improved Student (99,477
+> params) trained with 10×30 s context, train-only augmentation, batch 8, ≤30 epochs with
+> early stopping (patience 5) on best validation **Macro F1**, AdamW 3e-4 + cosine-warmup.
+> All metrics below are computed from the **held-out test subjects only** (16 subjects,
+> 7,220 stride-10 windows = 72,200 labels) via `results/final/final_metrics.json` — the
+> notebook chain ends with `FINAL PROTOCOL AUDIT PASSED`.
+
+| Metric | Value |
+|--------|-------|
+| **Accuracy** | **90.48%** |
+| **Cohen's Kappa** | **0.8283** |
+| **Macro F1** | **0.7899** |
+| **Weighted F1** | **0.9089** |
+| **Best validation** | Macro F1 0.7645 @ epoch 12 (early-stopped at 17/30) |
+| **Parameters** | **99,477** |
+| **CPU latency** | 8.94 ms per 5-minute window |
+| **Evidence** | `results/final/final_metrics.json`, `artifacts/final/EXP-FULL-AUG30_seed42.pt` |
+
+### Per-Class Performance (held-out test subjects)
+
+| Stage | Precision | Recall | F1 |
+|-------|-----------|--------|-----|
+| Wake | 0.991 | 0.969 | 0.980 |
+| N1 | 0.451 | 0.647 | 0.532 |
+| N2 | 0.831 | 0.834 | 0.832 |
+| N3 | 0.816 | 0.717 | 0.763 |
+| REM | 0.858 | 0.827 | 0.842 |
+
+> **Protocol distinction:** the sections below are **historical benchmarks** on different
+> cohorts and evaluation semantics — their numbers are not directly comparable to the final
+> submission result above. Quarantined legacy results are recorded in
+> `docs/RESULTS.md` and `docs/adaptation.md` only.
+
+### Historical Benchmark: Person-Level 10-Fold CV (EXP-BENCH-PERSON)
 
 **Dataset:** Sleep-EDF Expanded — 92-record eligible cohort (52 persons), 10-fold person-level CV
 **Seeds:** 3 seeds × 10 folds = 30 folds per method
@@ -60,7 +97,7 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 **Protocol:** Causal unique-epoch evaluation (stride=1, last-epoch supervision)
 
 
-### Per-Class Performance (Person-Level, 30 Folds)
+#### Per-Class Performance (Person-Level, 30 Folds)
 
 | Stage | F1 | 95% CI |
 |-------|-----|--------|
@@ -70,7 +107,7 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 | N3 | 0.700 ± 0.112 | [0.658, 0.742] |
 | REM | 0.782 ± 0.116 | [0.739, 0.826] |
 
-### Deployed Standalone Result (EXP-STANDALONE-99K — Notebooks 01→05, supervised CE)
+### Historical Standalone Result (EXP-STANDALONE-99K — Notebooks 01→05, supervised CE)
 
 
 | Metric | Value |
@@ -82,31 +119,6 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 | **Best validation** | κ 0.8274 @ epoch 18/20 |
 | **CPU latency (measured)** | 6.2 ms/batch |
 | **Evidence** | `results/standalone_99k/` |
-
-### Final Protocol Result (Full Corpus, 2026-09 Freeze — Notebooks 01→05)
-
-> **Protocol:** the complete Sleep-EDF Expanded corpus — **197 recordings / 100 subjects**
-> (age-effects 153/78 + sleep-telemetry 44/22), SHA-1-verified downloads, subject-level 70/15/15
-> split (seed 42). Improved Student trained with 10×30 s context, train-only augmentation,
-> batch 8, ≤50 epochs with early stopping. Metrics below come from the **held-out test subjects**
-> (16 subjects / 72,200 epochs) via `results/final/final_metrics.json` — the notebook chain ends
-> with `FINAL PROTOCOL AUDIT PASSED`.
-
-| Metric | Value |
-|--------|-------|
-| **Accuracy** | **90.50%** |
-| **Cohen's Kappa** | **0.8284** |
-| **Macro F1** | **0.7889** |
-| **Weighted F1** | **0.9089** |
-| **Best validation** | κ 0.7879 @ epoch 12 (early-stopped at 22/50) |
-| **Parameters** | **99,477** |
-| **CPU latency** | 11.1 ms per 5-minute window |
-| **Evidence** | `results/final/final_metrics.json`, `artifacts/final/student_full_dataset_best.pt` |
-
-> **Protocol distinction:** this run's test split is disjoint from the person-level CV folds used
-> in EXP-BENCH-PERSON, and its evaluation semantics differ from both tiers above — the numbers are
-> not directly comparable across tables. Quarantined legacy results are recorded in
-> `docs/RESULTS.md` and `docs/adaptation.md` only.
 
 ---
 
@@ -226,11 +238,11 @@ neurosleep/
 │
 ├── results/                              # Evaluation results
 │   ├── research/
-│   │   └── EXP-BENCH-PERSON/             # Primary benchmark results
+│   │   └── EXP-BENCH-PERSON/             # Historical CV benchmark results
 │   ├── standalone_99k/                   # Deployed standalone run results
 │   └── final/
-│       ├── final_metrics.json            # Dashboard data source (primary)
-│       └── notebook_pipeline_result.csv  # Deployed standalone result row
+│       ├── final_metrics.json            # Final submission metrics (primary)
+│       └── final_result.csv              # One-row headline metrics
 │
 ├── data/
 │   ├── manifests/
@@ -415,18 +427,22 @@ evidence is authoritative.
 
 ### Hyperparameters
 
+Final experiment (EXP-FULL-AUG30):
+
 | Parameter | Value |
 |-----------|-------|
 | Optimizer | AdamW |
 | Learning Rate | 3e-4 |
 | Weight Decay | 1e-4 |
-| Epochs | 20 |
+| Epochs | 30 |
 | Early Stopping Patience | 5 |
-| Batch Size | 32 |
-| Scheduler | Cosine Annealing |
+| Batch Size | 8 |
+| Scheduler | Cosine + 10% warmup |
 | Gradient Clipping | max_norm=1.0 |
-| Mixed Precision | True (CUDA AMP) |
-| Class Weights | N1=2×, REM=2× |
+| Mixed Precision | False (full FP32) |
+| Class Weights | Log-frequency (mean-normalized) |
+| Checkpoint Selection | Best validation Macro F1 |
+| Augmentation | Training split only |
 
 ### Reproducibility
 
@@ -527,7 +543,7 @@ The project includes a Swiss-design Streamlit dashboard with 4 pages:
 streamlit run app/streamlit_app.py
 ```
 
-The dashboard automatically loads results from `results/final/final_metrics.json` (primary benchmark) and `results/final/notebook_pipeline_result.csv` (deployed standalone run).
+The dashboard automatically loads results from `results/final/final_metrics.json` (final submission run) and `results/final/final_result.csv` (headline metrics row).
 
 ---
 
@@ -606,7 +622,7 @@ model:
 
 data:
   dataset: Sleep-EDF Expanded
-  cohort: 92 records / 52 persons
+  cohort: full corpus — 197 records / 100 persons
   channels: [Fpz-Cz, Pz-Oz, EOG, EMG]
   sampling_rate: 100
   epoch_seconds: 30
@@ -615,17 +631,21 @@ training:
   optimizer: AdamW
   lr: 3e-4
   weight_decay: 1e-4
-  epochs: 20
-  batch_size: 16
+  epochs: 30
+  early_stopping_patience: 5
+  batch_size: 8
   scheduler: cosine with 10% warmup
   gradient_clip: 1.0
+  augmentation: train_only
+  checkpoint_metric: val_macro_f1
   supervision: all_position_train_only   # training signal only
 
 evaluation:
-  primary: 10-fold person-level CV, seeds [42, 43, 44]   # EXP-BENCH-PERSON
-  eval_protocol: causal_unique_epoch   # stride=1, last-epoch supervision
+  primary: person-level 70/15/15 holdout, seed 42     # EXP-FULL-AUG30 (final submission)
+  eval_protocol: stride_10_all_position   # non-overlapping windows, every position
+  historical_benchmark: 10-fold person-level CV, seeds [42, 43, 44]  # EXP-BENCH-PERSON
+  historical_eval_protocol: causal_unique_epoch   # stride=1, last-epoch supervision
   standalone: exhibition 70/15/15 subject split, seed 42 # EXP-STANDALONE-99K
-  eval_supervision: last_epoch
   sequence_length: 10
   stride: 5
   supervision: all_position_train_only

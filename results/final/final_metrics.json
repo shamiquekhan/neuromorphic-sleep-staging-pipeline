@@ -1,5 +1,5 @@
 {
-  "protocol": "FINAL full-corpus v1",
+  "protocol": "Final Full-Dataset Person-Level Holdout Experiment (EXP-FULL-AUG30)",
   "model": "Improved Student \u2014 final full-corpus training (supervised CE + train-only augmentation)",
   "parameters": 99477,
   "dataset": {
@@ -13,28 +13,28 @@
   },
   "training_protocol": {
     "batch_size": 8,
-    "max_epochs": 50,
-    "epochs_run": 22,
+    "max_epochs": 30,
+    "epochs_run": 17,
     "augmentation_enabled": true,
     "train_stride": 5,
     "eval_stride": 10,
     "sequence_length": 10,
     "best_validation_epoch": 12,
-    "best_validation_kappa": 0.7878621887585876,
+    "best_validation_macro_f1": 0.764512526372738,
     "seed": 42
   },
-  "test_accuracy": 0.9050138504155124,
-  "cohen_kappa": 0.8284053804943622,
-  "macro_f1": 0.7889091389052493,
-  "weighted_f1": 0.9088578962269678,
-  "macro_gmean": 0.7896308549203023,
-  "cpu_latency_ms_per_window": 11.080501999822445,
+  "test_accuracy": 0.9048199445983379,
+  "cohen_kappa": 0.8283245889712245,
+  "macro_f1": 0.7898514856404757,
+  "weighted_f1": 0.9089159546656838,
+  "macro_gmean": 0.791138401787646,
+  "cpu_latency_ms_per_window": 8.943471279926598,
   "manifest_sha256": "45ddd5774d7a737039cc76038dd77c15f4e854a843ed5f82f3430063327a95e3",
   "per_class_recall": {
-    "Wake": 0.9715518549838461,
-    "N1": 0.6465064899199117,
-    "N2": 0.8326934435912581,
-    "N3": 0.7256612267867192,
-    "REM": 0.808839985080194
+    "Wake": 0.9694486003599384,
+    "N1": 0.6467826567246617,
+    "N2": 0.8338747784997047,
+    "N3": 0.7166572875633089,
+    "REM": 0.8271167474822827
   }
 }

@@ -56,7 +56,21 @@ def write_dashboard_metrics(results_dir: Path, out: dict) -> None:
     The previous copy of this file held the quarantined adaptation-study
     Full-FT numbers mislabeled as from-scratch; it is regenerated here
     from clean fold evidence only.
+
+    Since the notebook pipeline became canonical, results/final/
+    final_metrics.json holds the submission artifact written by
+    Notebook 05 (EXP-FULL-AUG30). Never overwrite that format.
     """
+    dest = REPO / "results" / "final" / "final_metrics.json"
+    if dest.exists():
+        try:
+            existing = json.loads(dest.read_text())
+        except (OSError, json.JSONDecodeError):
+            existing = {}
+        if "test_accuracy" in existing:
+            print(f"Skipped: {dest.relative_to(REPO)} is the notebook-pipeline "
+                  "submission artifact; not overwriting with benchmark data")
+            return
     is_person = "person" in results_dir.name
     multiseed_path = results_dir / "summary_multiseed.json"
     if is_person and multiseed_path.exists():

@@ -28,9 +28,10 @@ PRIMARY_BENCHMARK = REPO / "results" / "research" / "EXP-BENCH-PERSON" / "final_
 # (first matching '## '/'### ' header wins).
 SECTION_MARKERS = {
     "primary": ["Primary Benchmark", "Person-Level Primary", "Primary benchmark",
-                "person-level CV", "Evidence Hierarchy"],
+                "person-level CV", "Evidence Hierarchy", "EXP-BENCH-PERSON"],
     "standalone": ["Standalone", "standalone_99k", "Deployed"],
-    "freeze": ["Final Protocol", "Full Corpus", "full corpus", "FULL-CORPUS"],
+    "freeze": ["Final Submission", "EXP-FULL-AUG30", "Final Protocol",
+               "Full Corpus", "full corpus", "FULL-CORPUS"],
 }
 
 # Canonical value variants per experiment tier (any substring counts).
@@ -48,9 +49,10 @@ CANONICAL = {
         "weighted_f1": ["0.9115", "0.912"],
     },
     "freeze": {
-        "accuracy": ["90.50%", "0.9050"],
-        "kappa": ["0.8284", "0.828"],
-        "macro_f1": ["0.7889", "0.789"],
+        # Final submission run EXP-FULL-AUG30 (results/final/final_metrics.json)
+        "accuracy": ["90.48%", "0.9048"],
+        "kappa": ["0.8283"],
+        "macro_f1": ["0.7899"],
         "weighted_f1": ["0.9089"],
     },
 }

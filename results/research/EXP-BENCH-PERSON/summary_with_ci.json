@@ -1,5 +1,5 @@
 {
-  "source": "results/benchmark_person_level/fold_summary.csv",
+  "source": "results/research/EXP-BENCH-PERSON/fold_summary.csv",
   "n_folds": 10,
   "metrics": {
     "accuracy": {
