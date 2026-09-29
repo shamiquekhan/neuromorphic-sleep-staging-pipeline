@@ -350,9 +350,14 @@ results/final/final_result.csv
 results/final/predictions.csv
 results/final/confusion_matrix.csv
 results/final/per_class_metrics.csv
+results/final/fit_diagnosis.json
 ```
 
 The canonical files are created from the new held-out test predictions. They are not copies of the older 87.34% or 93.0% figures.
+
+`results/final/fit_diagnosis.json` is written by Notebook 05's fit-diagnosis
+section (train/val/test gap — overfitting check): the frozen checkpoint scored
+on clean stride-10 windows of all three splits under one identical protocol.
 
 ## 10. Final protocol audit
 

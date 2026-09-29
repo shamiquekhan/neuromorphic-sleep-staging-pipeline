@@ -84,6 +84,23 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 | N3 | 0.816 | 0.717 | 0.763 |
 | REM | 0.858 | 0.827 | 0.842 |
 
+### Fit Diagnosis — train/val/test gap (overfitting / underfitting check)
+
+The frozen checkpoint scored on identical stride-10, augmentation-off windows of all
+three splits (Notebook 05 §14; artifact `results/final/fit_diagnosis.json`):
+
+| Split | Windows | Accuracy | Macro F1 | N1 F1 |
+|-------|--------:|---------:|---------:|------:|
+| Train | 31,285 | 92.50% | 0.8328 | 0.627 |
+| Val | 7,008 | 87.37% | 0.7645 | 0.521 |
+| Test | 7,220 | 90.48% | 0.7899 | 0.532 |
+
+- **Gaps:** train−val **+5.12 pp** · train−test **+2.01 pp** · test beats val by 3.11 pp
+- **Verdict:** mild, controlled generalization gap — train accuracy is not saturated and
+  the weakest class (N1, train F1 0.627) is weak even on training data, so remaining
+  errors are label ambiguity, not memorization. Test exceeding val confirms no systematic
+  degradation on unseen subjects (best-epoch checkpoint @ 12, early-stopped at 17/30).
+
 > **Protocol distinction:** the sections below are **historical benchmarks** on different
 > cohorts and evaluation semantics — their numbers are not directly comparable to the final
 > submission result above. Quarantined legacy results are recorded in

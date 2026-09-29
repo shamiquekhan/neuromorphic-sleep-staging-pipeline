@@ -108,6 +108,25 @@ stride-10 windows, with each test epoch scored once.
   **History:** `results/final/training_history.csv` ·
   **Predictions:** `results/final/predictions.csv`
 
+### Fit diagnosis — train/val/test gap (overfitting check)
+
+The frozen checkpoint scored on clean stride-10 windows of all three splits
+(augmentation off, no retraining; Notebook 05 §14,
+`results/final/fit_diagnosis.json`):
+
+| Split | Windows | Labels | Accuracy | κ | Macro F1 | N1 F1 |
+|-------|--------:|-------:|---------:|----:|---------:|------:|
+| Train | 31,285 | 312,850 | 0.9250 | 0.8653 | 0.8328 | 0.627 |
+| Val | 7,008 | 70,080 | 0.8737 | 0.7782 | 0.7645 | 0.521 |
+| Test | 7,220 | 72,200 | 0.9048 | 0.8283 | 0.7899 | 0.532 |
+
+- **Gaps:** train−val **+5.12 pp**,
+  train−test **+2.01 pp**,
+  val−test **-3.11 pp**
+- **Weakest class on train:** N1 (F1 0.627) — weak on the
+  training split too, so its errors are label ambiguity, not memorization
+- **Verdict:** Mild, controlled generalization gap (5.12 pp train-val): train accuracy 0.9250 is not saturated and the weakest train class (N1, F1 0.627) is weak even on training data — errors are dominated by label ambiguity, not memorization. Test (0.9048) exceeding val (0.8737) confirms no systematic degradation on unseen subjects.
+
 ---
 
 ## Historical Benchmark — EXP-BENCH-PERSON (from-scratch, seeds 42/43/44, fixed protocol, complete)

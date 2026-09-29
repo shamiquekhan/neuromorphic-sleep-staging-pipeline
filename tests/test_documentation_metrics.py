@@ -54,6 +54,9 @@ CANONICAL = {
         "kappa": ["0.8283"],
         "macro_f1": ["0.7899"],
         "weighted_f1": ["0.9089"],
+        # Fit diagnosis (results/final/fit_diagnosis.json — NB05 §14)
+        "fit_train_accuracy": ["92.50%", "0.9250"],
+        "fit_train_val_gap": ["5.12 pp"],
     },
 }
 
@@ -63,7 +66,8 @@ CANONICAL = {
 # docs/EXPERIMENTS.md, MODEL_REPORT.md and hf_model_card.md instead.
 EXPECTED = {
     "README.md": {
-        "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
+        "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
+                   "fit_train_accuracy", "fit_train_val_gap"],
         "standalone": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
     },
     "MODEL_REPORT.md": {
@@ -76,6 +80,12 @@ EXPECTED = {
     "docs/RESULTS.md": {
         "primary": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
         "standalone": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
+        "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
+                   "fit_train_accuracy", "fit_train_val_gap"],
+    },
+    "docs/results.md": {
+        "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
+                   "fit_train_accuracy", "fit_train_val_gap"],
     },
     "docs/EXPERIMENTS.md": {
         "primary": ["accuracy", "kappa", "macro_f1", "weighted_f1"],

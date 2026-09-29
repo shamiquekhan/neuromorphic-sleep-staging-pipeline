@@ -9,6 +9,7 @@ hard-coded here:
                         results/final/per_class_metrics.csv
                         results/final/experiment_config.json
                         results/final/experiment_summary_full_dataset.json
+                        results/final/fit_diagnosis.json          (train/val/test gap)
   Historical CV         results/research/EXP-BENCH-PERSON/final_metrics.json
                         results/research/EXP-BENCH-PERSON/summary_multiseed.json
   Standalone            results/standalone_99k/test_metrics.json
@@ -41,6 +42,7 @@ FINAL_METRICS = REPO / "results" / "final" / "final_metrics.json"
 FINAL_PER_CLASS = REPO / "results" / "final" / "per_class_metrics.csv"
 FINAL_CONFIG = REPO / "results" / "final" / "experiment_config.json"
 FINAL_SUMMARY = REPO / "results" / "final" / "experiment_summary_full_dataset.json"
+FIT_DIAG = REPO / "results" / "final" / "fit_diagnosis.json"
 CV_METRICS = REPO / "results" / "research" / "EXP-BENCH-PERSON" / "final_metrics.json"
 CV_MULTISEED = REPO / "results" / "research" / "EXP-BENCH-PERSON" / "summary_multiseed.json"
 SA_METRICS = REPO / "results" / "standalone_99k" / "test_metrics.json"
@@ -72,6 +74,7 @@ def build() -> str:
     fin = load(FINAL_METRICS)
     cfg = load(FINAL_CONFIG)
     fsum = load(FINAL_SUMMARY)
+    fit = load(FIT_DIAG)
     cv = load(CV_METRICS)
     ms = load(CV_MULTISEED)
     sa = load(SA_METRICS)
@@ -106,6 +109,17 @@ def build() -> str:
         "| {s} | {p:.3f} | {r:.3f} | {f:.3f} |".format(
             s=s, p=fpc[s]["precision"], r=fpc[s]["recall"], f=fpc[s]["f1"])
         for s in STAGES)
+
+    # ---- fit diagnosis (train/val/test gap) ------------------------------
+    fs = fit["splits"]
+    fg = fit["gaps"]
+    fit_rows = "\n".join(
+        f"| {name.title()} | {fs[name]['windows']:,} | {fs[name]['labels_scored']:,} "
+        f"| {fs[name]['accuracy']:.4f} | {fs[name]['cohen_kappa']:.4f} "
+        f"| {fs[name]['macro_f1']:.4f} | {fs[name]['per_class_f1']['N1']:.3f} |"
+        for name in ("train", "val", "test"))
+    weakest = fit["weakest_train_class"]
+    weakest_f1 = fs["train"]["per_class_f1"][weakest]
 
     # ---- historical CV tier --------------------------------------------
     c_acc, c_kap = cv["accuracy"], cv["cohen_kappa"]
@@ -260,6 +274,23 @@ stride-{cfg['eval_stride']} windows, with each test epoch scored once.
 - **Config:** `results/final/experiment_config.json` ·
   **History:** `results/final/training_history.csv` ·
   **Predictions:** `results/final/predictions.csv`
+
+### Fit diagnosis — train/val/test gap (overfitting check)
+
+The frozen checkpoint scored on clean stride-10 windows of all three splits
+(augmentation off, no retraining; Notebook 05 §14,
+`results/final/fit_diagnosis.json`):
+
+| Split | Windows | Labels | Accuracy | κ | Macro F1 | N1 F1 |
+|-------|--------:|-------:|---------:|----:|---------:|------:|
+{fit_rows}
+
+- **Gaps:** train−val **{fg['train_minus_val_accuracy'] * 100:+.2f} pp**,
+  train−test **{fg['train_minus_test_accuracy'] * 100:+.2f} pp**,
+  val−test **{fg['val_minus_test_accuracy'] * 100:+.2f} pp**
+- **Weakest class on train:** {weakest} (F1 {weakest_f1:.3f}) — weak on the
+  training split too, so its errors are label ambiguity, not memorization
+- **Verdict:** {fit['verdict']}
 
 ---
 
