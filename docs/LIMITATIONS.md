@@ -491,7 +491,9 @@ Present the expanded results honestly:
 |------|-------------|
 | `results/research/EXP-BENCH-PERSON/final_metrics.json` | Person-level primary benchmark (30 folds / 3 seeds) |
 | `results/standalone_99k/` | Standalone notebook-pipeline run (seed 42) |
-| `results/final/notebook_pipeline_result.csv` | Deployed standalone notebook-pipeline result row |
+| `results/final/final_metrics.json` | Final submission metrics (EXP-FULL-AUG30, person-level holdout) |
+| `results/final/fit_diagnosis.json` | Train/val/test generalization-gap diagnosis |
+| `results/final/confusion_matrix.png` | Held-out test confusion matrix (counts + row-normalized) |
 | `artifacts/standalone_99k/student_99477_best.pt` | Final deployable student checkpoint (99,477 params) |
 | `notebooks/04_student_99k_complete_training.ipynb` | Standalone supervised training (per-epoch logs) |
 | `results/lora_cv_results.json` | LoRA cross-validation results |

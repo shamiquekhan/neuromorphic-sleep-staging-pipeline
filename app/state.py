@@ -17,7 +17,7 @@ def _resolve_checkpoint() -> Path:
 
 @st.cache_data
 def load_final_metrics() -> dict:
-    """Load the primary person-level benchmark metrics (results/final/final_metrics.json)."""
+    """Load the final submission metrics (results/final/final_metrics.json, EXP-FULL-AUG30)."""
     if RESULTS_PATH.exists():
         with open(RESULTS_PATH) as f:
             return json.load(f)
@@ -25,14 +25,31 @@ def load_final_metrics() -> dict:
 
 
 @st.cache_data
-def load_notebook_pipeline_result() -> dict:
-    """Load the notebook-pipeline (single-split) result from results/final/notebook_pipeline_result.csv."""
-    path = RESULTS_PATH.parent / "notebook_pipeline_result.csv"
+def load_primary_benchmark() -> dict:
+    """Load the historical person-level benchmark (mean/std schema)."""
+    path = RESULTS_PATH.parent.parent / "research" / "EXP-BENCH-PERSON" / "final_metrics.json"
+    if path.exists():
+        with open(path) as f:
+            return json.load(f)
+    return {}
+
+
+@st.cache_data
+def load_submission_per_class() -> dict:
+    """Load per-class precision/recall/F1 for the final submission test set."""
+    path = RESULTS_PATH.parent / "per_class_metrics.csv"
     if not path.exists():
         return {}
     import pandas as pd
     df = pd.read_csv(path)
-    return df.iloc[0].to_dict() if len(df) else {}
+    return {
+        row["class"]: {
+            "precision": row["precision"],
+            "recall": row["recall"],
+            "f1": row["f1-score"],
+        }
+        for _, row in df.iterrows()
+    }
 
 
 def init_session() -> None:

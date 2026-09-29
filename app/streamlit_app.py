@@ -48,12 +48,12 @@ with col_side:
     section_title("System")
     st.markdown(
         '<table class="swiss-table">'
-        "<tr><td>Dataset</td><td>Sleep-EDF (92 subjects)</td></tr>"
+        "<tr><td>Dataset</td><td>Sleep-EDF Expanded (197 rec / 100 subj)</td></tr>"
         "<tr><td>Window</td><td>10 &times; 30 s</td></tr>"
         "<tr><td>Sampling</td><td>100 Hz</td></tr>"
         "<tr><td>Model</td><td>Improved Student</td></tr>"
         "<tr><td>Parameters</td><td>99,477</td></tr>"
-        "<tr><td>Evaluation</td><td>10-fold CV, 3 seeds</td></tr>"
+        "<tr><td>Evaluation</td><td>Person-level holdout (seed 42)</td></tr>"
         "</table>",
         unsafe_allow_html=True,
     )
@@ -61,16 +61,16 @@ with col_side:
 # ── Final Metrics Banner ────────────────────────────────────────────────
 metrics = load_final_metrics()
 if metrics:
-    acc = metrics.get("accuracy", {})
-    kappa = metrics.get("cohen_kappa", {})
-    macro = metrics.get("macro_f1", {})
+    acc = metrics.get("test_accuracy", 0.0)
+    kappa = metrics.get("cohen_kappa", 0.0)
+    macro = metrics.get("macro_f1", 0.0)
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-    section_title("Final Results — Person-Level Benchmark (EXP-BENCH-PERSON)")
+    section_title("Final Results — Held-Out Test (EXP-FULL-AUG30)")
     st.markdown(
         f'<div class="swiss-grid-4">'
-        f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{acc.get("mean",0):.1%}</div></div>'
-        f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{kappa.get("mean",0):.3f}</div></div>'
-        f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{macro.get("mean",0):.3f}</div></div>'
+        f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{acc:.1%}</div></div>'
+        f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{kappa:.3f}</div></div>'
+        f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{macro:.3f}</div></div>'
         f'<div><div class="sz-label">Parameters</div><div class="sz-display">99,477</div></div>'
         f'</div>',
         unsafe_allow_html=True,

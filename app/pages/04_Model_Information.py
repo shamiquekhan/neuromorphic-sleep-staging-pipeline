@@ -23,10 +23,6 @@ header()
 predictor = get_predictor()
 info = predictor.model_info
 
-# Load notebook-pipeline (single-split) result
-from app.state import load_notebook_pipeline_result
-nb_result = load_notebook_pipeline_result()
-
 st.markdown('<div class="divider-thick"></div>', unsafe_allow_html=True)
 
 # ── Architecture + Properties ───────────────────────────────────────────
@@ -80,9 +76,9 @@ st.markdown(
 )
 
 # ── Primary Benchmark (92-Subject, from scratch, seed 42) ─────────────────
-from app.state import load_final_metrics
+from app.state import load_primary_benchmark
 
-primary_metrics = load_final_metrics()
+primary_metrics = load_primary_benchmark()
 if primary_metrics:
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
@@ -128,40 +124,53 @@ if primary_metrics:
         rows += "</table>"
         st.markdown(rows, unsafe_allow_html=True)
 
-# ── Notebook-pipeline result (single split, end-to-end) ─────────────────────
-if nb_result:
+# ── Final Submission (EXP-FULL-AUG30, person-level holdout) ──────────────────
+from app.state import load_final_metrics, load_submission_per_class
+
+submission = load_final_metrics()
+if submission:
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-    section_title("Notebook Pipeline — Single-Split Exhibition Run")
+    section_title("Final Submission — EXP-FULL-AUG30 (Person-Level Holdout)")
     st.caption(
-        "End-to-end run through notebooks 01→05: manifest → preprocessing → "
-        "EDA → standalone 99k student training (supervised CE, 20 epochs, per-epoch "
-        "logs in the notebook) → evaluation on 15 held-out test subjects. "
-        "Reproduces the full pipeline in one pass."
+        "Complete Sleep-EDF Expanded corpus (197 recordings / 100 subjects) → "
+        "person-level 70/15/16 split (69/15/16 subjects, seed 42), "
+        "≤30 epochs with patience-5 early stopping on validation macro F1 "
+        "(best epoch 12, stopped 17/30) → single evaluation on 16 held-out "
+        "test subjects (7,220 windows / 72,200 labels, stride-10). "
+        "Authoritative numbers: results/final/final_metrics.json"
     )
     st.markdown(
         f'<div class="swiss-grid-4">'
-        f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{nb_result["test_accuracy"]:.1%}</div>'
-        f'<div class="sz-caption">15 test subjects</div></div>'
-        f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{nb_result["cohen_kappa"]:.3f}</div>'
-        f'<div class="sz-caption">subject-level split</div></div>'
-        f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{nb_result["macro_f1"]:.3f}</div>'
+        f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{submission.get("test_accuracy", 0):.1%}</div>'
+        f'<div class="sz-caption">16 test subjects</div></div>'
+        f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{submission.get("cohen_kappa", 0):.3f}</div>'
+        f'<div class="sz-caption">person-level holdout</div></div>'
+        f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{submission.get("macro_f1", 0):.3f}</div>'
         f'<div class="sz-caption">5 classes</div></div>'
-        f'<div><div class="sz-label">Weighted F1</div><div class="sz-display">{nb_result["weighted_f1"]:.3f}</div>'
+        f'<div><div class="sz-label">Weighted F1</div><div class="sz-display">{submission.get("weighted_f1", 0):.3f}</div>'
         f'<div class="sz-caption">epoch-weighted</div></div>'
         f'</div>',
         unsafe_allow_html=True,
     )
-    rows = (
-        '<table class="swiss-table" style="max-width:480px;">'
-        '<tr><th>Stage</th><th>F1</th></tr>'
-    )
-    for stage, key in [("Wake", "f1_wake"), ("N1", "f1_n1"), ("N2", "f1_n2"),
-                       ("N3", "f1_n3"), ("REM", "f1_rem")]:
-        rows += f'<tr><td>{stage}</td><td>{nb_result[key]:.3f}</td></tr>'
-    rows += "</table>"
-    st.markdown(rows, unsafe_allow_html=True)
+    per_class = load_submission_per_class()
+    if per_class:
+        rows = (
+            '<table class="swiss-table" style="max-width:520px;">'
+            '<tr><th>Stage</th><th>Precision</th><th>Recall</th><th>F1</th></tr>'
+        )
+        for stage in ["Wake", "N1", "N2", "N3", "REM"]:
+            if stage in per_class:
+                c = per_class[stage]
+                rows += (
+                    f'<tr><td>{stage}</td>'
+                    f'<td>{c["precision"]:.3f}</td>'
+                    f'<td>{c["recall"]:.3f}</td>'
+                    f'<td>{c["f1"]:.3f}</td></tr>'
+                )
+        rows += "</table>"
+        st.markdown(rows, unsafe_allow_html=True)
 
-if not primary_metrics and not nb_result:
+if not primary_metrics and not submission:
     st.warning(
         "No results found. Run the notebooks (01→05) first."
     )
@@ -185,12 +194,12 @@ except ImportError:
 
 st.markdown(
     '<div class="sz-body" style="margin-top:1rem;">'
-    "<strong>Dataset:</strong> Sleep-EDF Expanded — 92-record eligible cohort / 52 persons (PhysioNet)<br>"
+    "<strong>Dataset:</strong> Sleep-EDF Expanded complete corpus — 197 recordings / 100 subjects (PhysioNet)<br>"
     "<strong>Training window:</strong> 10 &times; 30 s epochs (300 s context)<br>"
     "<strong>Primary model:</strong> Improved Student (from scratch, 99,477 params)<br>"
     "<strong>Training:</strong> Supervised class-weighted cross-entropy (from scratch)<br>"
-    "<strong>Evaluation:</strong> Primary: 10-fold person-level CV, seeds 42/43/44 &middot; "
-    "Notebook pipeline: single 70/15/15 subject split"
+    "<strong>Evaluation:</strong> Final: person-level 70/15/16 holdout, seed 42 &middot; "
+    "Historical: 10-fold person-level CV, seeds 42/43/44"
     "</div>",
     unsafe_allow_html=True,
 )

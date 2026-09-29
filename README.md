@@ -101,6 +101,10 @@ three splits (Notebook 05 §14; artifact `results/final/fit_diagnosis.json`):
   errors are label ambiguity, not memorization. Test exceeding val confirms no systematic
   degradation on unseen subjects (best-epoch checkpoint @ 12, early-stopped at 17/30).
 
+**Confusion matrix (held-out test subjects):**
+
+![Held-out test confusion matrix — EXP-FULL-AUG30](results/final/confusion_matrix.png)
+
 > **Protocol distinction:** the sections below are **historical benchmarks** on different
 > cohorts and evaluation semantics — their numbers are not directly comparable to the final
 > submission result above. Quarantined legacy results are recorded in

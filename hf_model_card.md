@@ -180,21 +180,29 @@ Wake / N1 / N2 / N3 / REM
 
 ## Evaluation
 
-### Final Protocol Run (full corpus, Sept 2026 — held-out 16-subject test set)
+### Final Submission Result — EXP-FULL-AUG30 (held-out 16-subject test set)
 
-Complete Sleep-EDF Expanded corpus: 197 recordings / 100 subjects, subject-level 70/15/15
-split (seed 42), gap-aware 10×30 s sequences, train-only augmentation, batch 8, early-stopped
-at epoch 22/50. Metrics from `results/final/final_metrics.json`.
+Complete Sleep-EDF Expanded corpus: 197 recordings / 100 subjects, person-level 70/15/15
+split (seed 42), gap-aware 10×30 s sequences, train-only augmentation, batch 8, best
+validation macro-F1 checkpointing, early-stopped at epoch 17/30. Metrics from
+`results/final/final_metrics.json`.
 
 | Metric | Value |
 |--------|-------|
-| Accuracy | 90.50% |
-| Cohen's Kappa | 0.8284 |
-| Macro F1 | 0.7889 |
+| Accuracy | 90.48% |
+| Cohen's Kappa | 0.8283 |
+| Macro F1 | 0.7899 |
 | Weighted F1 | 0.9089 |
-| F1 (Wake / N1 / N2 / N3 / REM) | 0.981 / 0.535 / 0.831 / 0.762 / 0.835 |
+| Macro Geometric Mean | 0.7911 |
+| F1 (Wake / N1 / N2 / N3 / REM) | 0.980 / 0.532 / 0.832 / 0.763 / 0.842 |
 
-### Person-Level Primary Benchmark (EXP-BENCH-PERSON, 30 folds / 3 seeds)
+**Fit diagnosis (train/val/test gap):** train 92.50% / val 87.37% /
+test 90.48% under one identical stride-10 protocol — train−val gap
+**+5.12 pp**; N1 is weak even on the training split (F1 0.627), so the
+residual errors are label ambiguity rather than memorization (mild,
+controlled generalization gap; `results/final/fit_diagnosis.json`).
+
+### Historical Benchmark — EXP-BENCH-PERSON (person-level 10-fold CV, 30 folds / 3 seeds)
 
 | Metric | Value |
 |--------|-------|
@@ -222,13 +230,14 @@ at epoch 22/50. Metrics from `results/final/final_metrics.json`.
 | F1 (Wake / N1 / N2 / N3 / REM) | 0.978 / 0.477 / 0.823 / 0.705 / 0.762 |
 
 > **Honest assessment:** N1 is the most challenging stage
-> (F1≈0.45–0.54 across tiers) due to its transitional nature and low
-> prevalence. The stricter person-level protocol is the reference for
-> generalization; the full-corpus run adds the telemetry cohort and
-> train-only augmentation, which lifts N1 recall to 0.65; the standalone
-> numbers show the same architecture on the fixed exhibition split.
-> The three tiers use different splits and evaluation semantics and are
-> not directly comparable.
+> (F1≈0.45–0.53 across tiers) due to its transitional nature and low
+> prevalence. The submission result above (EXP-FULL-AUG30) is the
+> citable generalization number; the historical person-level benchmark
+> is retained for protocol comparison, the full-corpus run adds the
+> telemetry cohort and train-only augmentation, which lifts N1 recall to
+> 0.65; the standalone numbers show the same architecture on the fixed
+> exhibition split. The three tiers use different splits and evaluation
+> semantics and are not directly comparable.
 
 ## Preprocessing
 
@@ -243,16 +252,21 @@ See the [source repo](https://github.com/shamiquekhan/neuromorphic-sleep-staging
 
 ## Training Details
 
-- **Dataset:** Sleep-EDF Expanded — 92-record eligible cohort (52
-  persons) from 100 downloaded records (8 wake-only excluded), PhysioNet
+- **Dataset:** Sleep-EDF Expanded v1.0.0 complete corpus (197
+  recordings / 100 subjects), person-level 70/15/15 split (seed 42)
 - **Initialization:** from scratch (random init) — supervised
   class-weighted cross-entropy, no distillation
 - **Optimizer:** AdamW (lr=3e-4, weight_decay=1e-4)
-- **Epochs:** 20 (cosine schedule with 10% warmup, best-κ checkpointing)
+- **Epochs:** ≤30 (cosine schedule with 10% warmup, early stopping
+  patience 5, best validation macro-F1 checkpointing @ epoch 12,
+  early-stopped at 17)
 - **Class weights:** log-balanced from the training partition
-- **Supervision:** All-position (every epoch in 10-epoch window)
+- **Supervision:** All-position within gap-aware windows (train stride 5,
+  eval stride 10; windows never cross annotation gaps)
+- **Augmentation:** Train only (amplitude, noise, temporal masking,
+  channel dropout)
 - **Gradient clipping:** max_norm=1.0
-- **Seeds:** 42 (standalone run); 42/43/44 (primary benchmark)
+- **Seeds:** 42 (submission run); 42/43/44 (historical benchmark)
 
 ## LoRA Adaptation (Parameter-Efficient Fine-Tuning)
 
@@ -318,8 +332,8 @@ checkpoint.
 ## Limitations
 
 - **Not clinically validated** — do not use for diagnosis or clinical decision-making
-- N1 classification is challenging (F1≈0.45–0.48) due to brief, transitional light sleep
-- Trained on Sleep-EDF Expanded (92-record / 52-person cohort); cross-dataset generalizability should be validated
+- N1 classification is challenging (F1 0.532 on the held-out test set) due to brief, transitional light sleep
+- Trained on Sleep-EDF Expanded (complete corpus, 197 recordings / 100 subjects); cross-dataset generalizability should be validated
 - Requires 4-channel PSG (Fpz-Cz, Pz-Oz, EOG, EMG) — single-channel EEG not supported
 - Class distribution is Wake-dominant (~68%) from untrimmed recordings
 - The architecture is a conventional differentiable CNN–GRU designed for edge-deployment constraints, not a spiking/neuromorphic network

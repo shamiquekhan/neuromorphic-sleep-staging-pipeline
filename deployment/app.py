@@ -248,7 +248,7 @@ with col2:
         <strong>Checkpoint:</strong> artifacts/standalone_99k/student_99477_best.pt<br>
         <strong>Parameters:</strong> 99,477<br>
         <strong>Full-corpus reference run:</strong> Sleep-EDF Expanded complete corpus — 197 recordings / 100 subjects,
-        subject-level split → held-out test κ 0.828, accuracy 90.50% (see docs/guide.md)<br>
+        person-level holdout → held-out test κ 0.8283, accuracy 90.48% (EXP-FULL-AUG30, see docs/guide.md)<br>
         <strong>Note:</strong> the benchmark table above reports the person-level research tier from docs/RESULTS.md
     </div>
     """, unsafe_allow_html=True)

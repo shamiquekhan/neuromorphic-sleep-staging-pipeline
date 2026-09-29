@@ -72,10 +72,14 @@ EXPECTED = {
     },
     "MODEL_REPORT.md": {
         "primary": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
+        "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
+                   "fit_train_accuracy", "fit_train_val_gap"],
         "standalone": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
     },
     "GUIDE.md": {
         "primary": ["accuracy", "kappa", "macro_f1"],
+        "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
+                   "fit_train_accuracy", "fit_train_val_gap"],
     },
     "docs/RESULTS.md": {
         "primary": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
@@ -89,10 +93,14 @@ EXPECTED = {
     },
     "docs/EXPERIMENTS.md": {
         "primary": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
+        "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
+                   "fit_train_accuracy", "fit_train_val_gap"],
         "standalone": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
     },
     "hf_model_card.md": {
         "primary": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
+        "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
+                   "fit_train_accuracy", "fit_train_val_gap"],
     },
 }
 

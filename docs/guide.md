@@ -270,7 +270,7 @@ The notebook contains an augmentation sanity plot so the transformation can be v
 
 ## 6. Why batch size 8
 
-Batch size is reduced from 16 to 8 to provide a safer memory envelope for the longer 50-epoch run and the full dataset.
+Batch size is reduced from 16 to 8 to provide a safer memory envelope for the longer training run and the full dataset.
 
 The important value is not merely the batch size itself. Notebook 04 also prints:
 
@@ -284,27 +284,26 @@ Therefore the exact number of optimization iterations is automatically determine
 
 Do not manually invent an iteration count.
 
-## 7. Why 50 epochs instead of 20
+## 7. Why ≤ 30 epochs with early stopping
 
 The old 20-epoch budget was a development setting. With more subjects and augmentation, the optimization problem changes substantially.
 
-The new configuration therefore gives the model up to 50 epochs while enabling early stopping.
-
-This means:
+The frozen configuration gives the model up to 30 epochs with patience-5 early stopping:
 
 ```text
-50 = maximum budget
-not a requirement to train all 50 epochs
+30 = maximum budget (project freeze)
+not a requirement to train all 30 epochs
+selection = best validation macro F1
 ```
 
-If validation κ stops improving, training stops earlier and the best checkpoint is restored.
+The final run selected epoch 12 (validation macro F1 0.7645) and stopped at epoch 17/30.
 
 ## 8. Checkpoint governance
 
-Notebook 04 writes:
+Notebook 04 (final run) writes:
 
 ```text
-artifacts/final/student_full_dataset_best.pt
+artifacts/final/EXP-FULL-AUG30_seed42.pt
 ```
 
 and, after strict verification, promotes the same verified checkpoint to the historical canonical path:
@@ -317,7 +316,7 @@ The checkpoint contains:
 
 - model state dictionary,
 - best epoch,
-- best validation κ,
+- best validation macro F1,
 - parameter count,
 - random seed,
 - batch size,
@@ -399,9 +398,9 @@ Batch-8 training
     ↓
 Augmentation
     ↓
-≤50 epochs
+≤30 epochs
     ↓
-Best validation checkpoint
+Best validation macro-F1 checkpoint
     ↓
 Strict checkpoint reload
     ↓
@@ -437,7 +436,7 @@ The expensive steps are:
 1. downloading roughly 8.1 GB,
 2. reading and filtering all PSG recordings,
 3. producing the normalized cache,
-4. training for potentially up to 50 epochs.
+4. training for potentially up to 30 epochs.
 
 Run Notebook 02 once and reuse its cache. Do not preprocess the EDF files inside every training iteration.
 
@@ -445,7 +444,7 @@ Run Notebook 02 once and reuse its cache. Do not preprocess the EDF files inside
 
 After the new run, the technical story should be:
 
-> NeuroSleep is a compact five-stage sleep-stage scoring system trained on the complete Sleep-EDF Expanded corpus. The final experiment uses subject-level isolation, 10-epoch temporal context, conservative training-only physiological augmentation, batch size 8, and a 50-epoch optimization budget with early stopping. The final benchmark is generated from the held-out test subjects using the exact checkpoint produced by the training notebook.
+> NeuroSleep is a compact five-stage sleep-stage scoring system trained on the complete Sleep-EDF Expanded corpus. The final experiment uses person-level isolation (69/15/16 subjects), 10-epoch temporal context, conservative training-only physiological augmentation, batch size 8, and a ≤30-epoch optimization budget with patience-5 early stopping on validation macro F1. The final benchmark is generated from the held-out test subjects using the exact checkpoint produced by the training notebook.
 
 The exact performance numbers must be copied from `results/final/final_metrics.json` after the final run.
 

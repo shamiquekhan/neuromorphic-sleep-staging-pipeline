@@ -71,11 +71,12 @@ Parametric Gabor Feature Extraction
 
 ## Evaluation
 
-> **Latest — final protocol freeze (Sept 2026):** trained on the
+> **Latest — final submission freeze (Sept 2026):** trained on the
 > **complete** Sleep-EDF Expanded corpus — 197 recordings / 100 subjects
-> (cassette + telemetry cohorts), subject-level split, train-only
-> augmentation, batch 8, early-stopped at epoch 22/50 — **90.50%
-> accuracy, κ 0.828, macro-F1 0.789** on 16 held-out test subjects.
+> (cassette + telemetry cohorts), person-level 70/15/15 split (seed 42),
+> train-only augmentation, batch 8, early-stopped at epoch 17/30 —
+> **90.48% accuracy, κ 0.8283, macro-F1 0.7899** on 16 held-out test
+> subjects (EXP-FULL-AUG30).
 >
 > **Evidence status:** the deployed checkpoint is the **standalone
 > notebook-pipeline model** (seed 42, exhibition 70/15/15 subject split,
@@ -87,7 +88,7 @@ Parametric Gabor Feature Extraction
 > three tiers use different splits/protocols and are not directly
 > comparable. See the source repository's `docs/RESULTS.md`.
 
-- **Accuracy (final full-corpus run):** 90.50% (κ 0.8284)
+- **Accuracy (final submission run, EXP-FULL-AUG30):** 90.48% (κ 0.8283, macro-F1 0.7899)
 - **Accuracy (deployed standalone checkpoint):** 90.57%
 - **Cohen's Kappa:** 0.8080
 - **Macro F1:** 0.7490

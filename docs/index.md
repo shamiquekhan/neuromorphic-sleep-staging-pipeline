@@ -77,13 +77,28 @@ docs/
 
 | Tier | Experiment | Status |
 |------|-----------|--------|
-| Final freeze | EXP-FULL-CORPUS-99K (complete corpus, 197 rec / 100 subj) | **Complete**: 90.50% (κ 0.828) |
-| Primary | EXP-BENCH-PERSON (person-level CV, 52 persons, seeds 42/43/44) | **Complete**: 87.30% ± 0.33% |
+| Final freeze | EXP-FULL-AUG30 (complete corpus, 197 rec / 100 subj, person-level holdout) | **Complete**: 90.48% (κ 0.8283) |
+| Historical | EXP-BENCH-PERSON (person-level CV, 52 persons, seeds 42/43/44) | **Complete**: 87.30% ± 0.33% |
 | Standalone | Notebooks 01→05 supervised run (seed 42) | Complete: 90.57% (κ 0.808) |
 | Quarantined | EXP-ADAPT-* | Contaminated base + leaky folds |
 | Archived | EXP-DEV-15SUBJ (93.0%) | Historical |
 
-### Primary Result (Person-Level, 30 folds / 3 seeds)
+### Final Submission Result — EXP-FULL-AUG30
+
+```
+Improved Student — from scratch, seed 42, ≤30 epochs (17/30, patience 5)
+Accuracy    = 90.48%
+Kappa       = 0.8283
+Macro F1    = 0.7899
+Weighted F1 = 0.9089
+Parameters  = 99,477
+```
+
+Held-out test: 16 subjects / 7,220 windows (stride-10). Train/val/test accuracy
+92.50% / 87.37% / 90.48% (max gap 5.12 pp — mild, controlled generalization gap;
+`results/final/fit_diagnosis.json`).
+
+### Historical Result (Person-Level, 30 folds / 3 seeds)
 
 ```
 Improved Student — from scratch, person-level folds (52 persons)

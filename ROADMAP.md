@@ -12,8 +12,9 @@ Status legend: ☐ not started · ◐ partially done · ✔ done · ⛔ blocked
 
 | ID | Experiment | Status | Evidence |
 |----|-----------|--------|----------|
-| **EXP-BENCH-PERSON** | Person-level from-scratch benchmark, 52 persons / 92 records, causal unique-epoch protocol | ✔ **complete (seeds 42/43/44): 87.30% ± 0.33%, κ 0.738, macro-F1 0.724 — the primary** | `results/research/EXP-BENCH-PERSON/` |
-| **EXP-STANDALONE-99K** | Notebooks 01→05, supervised CE, exhibition 70/15/15 split | ✔ **complete (seed 42): 90.57% acc, κ 0.808 — deployed checkpoint** | `results/standalone_99k/`, `artifacts/standalone_99k/student_99477_best.pt`, `results/final/notebook_pipeline_result.csv` |
+| **EXP-FULL-AUG30** | Final submission protocol: complete corpus 197 rec / 100 subj, person-level 70/15/16 holdout, ≤30 epochs (patience 5, val macro F1) | ✔ **complete (seed 42): 90.48% acc, κ 0.8283, macro-F1 0.7899** | `results/final/final_metrics.json`, `artifacts/final/EXP-FULL-AUG30_seed42.pt` |
+| **EXP-BENCH-PERSON** | Person-level from-scratch benchmark, 52 persons / 92 records, causal unique-epoch protocol | ✔ **complete (seeds 42/43/44): 87.30% ± 0.33%, κ 0.738, macro-F1 0.724 — historical benchmark** | `results/research/EXP-BENCH-PERSON/` |
+| **EXP-STANDALONE-99K** | Notebooks 01→05, supervised CE, exhibition 70/15/15 split | ✔ **complete (seed 42): 90.57% acc, κ 0.808 — deployed checkpoint** | `results/standalone_99k/`, `artifacts/standalone_99k/student_99477_best.pt` |
 | EXP-BENCH-92SUBJ | 92-record benchmark on record-level folds | ✔ complete — **superseded** (folds leak at person level) | removed; recorded in `docs/results.md` |
 | EXP-ADAPT-FROZEN / -LORA-R8-CNNHEAD / -FULLFT | Adaptation regimes from one base checkpoint | ⛔ **quarantined — contaminated base + record-level folds** | removed; recorded in `docs/adaptation.md` |
 | EXP-LORA-R{2,4,16} / TARGET-ABLATION | LoRA rank + target ablations (person-level folds, leak-free base) | ☐ planned (machinery ready: `src/sleep_staging/adaptation/`, Notebook 06) | — |

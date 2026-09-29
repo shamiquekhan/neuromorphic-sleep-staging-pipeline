@@ -11,7 +11,7 @@
 | **Person-level research benchmark (EXP-BENCH-PERSON)** | 92-record / 52-person cohort, 10-fold CV × 3 seeds | [Person-Level Benchmark Reproduction](#person-level-benchmark-reproduction-exp-bench-person) |
 
 The final protocol is the authoritative freeze result: `results/final/final_metrics.json`
-(κ 0.8284 / accuracy 90.50% / macro-F1 0.7889 on 16 held-out test subjects).
+(κ 0.8283 / accuracy 90.48% / macro-F1 0.7899 on 16 held-out test subjects).
 
 ---
 
@@ -112,12 +112,12 @@ jupyter nbconvert --to notebook --execute --inplace notebooks/03_exploratory_dat
 jupyter nbconvert --to notebook --execute --inplace \
     notebooks/04_student_99k_complete_training.ipynb
 ```
-**Runtime:** ~3.5 h total on GTX 1650 (~2 h training loop + cache/dataset cells);
-early stopping typically ends the loop before the 50-epoch budget  
+**Runtime:** ~3 h total on GTX 1650 (~1.5 h training loop + cache/dataset cells);
+early stopping typically ends the loop before the 30-epoch budget  
 **Config:** batch 8, train stride 5 / eval stride 10 (gap-aware, no tail padding),
 train-only augmentation, AdamW 3e-4 / wd 1e-4, clip 1.0, 10% warmup + cosine  
 **Outputs:**
-- `artifacts/final/student_full_dataset_best.pt` (best-κ checkpoint, full provenance payload)
+- `artifacts/final/EXP-FULL-AUG30_seed42.pt` (best validation macro-F1 checkpoint, full provenance payload)
 - `results/final/training_history_full_dataset.csv`, `test_metrics_full_dataset.json`,
   `per_class_metrics_full_dataset.csv`, `confusion_matrix_full_dataset.csv`,
   `experiment_summary_full_dataset.json`
@@ -129,7 +129,8 @@ jupyter nbconvert --to notebook --execute --inplace notebooks/05_evaluation_and_
 **Runtime:** ~10 min  
 **Outputs:**
 - Canonical: `results/final/final_metrics.json`, `final_result.csv`, `predictions.csv`,
-  `confusion_matrix.csv`, `per_class_metrics.csv` (+ `*_full_dataset` variants)
+  `confusion_matrix.csv` (+ `confusion_matrix.png`), `per_class_metrics.csv`,
+  `fit_diagnosis.json` (+ `*_full_dataset` variants)
 - Verified checkpoint promoted to `artifacts/student_improved_best.pt` (byte-checked copy)
 
 **Must print:** `FINAL PROTOCOL AUDIT PASSED`
@@ -137,12 +138,12 @@ jupyter nbconvert --to notebook --execute --inplace notebooks/05_evaluation_and_
 ### Expected Canonical Metrics (from `results/final/final_metrics.json`)
 | Metric | Expected value |
 |--------|----------------|
-| Accuracy | 0.9050 |
-| Cohen's κ | 0.8284 |
-| Macro F1 | 0.7889 |
+| Accuracy | 0.9048 |
+| Cohen's κ | 0.8283 |
+| Macro F1 | 0.7899 |
 | Weighted F1 | 0.9089 |
-| Macro geometric mean | 0.7896 |
-| CPU latency | ~11 ms per 5-minute window (hardware-dependent) |
+| Macro geometric mean | 0.7911 |
+| CPU latency | ~9 ms per 5-minute window (hardware-dependent) |
 
 Exact numbers can vary slightly with GPU model / library builds (see determinism caveat);
 the audit gates, dataset scope (197/100), and protocol parameters must match exactly.
@@ -156,16 +157,16 @@ the audit gates, dataset scope (197/100), and protocol parameters must match exa
 - [ ] NB01 output contains `PASS: 197 recordings / 100 subjects / 0 split overlaps`
 - [ ] `data/manifests/dataset_audit.json` has `sha_verified: true`, `split_seed: 42`
 - [ ] NB05 output contains `FINAL PROTOCOL AUDIT PASSED`
-- [ ] `artifacts/student_improved_best.pt` exists and equals `artifacts/final/student_full_dataset_best.pt`
+- [ ] `artifacts/student_improved_best.pt` exists and equals `artifacts/final/EXP-FULL-AUG30_seed42.pt`
 - [ ] `results/final/final_metrics.json` matches the table in `docs/RESULTS.md`
-- [ ] `results/final/notebook_pipeline_result.csv` row matches the canonical metrics
+- [ ] `results/final/fit_diagnosis.json` reports train/val/test accuracy 0.9250 / 0.8737 / 0.9048
 
 ### Verify the Promoted Checkpoint
 ```bash
 python - <<'EOF'
 import torch
 a = torch.load("artifacts/student_improved_best.pt", map_location="cpu", weights_only=False)
-b = torch.load("artifacts/final/student_full_dataset_best.pt", map_location="cpu", weights_only=False)
+b = torch.load("artifacts/final/EXP-FULL-AUG30_seed42.pt", map_location="cpu", weights_only=False)
 assert all(torch.equal(a["model_state_dict"][k], b["model_state_dict"][k]) for k in a["model_state_dict"])
 print("promoted checkpoint == final checkpoint")
 print("epoch:", a["epoch"], "| params:", a["parameter_count"], "| val kappa:", round(a["metrics"]["kappa"], 4))
@@ -232,7 +233,7 @@ The final-protocol checkpoint embeds its own provenance — inspect with:
 ```bash
 python - <<'EOF'
 import torch
-ck = torch.load("artifacts/final/student_full_dataset_best.pt", map_location="cpu", weights_only=False)
+ck = torch.load("artifacts/final/EXP-FULL-AUG30_seed42.pt", map_location="cpu", weights_only=False)
 for k in ("epoch", "seed", "batch_size", "max_epochs", "early_stopping_patience",
           "augmentation_enabled", "parameter_count", "git_commit", "torch_version"):
     print(f"{k}: {ck[k]}")
@@ -240,7 +241,8 @@ print("dataset:", ck["dataset"])
 print("optimizer:", ck["optimizer"])
 EOF
 ```
-Expected: `epoch` = best-validation epoch, `batch_size` = 8, `max_epochs` = 50,
+Expected: `epoch` = best-validation epoch (12), `batch_size` = 8, `max_epochs` = 30,
+`early_stopping_patience` = 5,
 `augmentation_enabled` = True, `parameter_count` = 99477,
 `dataset.cache_layout` = "per-recording mmap epochs .npy + _meta.npz sidecars",
 `dataset.n_recordings` = 197, `dataset.n_subjects` = 100.
@@ -268,14 +270,14 @@ pytest tests/ -v
 ## Expected Outputs
 
 ### Final Protocol Run (authoritative freeze)
-- Training: best val κ 0.7879 @ epoch 12, early-stopped at epoch 22/50
-- Held-out test (16 subjects, 72,200 epochs): accuracy 90.50%, κ 0.8284,
-  macro-F1 0.7889, weighted-F1 0.9089
+- Training: best val macro-F1 0.7645 @ epoch 12, early-stopped at epoch 17/30
+- Held-out test (16 subjects, 72,200 labels): accuracy 90.48%, κ 0.8283,
+  macro-F1 0.7899, weighted-F1 0.9089
 
 ### Notebook 05 Test Metrics (other tiers, for cross-checks)
 **EXP-STANDALONE-99K (deployed checkpoint):** accuracy 90.57%, κ 0.8080, macro-F1 0.7490
 
-**EXP-BENCH-PERSON (primary research):** accuracy 87.30% ± 0.33%, κ 0.738 ± 0.010,
+**EXP-BENCH-PERSON (historical benchmark):** accuracy 87.30% ± 0.33%, κ 0.738 ± 0.010,
 macro-F1 0.724 ± 0.005
 
 ---
@@ -331,7 +333,7 @@ for provenance only and is not used by the final protocol.
 
 ## Contact
 For reproduction issues, check:
-1. `docs/EXPERIMENTS.md` — Experiment definitions (incl. EXP-FULL-CORPUS-99K)
+1. `docs/EXPERIMENTS.md` — Experiment definitions (incl. EXP-FULL-AUG30)
 2. `docs/RESULTS.md` — Canonical metrics
 3. `docs/guide.md` — Final full-data training protocol guide
 4. `scripts/verify_protocol.py` — Protocol integrity

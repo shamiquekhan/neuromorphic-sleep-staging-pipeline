@@ -18,13 +18,20 @@ test subjects.
 
 Current status:
 
-- **Final protocol run (EXP-FULL-CORPUS-99K, project freeze Sept 2026,
-  complete corpus):** accuracy **90.50%**, κ **0.828**, macro-F1
-  **0.789** on 16 held-out test subjects (72,200 epochs) from the full
-  Sleep-EDF Expanded corpus — 197 recordings / 100 subjects, subject-level
-  split, train-only augmentation, batch 8, early-stopped at 22/50 epochs;
-  ends with `FINAL PROTOCOL AUDIT PASSED` (Notebook 05)
-- **Person-level benchmark (EXP-BENCH-PERSON, primary research tier,
+- **Final submission run (EXP-FULL-AUG30, project freeze Sept 2026,
+  complete corpus):** accuracy **90.48%**, κ **0.8283**, macro-F1
+  **0.7899** (weighted **0.9089**) on 16 held-out test subjects (7,220
+  stride-10 windows = 72,200 epochs) from the full Sleep-EDF Expanded
+  corpus — 197 recordings / 100 subjects, person-level 70/15/15 split
+  (seed 42), train-only augmentation, batch 8, early-stopped at 17/30
+  epochs on best validation macro-F1; ends with `FINAL PROTOCOL AUDIT
+  PASSED` (Notebook 05)
+- **Fit diagnosis (train/val/test gap):** **92.50% / 87.37% / 90.48%**
+  (train/val/test accuracy, identical stride-10 protocol) — train−val
+  gap **+5.12 pp**; N1 is weak even on training data (F1 0.627) →
+  mild, controlled generalization gap (label ambiguity, not
+  memorization) → `results/final/fit_diagnosis.json`
+- **Person-level benchmark (EXP-BENCH-PERSON, historical research tier,
   seeds 42/43/44, 30 folds):** accuracy **87.30% ± 0.33%**, κ
   **0.738 ± 0.010**, macro-F1 **0.724 ± 0.005** — the honest
   person-generalization estimate
@@ -44,8 +51,8 @@ Current status:
 | Parameters | 99,477 (~400 KB FP32) |
 | Input | 10 × 30 s epochs × 4 channels @ 100 Hz (300 s context) |
 | Output | Per-epoch probabilities over {Wake, N1, N2, N3, REM} |
-| Training | Supervised class-weighted cross-entropy (from scratch), AdamW 3e-4, cosine schedule with 10% warmup; final protocol: batch 8, ≤50 epochs with early stopping (patience 10), train-only augmentation |
-| Deployment | CPU inference 6.2 ms per 10-epoch batch (measured, standalone); 11.1 ms per 5-minute window (final-corpus run); checkpoints `artifacts/standalone_99k/student_99477_best.pt` and `artifacts/student_improved_best.pt` (full-corpus, promoted) |
+| Training | Supervised class-weighted cross-entropy (from scratch), AdamW 3e-4, cosine schedule with 10% warmup; final protocol: batch 8, ≤30 epochs with early stopping (patience 5) on validation macro-F1, train-only augmentation |
+| Deployment | CPU inference 6.2 ms per 10-epoch batch (measured, standalone); 8.94 ms per 5-minute window (EXP-FULL-AUG30); checkpoints `artifacts/standalone_99k/student_99477_best.pt` and `artifacts/final/EXP-FULL-AUG30_seed42.pt` (promoted: `artifacts/student_improved_best.pt`) |
 
 ### Parameter budget
 
@@ -65,8 +72,8 @@ Final protocol (complete corpus, Sept 2026 freeze):
 1. **01 — Data import:** complete Sleep-EDF Expanded corpus — 394 EDF
    files (197 PSG/hypnogram pairs, 100 subjects across the age-effects
    and sleep-telemetry cohorts), SHA-1-verified against the official MNE
-   record tables; per-cohort subject-level 70/15/15 split (no leakage,
-   seed 42).
+   record tables; per-cohort person-level 70/15/15 split (69 / 15 / 16
+   subjects, no leakage, seed 42).
 2. **02 — Preprocessing:** 0.5–35 Hz bandpass (50 Hz notch recorded as
    metadata but skipped — it equals Nyquist at 100 Hz), 30-s epochs,
    AASM harmonization, z-score normalization, QC flags; **457,652
@@ -77,38 +84,54 @@ Final protocol (complete corpus, Sept 2026 freeze):
 4. **04 — Training:** Improved Student from scratch, supervised
    class-weighted cross-entropy, train-only augmentation (amplitude
    0.90–1.10×, noise σ 0.005–0.03, temporal masking, channel dropout).
-   **Per-epoch logs**; best-κ checkpointing; best val κ 0.7879 @ epoch
-   12, early-stopped at 22/50.
-5. **05 — Evaluation:** 16 held-out test subjects (32 recordings, 7,220
-   stride-10 windows = 72,200 scored epochs) — **90.50% accuracy,
-   κ 0.828, macro-F1 0.789, weighted-F1 0.909**; CPU latency 11.1
-   ms/window; verified checkpoint promoted to
+   **Per-epoch logs**; best-validation-macro-F1 checkpointing; best val
+   macro-F1 0.7645 @ epoch 12, early-stopped at 17/30.
+5. **05 — Evaluation:** 16 held-out test subjects (7,220
+   stride-10 windows = 72,200 scored epochs) — **90.48% accuracy,
+   κ 0.8283, macro-F1 0.7899, weighted-F1 0.9089**; CPU latency 8.94
+   ms/window; fit diagnosis (train/val/test gap) written to
+   `results/final/fit_diagnosis.json`; verified checkpoint promoted to
    `artifacts/student_improved_best.pt`.
 
 ## Evaluation Results
 
-### Final protocol run (full corpus, 16 held-out test subjects)
+### Final Submission Result — EXP-FULL-AUG30 (person-level holdout, 16 test subjects)
 
 | Metric | Value |
 |--------|-------|
-| Accuracy | 90.50% |
-| Cohen's κ | 0.8284 |
-| Macro F1 | 0.7889 |
+| Accuracy | 90.48% |
+| Cohen's κ | 0.8283 |
+| Macro F1 | 0.7899 |
 | Weighted F1 | 0.9089 |
-| Macro geometric mean | 0.7896 |
-| F1 (Wake / N1 / N2 / N3 / REM) | 0.981 / 0.535 / 0.831 / 0.762 / 0.835 |
-| Recall (Wake / N1 / N2 / N3 / REM) | 0.972 / 0.647 / 0.833 / 0.726 / 0.809 |
-| Best validation | κ 0.7879 @ epoch 12 (early-stopped 22/50) |
-| CPU latency | 11.1 ms per 5-minute window (measured) |
-| Checkpoint | `artifacts/final/student_full_dataset_best.pt` → promoted to `artifacts/student_improved_best.pt` |
-| Evidence | `results/final/final_metrics.json`, `results/final/predictions.csv` |
+| Macro geometric mean | 0.7911 |
+| F1 (Wake / N1 / N2 / N3 / REM) | 0.980 / 0.532 / 0.832 / 0.763 / 0.842 |
+| Recall (Wake / N1 / N2 / N3 / REM) | 0.969 / 0.647 / 0.834 / 0.717 / 0.827 |
+| Best validation | Macro F1 0.7645 @ epoch 12 (early-stopped 17/30) |
+| CPU latency | 8.94 ms per 5-minute window (measured) |
+| Checkpoint | `artifacts/final/EXP-FULL-AUG30_seed42.pt` → promoted to `artifacts/student_improved_best.pt` |
+| Evidence | `results/final/final_metrics.json`, `results/final/fit_diagnosis.json` |
 
-> Protocol note: gap-aware sequence windows (stride 5 train / 10 eval),
-> probabilities calibrated to sum to 1, metrics generated only from the
-> held-out test subjects. Not directly comparable to the two tiers below
-> (different splits and evaluation semantics).
+> Protocol note: person-level 70/15/15 holdout (seed 42), gap-aware
+> sequence windows (stride 5 train / 10 eval, each test epoch scored
+> once), probabilities calibrated to sum to 1, metrics generated only
+> from the held-out test subjects. Not directly comparable to the
+> historical tiers below (different splits and evaluation semantics).
 
-### Primary benchmark (person-level CV)
+**Fit diagnosis — train/val/test gap** (frozen checkpoint, identical
+stride-10 protocol, augmentation off; `results/final/fit_diagnosis.json`):
+
+| Split | Windows | Accuracy | Macro F1 | N1 F1 |
+|-------|--------:|---------:|---------:|------:|
+| Train | 31,285 | 92.50% | 0.8328 | 0.627 |
+| Val | 7,008 | 87.37% | 0.7645 | 0.521 |
+| Test | 7,220 | 90.48% | 0.7899 | 0.532 |
+
+Gaps: train−val **+5.12 pp**, train−test **+2.01 pp**, test above val by
+3.11 pp. Weakest train class N1 (F1 0.627) — weak on training data too,
+so residual errors are label ambiguity, not memorization (mild,
+controlled generalization gap).
+
+### Historical Benchmark — EXP-BENCH-PERSON (person-level 10-fold CV)
 
 | Metric | Mean ± Std | 95% CI |
 |--------|------------|--------|
@@ -132,7 +155,7 @@ Final protocol (complete corpus, Sept 2026 freeze):
 
 ### Known limitations
 
-- **N1 remains the weakest class** (final-corpus F1 0.535, recall 0.647;
+- **N1 remains the weakest class** (EXP-FULL-AUG30 F1 0.532, recall 0.647;
   standalone F1 0.477) — consistent with the literature; N1 is
   transitional, rare, and visually ambiguous. The full corpus plus
   augmentation lifted N1 recall from 0.55 to 0.65.
@@ -145,8 +168,8 @@ Final protocol (complete corpus, Sept 2026 freeze):
 
 - Notebooks 01→05 execute deterministically (seed 42) on one
   GTX-1650-class GPU. Final-corpus wall-clock: download ~4 h
-  (network-dependent; ~8.2 GB), preprocessing ~2.5 h, training ~2 h
-  (22 epochs, early-stopped), evaluation minutes.
+  (network-dependent; ~8.2 GB), preprocessing ~2.5 h, training ~1.5 h
+  (17 epochs, early-stopped), evaluation minutes.
 - Package code is covered by 92 passing tests (`pytest tests/`).
 - Protocol integrity gates: `scripts/verify_protocol.py`,
   `scripts/protocol_fingerprint.py`.
