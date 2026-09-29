@@ -118,7 +118,7 @@ early stopping typically ends the loop before the 30-epoch budget
 train-only augmentation, AdamW 3e-4 / wd 1e-4, clip 1.0, 10% warmup + cosine  
 **Outputs:**
 - `artifacts/final/EXP-FULL-AUG30_seed42.pt` (best validation macro-F1 checkpoint, full provenance payload)
-- `results/final/training_history_full_dataset.csv`, `test_metrics_full_dataset.json`,
+- `results/final/training_history.csv`, `test_metrics.json`,
   `per_class_metrics_full_dataset.csv`, `confusion_matrix_full_dataset.csv`,
   `experiment_summary_full_dataset.json`
 

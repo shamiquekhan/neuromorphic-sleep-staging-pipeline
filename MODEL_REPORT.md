@@ -35,7 +35,8 @@ Current status:
 - **Standalone notebook run (deployed checkpoint, single 70/15/15
   subject split, supervised CE):** accuracy **90.57%**, κ **0.808**,
   macro-F1 **0.749** on 15 held-out test subjects — per-epoch training
-  logs in Notebook 04; checkpoint `artifacts/standalone_99k/student_99477_best.pt`
+  logs in `results/standalone_99k/training_history.csv`;
+  checkpoint `artifacts/standalone_99k/student_99477_best.pt`
 - **Adaptation study (Frozen / LoRA / Full-FT):** quarantined —
   contaminated base checkpoint and record-level folds; retained in
   `docs/adaptation.md` as a like-for-like internal comparison only

@@ -46,7 +46,8 @@ cohort is **52 persons**. Consequences:
   scored epoch; no double counting
 - ✔ **Notebook pipeline made canonical** — Notebooks 01→05 execute
   end-to-end from raw EDFs to final metrics with per-epoch training
-  logs; Notebook 04 trains the standalone 99k student and saves its checkpoint
+  logs; Notebook 04 trains the final full-corpus student (EXP-FULL-AUG30)
+  and saves its checkpoint
 - ✔ **Repository cleanup** — stale results/configs/scripts, duplicate
   notebooks, quarantined artifacts, and ~10 GB of legacy caches removed;
   the notebooks + benchmark evidence are the single pipeline

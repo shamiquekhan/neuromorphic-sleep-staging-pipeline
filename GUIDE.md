@@ -6,8 +6,8 @@ NeuroSleep is a compact edge-oriented sleep-stage scoring pipeline that
 classifies 30-second polysomnography epochs into five AASM stages
 (Wake, N1, N2, N3, REM) from a 300-second, 4-channel context. The
 **canonical pipeline is the notebook series** (`notebooks/01` → `06`),
-which takes the project from raw EDF recordings to final metrics with
-per-epoch training logs.
+which takes the project from raw EDF recordings to final metrics,
+writing per-epoch training logs as CSV artifacts alongside the results.
 
 ## Evidence Hierarchy (read this before citing any number)
 

@@ -57,14 +57,14 @@ Raw PSG Signals (EEG + EOG + EMG)
         ▼
 ┌─────────────────────────────────┐
 │ Notebook 04 — Training          │
-│ standalone 99k Student,         │
+│ final full-corpus Student,      │
 │ supervised CE (per-epoch logs)  │
 └─────────────────────────────────┘
         │
         ▼
 ┌─────────────────────────────────┐
 │ Notebook 05 — Evaluation        │
-│ 15 held-out subjects, metrics,  │
+│ 16 held-out subjects, metrics,  │
 │ confusion matrix, error analysis,│
 │ latency                         │
 └─────────────────────────────────┘

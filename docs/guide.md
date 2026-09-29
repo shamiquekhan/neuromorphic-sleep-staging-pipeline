@@ -338,7 +338,6 @@ results/final/final_metrics_full_dataset.json
 results/final/predictions_full_dataset.csv
 results/final/confusion_matrix_full_dataset.csv
 results/final/per_class_metrics_full_dataset.csv
-results/final/training_history_full_dataset.csv
 ```
 
 ### Canonical result artifacts
@@ -366,13 +365,15 @@ Notebook 05 refuses to conclude the run unless all of the following are true:
 197 recordings
 100 subjects
 batch_size == 8
-max_epochs == 50
-augmentation enabled
-manifest hash matches checkpoint configuration
-subject split remains disjoint
+max_epochs == 30
+selection metric == val_macro_f1
+augmentation enabled (train only)
+manifest hash recorded
+subject split disjoint
 checkpoint loads strictly
-prediction probabilities sum to 1
-final metric files are generated from current predictions
+checkpoint promoted to canonical path
+probabilities sum to 1
+final metrics from current predictions
 ```
 
 The final cell prints:

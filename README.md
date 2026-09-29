@@ -105,10 +105,17 @@ three splits (Notebook 05 §14; artifact `results/final/fit_diagnosis.json`):
 
 ![Held-out test confusion matrix — EXP-FULL-AUG30](results/final/confusion_matrix.png)
 
-> **Protocol distinction:** the section below is a **historical** result on a
-> different cohort and evaluation semantics — its numbers are not directly comparable
-> to the final submission result above. Quarantined legacy results are recorded in
-> `docs/RESULTS.md` and `docs/adaptation.md` only.
+> **Protocol distinction:** the sections below are **historical** results on
+> different cohorts and evaluation semantics — their numbers are not directly
+> comparable to the final submission result above. Quarantined legacy results
+> are recorded in `docs/RESULTS.md` and `docs/adaptation.md` only.
+
+### Historical Benchmark — EXP-BENCH-PERSON (archived)
+
+Person-level 10-fold CV over the 92-record / 52-person eligible cohort
+(seeds 42/43/44, causal unique-epoch protocol), completed and archived;
+superseded by EXP-FULL-AUG30. Result tables were removed from the published
+docs — raw evidence remains in `results/research/EXP-BENCH-PERSON/`.
 
 ### Historical Standalone Result (EXP-STANDALONE-99K — Notebooks 01→05, supervised CE)
 
@@ -623,14 +630,22 @@ training:
   supervision: all_position_train_only   # training signal only
 
 evaluation:
-  primary: person-level 70/15/15 holdout, seed 42     # EXP-FULL-AUG30 (final submission)
-  eval_protocol: stride_10_all_position   # non-overlapping windows, every position
-  historical_benchmark: 10-fold person-level CV, seeds [42, 43, 44]  # EXP-BENCH-PERSON
-  historical_eval_protocol: causal_unique_epoch   # stride=1, last-epoch supervision
-  standalone: exhibition 70/15/15 subject split, seed 42 # EXP-STANDALONE-99K
+  primary: person-level 70/15/15 holdout          # EXP-FULL-AUG30 (final submission)
+  seed: 42
+  eval_protocol: stride_10_all_position            # non-overlapping windows, every position
+  window_stride: 10
   sequence_length: 10
-  stride: 5
+  train_stride: 5                                  # training signal only
   supervision: all_position_train_only
+
+standalone:
+  split: exhibition 70/15/15 subject split         # EXP-STANDALONE-99K
+  seed: 42
+
+historical_benchmark:
+  protocol: 10-fold person-level CV                # EXP-BENCH-PERSON (archived)
+  seeds: [42, 43, 44]
+  eval_protocol: causal_unique_epoch               # stride=1, last-epoch supervision
 ```
 
 ---
