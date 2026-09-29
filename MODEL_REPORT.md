@@ -18,9 +18,16 @@ test subjects.
 
 Current status:
 
-- **Person-level benchmark (EXP-BENCH-PERSON, primary, seeds 42/43/44,
-  30 folds):** accuracy **87.30% ± 0.33%**, κ **0.738 ± 0.010**,
-  macro-F1 **0.724 ± 0.005** — the honest person-generalization estimate
+- **Final protocol run (EXP-FULL-CORPUS-99K, project freeze Sept 2026,
+  complete corpus):** accuracy **90.50%**, κ **0.828**, macro-F1
+  **0.789** on 16 held-out test subjects (72,200 epochs) from the full
+  Sleep-EDF Expanded corpus — 197 recordings / 100 subjects, subject-level
+  split, train-only augmentation, batch 8, early-stopped at 22/50 epochs;
+  ends with `FINAL PROTOCOL AUDIT PASSED` (Notebook 05)
+- **Person-level benchmark (EXP-BENCH-PERSON, primary research tier,
+  seeds 42/43/44, 30 folds):** accuracy **87.30% ± 0.33%**, κ
+  **0.738 ± 0.010**, macro-F1 **0.724 ± 0.005** — the honest
+  person-generalization estimate
 - **Standalone notebook run (deployed checkpoint, single 70/15/15
   subject split, supervised CE):** accuracy **90.57%**, κ **0.808**,
   macro-F1 **0.749** on 15 held-out test subjects — per-epoch training
@@ -37,8 +44,8 @@ Current status:
 | Parameters | 99,477 (~400 KB FP32) |
 | Input | 10 × 30 s epochs × 4 channels @ 100 Hz (300 s context) |
 | Output | Per-epoch probabilities over {Wake, N1, N2, N3, REM} |
-| Training | Supervised class-weighted cross-entropy (from scratch), AdamW 3e-4, cosine schedule with 10% warmup, 20 epochs |
-| Deployment | CPU inference 6.2 ms per 10-epoch batch (measured); checkpoint `artifacts/standalone_99k/student_99477_best.pt` |
+| Training | Supervised class-weighted cross-entropy (from scratch), AdamW 3e-4, cosine schedule with 10% warmup; final protocol: batch 8, ≤50 epochs with early stopping (patience 10), train-only augmentation |
+| Deployment | CPU inference 6.2 ms per 10-epoch batch (measured, standalone); 11.1 ms per 5-minute window (final-corpus run); checkpoints `artifacts/standalone_99k/student_99477_best.pt` and `artifacts/student_improved_best.pt` (full-corpus, promoted) |
 
 ### Parameter budget
 
@@ -53,23 +60,53 @@ Current status:
 
 ## Training Pipeline (Notebooks)
 
-1. **01 — Data import:** 100 PSG/hypnogram pairs matched by subject;
-   subject-level 70/15/15 split (no leakage, seed 42).
-2. **02 — Preprocessing:** 0.5–35 Hz bandpass + 50 Hz notch,
-   30-s epochs, AASM harmonization, z-score normalization, QC flags;
-   232,219 epochs cached.
-3. **03 — EDA:** class imbalance (~68% Wake), artifact burden, per-stage
-   spectral fingerprints, 87.5% self-transition probability — motivating
-   multi-scale features + temporal context.
+Final protocol (complete corpus, Sept 2026 freeze):
+
+1. **01 — Data import:** complete Sleep-EDF Expanded corpus — 394 EDF
+   files (197 PSG/hypnogram pairs, 100 subjects across the age-effects
+   and sleep-telemetry cohorts), SHA-1-verified against the official MNE
+   record tables; per-cohort subject-level 70/15/15 split (no leakage,
+   seed 42).
+2. **02 — Preprocessing:** 0.5–35 Hz bandpass (50 Hz notch recorded as
+   metadata but skipped — it equals Nyquist at 100 Hz), 30-s epochs,
+   AASM harmonization, z-score normalization, QC flags; **457,652
+   epochs** cached in `data/cache_full/` (mmap-able per-recording layout).
+3. **03 — EDA:** class imbalance, artifact burden, per-cohort
+   distributions, per-stage spectral fingerprints, stage-transition
+   structure — motivating multi-scale features + temporal context.
 4. **04 — Training:** Improved Student from scratch, supervised
-   class-weighted cross-entropy. **Per-epoch logs**
-   (train loss, val κ/acc/macro-F1); best-κ checkpointing; best val κ
-   0.8274 @ epoch 18/20.
-5. **05 — Evaluation:** 15 held-out subjects, 74,860 scored epochs —
-   **90.57% accuracy, κ 0.808, macro-F1 0.749, weighted-F1 0.912**,
-   CPU latency 6.2 ms/batch (measured).
+   class-weighted cross-entropy, train-only augmentation (amplitude
+   0.90–1.10×, noise σ 0.005–0.03, temporal masking, channel dropout).
+   **Per-epoch logs**; best-κ checkpointing; best val κ 0.7879 @ epoch
+   12, early-stopped at 22/50.
+5. **05 — Evaluation:** 16 held-out test subjects (32 recordings, 7,220
+   stride-10 windows = 72,200 scored epochs) — **90.50% accuracy,
+   κ 0.828, macro-F1 0.789, weighted-F1 0.909**; CPU latency 11.1
+   ms/window; verified checkpoint promoted to
+   `artifacts/student_improved_best.pt`.
 
 ## Evaluation Results
+
+### Final protocol run (full corpus, 16 held-out test subjects)
+
+| Metric | Value |
+|--------|-------|
+| Accuracy | 90.50% |
+| Cohen's κ | 0.8284 |
+| Macro F1 | 0.7889 |
+| Weighted F1 | 0.9089 |
+| Macro geometric mean | 0.7896 |
+| F1 (Wake / N1 / N2 / N3 / REM) | 0.981 / 0.535 / 0.831 / 0.762 / 0.835 |
+| Recall (Wake / N1 / N2 / N3 / REM) | 0.972 / 0.647 / 0.833 / 0.726 / 0.809 |
+| Best validation | κ 0.7879 @ epoch 12 (early-stopped 22/50) |
+| CPU latency | 11.1 ms per 5-minute window (measured) |
+| Checkpoint | `artifacts/final/student_full_dataset_best.pt` → promoted to `artifacts/student_improved_best.pt` |
+| Evidence | `results/final/final_metrics.json`, `results/final/predictions.csv` |
+
+> Protocol note: gap-aware sequence windows (stride 5 train / 10 eval),
+> probabilities calibrated to sum to 1, metrics generated only from the
+> held-out test subjects. Not directly comparable to the two tiers below
+> (different splits and evaluation semantics).
 
 ### Primary benchmark (person-level CV)
 
@@ -95,18 +132,21 @@ Current status:
 
 ### Known limitations
 
-- **N1 remains the weakest class** (F1 0.477) — consistent with the
-  literature; N1 is transitional, rare (~4.6%), and visually ambiguous.
-- N3 recall is high but precision moderate; N2/N3 boundary confusion
-  dominates remaining errors.
-- Single-cohort dataset (Sleep-EDF); cross-dataset validation (SHHS)
-  is future work.
+- **N1 remains the weakest class** (final-corpus F1 0.535, recall 0.647;
+  standalone F1 0.477) — consistent with the literature; N1 is
+  transitional, rare, and visually ambiguous. The full corpus plus
+  augmentation lifted N1 recall from 0.55 to 0.65.
+- N3 precision (0.80) trails its recall (0.73 recall → N3→N2 confusion
+  dominates remaining errors).
+- Single-database dataset (Sleep-EDF, two cohorts); cross-dataset
+  validation (SHHS) is future work.
 
 ## Reproducibility
 
-- Notebooks 01→05 execute deterministically (seed 42) in well under an
-  hour on one GTX-1650-class GPU including preprocessing; Notebook 04
-  alone trains in ~18 minutes.
+- Notebooks 01→05 execute deterministically (seed 42) on one
+  GTX-1650-class GPU. Final-corpus wall-clock: download ~4 h
+  (network-dependent; ~8.2 GB), preprocessing ~2.5 h, training ~2 h
+  (22 epochs, early-stopped), evaluation minutes.
 - Package code is covered by 92 passing tests (`pytest tests/`).
 - Protocol integrity gates: `scripts/verify_protocol.py`,
   `scripts/protocol_fingerprint.py`.

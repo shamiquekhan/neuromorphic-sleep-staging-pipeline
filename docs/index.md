@@ -27,12 +27,15 @@ docs/
 
 ## Evidence Hierarchy (applies to every document)
 
-1. **Primary:** person-level from-scratch benchmark (EXP-BENCH-PERSON,
-   52 persons, seeds 42/43/44) — `RESULTS.md`,
+1. **Final protocol freeze (Sept 2026):** complete-corpus run, 197
+   recordings / 100 subjects, `FINAL PROTOCOL AUDIT PASSED` —
+   `RESULTS.md`, `results/final/`
+2. **Primary research benchmark:** person-level from-scratch benchmark
+   (EXP-BENCH-PERSON, 52 persons, seeds 42/43/44) — `RESULTS.md`,
    `results/research/EXP-BENCH-PERSON/`
-2. **Standalone notebook pipeline:** single 70/15/15 subject split,
+3. **Standalone notebook pipeline:** single 70/15/15 subject split,
    supervised CE (seed 42) — `results/standalone_99k/`
-3. **Quarantined:** adaptation study — `adaptation.md`
+4. **Quarantined:** adaptation study — `adaptation.md`
 
 ## Documentation by Audience
 
@@ -74,6 +77,7 @@ docs/
 
 | Tier | Experiment | Status |
 |------|-----------|--------|
+| Final freeze | EXP-FULL-CORPUS-99K (complete corpus, 197 rec / 100 subj) | **Complete**: 90.50% (κ 0.828) |
 | Primary | EXP-BENCH-PERSON (person-level CV, 52 persons, seeds 42/43/44) | **Complete**: 87.30% ± 0.33% |
 | Standalone | Notebooks 01→05 supervised run (seed 42) | Complete: 90.57% (κ 0.808) |
 | Quarantined | EXP-ADAPT-* | Contaminated base + leaky folds |
@@ -125,5 +129,5 @@ streamlit run app/streamlit_app.py
 
 ---
 
-*Last updated: September 17, 2026*
+*Last updated: September 29, 2026*
 *Project: NeuroSleep — VIT Bhopal University*

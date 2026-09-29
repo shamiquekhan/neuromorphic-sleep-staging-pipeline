@@ -1,0 +1,47 @@
+{
+  "protocol": "FINAL full-corpus v1",
+  "dataset": "Sleep-EDF Expanded v1.0.0 (age-effects + sleep-telemetry)",
+  "n_recordings": 197,
+  "n_subjects": 100,
+  "cohort_recordings": {
+    "AGE": 153,
+    "TEZ": 44
+  },
+  "cohort_subjects": {
+    "AGE": 78,
+    "TEZ": 22
+  },
+  "cohort_split_table": [
+    {
+      "cohort": "AGE",
+      "train_subjects": 54,
+      "val_subjects": 12,
+      "test_subjects": 12,
+      "train_recordings": 105,
+      "val_recordings": 24,
+      "test_recordings": 24
+    },
+    {
+      "cohort": "TEZ",
+      "train_subjects": 15,
+      "val_subjects": 3,
+      "test_subjects": 4,
+      "train_recordings": 30,
+      "val_recordings": 6,
+      "test_recordings": 8
+    }
+  ],
+  "subjects_per_split": {
+    "test": 16,
+    "train": 69,
+    "val": 15
+  },
+  "recordings_per_split": {
+    "train": 135,
+    "test": 32,
+    "val": 30
+  },
+  "split_seed": 42,
+  "sha_verified": true,
+  "created_at": "2026-09-28T18:03:05.166168+00:00"
+}

@@ -105,27 +105,29 @@ scoring_mapping: R&K → AASM canonical
 ```
 data/
 ├── raw/
-│   └── sleep_edf/           # Raw EDF files (from PhysioNet)
-│       ├── SC4001E0-PSG.edf  # 16 PSG files downloaded
-│       ├── SC4002E0-PSG.edf
-│       ├── ...
-│       └── *-Hypnogram.edf   # Hypnogram annotations
+│   ├── sleep_edf/               # Legacy night-1 development download (100 EDFs)
+│   └── sleep_edf_full/          # Final-protocol raw EDFs (PhysioNet, SHA-1 verified)
+│       ├── sleep-cassette/      # 306 EDFs (153 PSG + 153 hypnograms)
+│       └── sleep-telemetry/     # 88 EDFs (44 PSG + 44 hypnograms)
 ├── cache/
-│   ├── sleep_edf/           # Processed NPZ files (15 subjects)
-│   │   ├── SC4001_night0.npz
-│   │   ├── SC4002_night0.npz
-│   │   ├── ...
-│   │   └── checksums.json
-│   └── shhs/                # Processed NPZ files (SHHS, future)
+│   └── sleep_edf/               # Legacy 15-subject development cache (retained)
+├── cache_full/
+│   ├── *_epochs.npy             # Per-recording float32 epochs (mmap-able)
+│   ├── *_meta.npz               # labels / onsets / qc_flag / fs sidecars
+│   ├── cache_index.csv          # 197 rows — source of truth for NB03–05
+│   └── preprocessing_summary.json
 ├── manifests/
-│   ├── sleep_edf.csv        # Original 4-subject manifest
-│   └── sleep_edf_expanded.json  # 15-subject manifest
+│   ├── sleep_edf.csv            # Canonical full-corpus manifest (197 rows)
+│   ├── sleep_edf_full.csv       # Same content, protocol name
+│   ├── subject_splits_full.csv  # Subject-level 70/15/15 (seed 42)
+│   └── dataset_audit.json       # NB01 audit (recordings, subjects, SHA verification)
 ```
 
-#### Current State
+#### Current State (final protocol, 2026-09 freeze)
 
-- **16 PSG files** downloaded from PhysioNet (Sleep-EDF Expanded)
-- **15 subjects** successfully preprocessed and cached as NPZ
-- **1 subject** (SC4021) failed preprocessing (channel mismatch)
-- **41,037 total epochs** across all cached subjects
-- **N1 distribution:** 1,388 epochs (3.4%) — 4.4x increase from original 318
+- **394 EDF files** downloaded from PhysioNet (Sleep-EDF Expanded v1.0.0: 153 cassette + 44 telemetry
+  recordings = 197 PSG/hypnogram pairs across 100 subjects), all SHA-1-verified against the official
+  MNE record tables
+- **197 recordings preprocessed** into `data/cache_full/` (mmap-able per-recording layout)
+- **457,652 total epochs** across all recordings (4 channels × 3000 samples @ 100 Hz, z-scored)
+- Legacy 15-subject development cache retained under `data/cache/` for provenance only

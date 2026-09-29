@@ -30,6 +30,7 @@ SECTION_MARKERS = {
     "primary": ["Primary Benchmark", "Person-Level Primary", "Primary benchmark",
                 "person-level CV", "Evidence Hierarchy"],
     "standalone": ["Standalone", "standalone_99k", "Deployed"],
+    "freeze": ["Final Protocol", "Full Corpus", "full corpus", "FULL-CORPUS"],
 }
 
 # Canonical value variants per experiment tier (any substring counts).
@@ -46,13 +47,21 @@ CANONICAL = {
         "macro_f1": ["0.7490", "0.749"],
         "weighted_f1": ["0.9115", "0.912"],
     },
+    "freeze": {
+        "accuracy": ["90.50%", "0.9050"],
+        "kappa": ["0.8284", "0.828"],
+        "macro_f1": ["0.7889", "0.789"],
+        "weighted_f1": ["0.9089"],
+    },
 }
 
 # Metrics that each file's tier section must quote (exactly what the
-# document publishes).
+# document publishes). README intentionally dropped the primary-benchmark
+# table in commit df8bf45 — the primary tier is pinned in docs/RESULTS.md,
+# docs/EXPERIMENTS.md, MODEL_REPORT.md and hf_model_card.md instead.
 EXPECTED = {
     "README.md": {
-        "primary": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
+        "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
         "standalone": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
     },
     "MODEL_REPORT.md": {

@@ -180,6 +180,20 @@ Wake / N1 / N2 / N3 / REM
 
 ## Evaluation
 
+### Final Protocol Run (full corpus, Sept 2026 — held-out 16-subject test set)
+
+Complete Sleep-EDF Expanded corpus: 197 recordings / 100 subjects, subject-level 70/15/15
+split (seed 42), gap-aware 10×30 s sequences, train-only augmentation, batch 8, early-stopped
+at epoch 22/50. Metrics from `results/final/final_metrics.json`.
+
+| Metric | Value |
+|--------|-------|
+| Accuracy | 90.50% |
+| Cohen's Kappa | 0.8284 |
+| Macro F1 | 0.7889 |
+| Weighted F1 | 0.9089 |
+| F1 (Wake / N1 / N2 / N3 / REM) | 0.981 / 0.535 / 0.831 / 0.762 / 0.835 |
+
 ### Person-Level Primary Benchmark (EXP-BENCH-PERSON, 30 folds / 3 seeds)
 
 | Metric | Value |
@@ -207,11 +221,14 @@ Wake / N1 / N2 / N3 / REM
 | Weighted F1 | 0.9115 |
 | F1 (Wake / N1 / N2 / N3 / REM) | 0.978 / 0.477 / 0.823 / 0.705 / 0.762 |
 
-> **Honest assessment:** N1 is the most challenging stage (F1≈0.45–0.48)
-> due to its transitional nature and low prevalence (~4.6% of epochs).
-> The stricter person-level protocol is the reference for
-> generalization; the standalone numbers show the same architecture on
-> the fixed exhibition split.
+> **Honest assessment:** N1 is the most challenging stage
+> (F1≈0.45–0.54 across tiers) due to its transitional nature and low
+> prevalence. The stricter person-level protocol is the reference for
+> generalization; the full-corpus run adds the telemetry cohort and
+> train-only augmentation, which lifts N1 recall to 0.65; the standalone
+> numbers show the same architecture on the fixed exhibition split.
+> The three tiers use different splits and evaluation semantics and are
+> not directly comparable.
 
 ## Preprocessing
 

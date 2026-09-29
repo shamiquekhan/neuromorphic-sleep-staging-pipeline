@@ -83,6 +83,31 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 | **CPU latency (measured)** | 6.2 ms/batch |
 | **Evidence** | `results/standalone_99k/` |
 
+### Final Protocol Result (Full Corpus, 2026-09 Freeze — Notebooks 01→05)
+
+> **Protocol:** the complete Sleep-EDF Expanded corpus — **197 recordings / 100 subjects**
+> (age-effects 153/78 + sleep-telemetry 44/22), SHA-1-verified downloads, subject-level 70/15/15
+> split (seed 42). Improved Student trained with 10×30 s context, train-only augmentation,
+> batch 8, ≤50 epochs with early stopping. Metrics below come from the **held-out test subjects**
+> (16 subjects / 72,200 epochs) via `results/final/final_metrics.json` — the notebook chain ends
+> with `FINAL PROTOCOL AUDIT PASSED`.
+
+| Metric | Value |
+|--------|-------|
+| **Accuracy** | **90.50%** |
+| **Cohen's Kappa** | **0.8284** |
+| **Macro F1** | **0.7889** |
+| **Weighted F1** | **0.9089** |
+| **Best validation** | κ 0.7879 @ epoch 12 (early-stopped at 22/50) |
+| **Parameters** | **99,477** |
+| **CPU latency** | 11.1 ms per 5-minute window |
+| **Evidence** | `results/final/final_metrics.json`, `artifacts/final/student_full_dataset_best.pt` |
+
+> **Protocol distinction:** this run's test split is disjoint from the person-level CV folds used
+> in EXP-BENCH-PERSON, and its evaluation semantics differ from both tiers above — the numbers are
+> not directly comparable across tables. Quarantined legacy results are recorded in
+> `docs/RESULTS.md` and `docs/adaptation.md` only.
+
 ---
 
 ## Architecture

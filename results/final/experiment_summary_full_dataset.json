@@ -1,0 +1,79 @@
+{
+  "protocol": "FINAL full-corpus v1",
+  "architecture": {
+    "parameters": 99477,
+    "input_shape": [
+      1,
+      10,
+      4,
+      3000
+    ],
+    "context_seconds": 300,
+    "feature_dim": 272,
+    "gru_hidden": 64,
+    "gru_layers": 2,
+    "gabor_filters": 8,
+    "gabor_output_dim": 16,
+    "classes": [
+      "Wake",
+      "N1",
+      "N2",
+      "N3",
+      "REM"
+    ]
+  },
+  "dataset": {
+    "n_recordings": 197,
+    "n_subjects": 100,
+    "train_subjects": 69,
+    "val_subjects": 15,
+    "test_subjects": 16,
+    "split_seed": 42
+  },
+  "training": {
+    "max_epochs": 50,
+    "epochs_run": 22,
+    "early_stopped": true,
+    "early_stopping_patience": 10,
+    "batch_size": 8,
+    "train_stride": 5,
+    "eval_stride": 10,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "seed": 42,
+    "device": "cuda",
+    "training_seconds": 7030.472210407257,
+    "best_validation_epoch": 12,
+    "best_validation_kappa": 0.7878621887585876,
+    "augmentation_enabled": true,
+    "augmentation_config": {
+      "amplitude_range": [
+        0.9,
+        1.1
+      ],
+      "noise_std_range": [
+        0.005,
+        0.03
+      ],
+      "temporal_mask_prob": 0.2,
+      "temporal_mask_max_sec": 2.0,
+      "channel_dropout_prob": 0.05
+    },
+    "tail_padding": "removed (incomplete sequences excluded)"
+  },
+  "test": {
+    "accuracy": 0.9050138504155124,
+    "cohen_kappa": 0.8284053804943622,
+    "macro_f1": 0.7889091389052493,
+    "weighted_f1": 0.9088578962269678,
+    "n_labels": 72200,
+    "n_test_subjects": 16,
+    "parameter_count": 99477,
+    "training_seconds": 7030.472210407257,
+    "epochs_run": 22,
+    "early_stopped": true,
+    "batch_size": 8,
+    "max_epochs": 50,
+    "augmentation_enabled": true
+  }
+}

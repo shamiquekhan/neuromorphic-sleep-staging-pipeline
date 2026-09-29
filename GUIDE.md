@@ -15,11 +15,16 @@ per-epoch training logs.
 > cohort is **52 persons**. Legacy record-level folds leaked at person
 > level (10/10 folds); numbers from them are record-level estimates.
 
-1. **Primary:** person-level benchmark (EXP-BENCH-PERSON, 52-person
-   10-fold CV, seeds 42/43/44) — **87.30% ± 0.33% accuracy,
-   κ 0.738 ± 0.010, macro-F1 0.724 ± 0.005** →
-   `docs/RESULTS.md`, `results/research/EXP-BENCH-PERSON/`
-2. **Deployed standalone run:** notebooks 01→05, supervised CE,
+1. **Final protocol freeze (Sept 2026):** notebooks 01→05 on the
+   complete corpus, `FINAL PROTOCOL AUDIT PASSED` — **90.50% accuracy,
+   κ 0.828, macro-F1 0.789** on 16 held-out test subjects (197
+   recordings / 100 subjects) → `results/final/final_metrics.json`,
+   `artifacts/student_improved_best.pt`
+2. **Primary research benchmark:** person-level benchmark
+   (EXP-BENCH-PERSON, 52-person 10-fold CV, seeds 42/43/44) —
+   **87.30% ± 0.33% accuracy, κ 0.738 ± 0.010, macro-F1 0.724 ± 0.005**
+   → `docs/RESULTS.md`, `results/research/EXP-BENCH-PERSON/`
+3. **Deployed standalone run:** notebooks 01→05, supervised CE,
    exhibition 70/15/15 split — **90.57% accuracy,
    κ 0.808, macro-F1 0.749** → `results/standalone_99k/`,
    `artifacts/standalone_99k/student_99477_best.pt`,
@@ -41,20 +46,21 @@ All benchmark numbers regenerate from raw fold evidence:
 | Cohen's κ | 0.738 ± 0.010 |
 | Macro F1 | 0.724 ± 0.005 |
 | Accuracy (standalone exhibition split, seed 42) | 90.57% (κ 0.808) |
-| CPU latency | 6.2 ms/batch (measured) |
-| Checkpoint | `artifacts/standalone_99k/student_99477_best.pt` |
-| Dataset | Sleep-EDF Expanded — 92 records / 52 persons |
+| Accuracy (final full-corpus freeze, 16 held-out subjects) | 90.50% (κ 0.828) |
+| CPU latency | 6.2 ms/batch (measured, standalone); 11.1 ms per 5-min window (full corpus) |
+| Checkpoint | `artifacts/standalone_99k/student_99477_best.pt`; full-corpus: `artifacts/student_improved_best.pt` |
+| Dataset | Sleep-EDF Expanded — 92 records / 52 persons (research tier); complete corpus 197 records / 100 subjects (final freeze) |
 | Config | `configs/benchmark_person_level.yaml` |
 
 ## The Notebook Pipeline (canonical exhibition path)
 
 | Notebook | Role | Key output |
 |----------|------|-----------|
-| 01 data import & dataset collection | manifest, pairing audit, subject split | `data/manifests/exhibition_15subj_v1.json` |
-| 02 data preprocessing | filter → epoch → QC → normalize → cache | `data/cache/*.npz` + `cache_index.csv` |
+| 01 data import & dataset collection | full-corpus manifest, SHA-1 verification, subject split | `data/manifests/sleep_edf_full.csv` + `dataset_audit.json` |
+| 02 data preprocessing | filter → epoch → QC → normalize → cache (mmap layout) | `data/cache_full/*_epochs.npy` + `cache_index.csv` |
 | 03 exploratory data analysis | class balance, QC burden, spectra, transitions | diagnostics (in-notebook) |
-| 04 student 99k complete training | supervised CE student (from scratch), per-epoch logs | `artifacts/standalone_99k/student_99477_best.pt` |
-| 05 evaluation & benchmarking | held-out test metrics, confusion matrix, latency | `results/standalone_99k/`, `results/final/notebook_pipeline_result.csv` |
+| 04 student 99k complete training | supervised CE student (from scratch), augmentation, early stopping | `artifacts/final/student_full_dataset_best.pt` |
+| 05 evaluation & benchmarking | held-out test metrics, audit gates, checkpoint promotion | `results/final/final_metrics.json`, `artifacts/student_improved_best.pt` |
 | 06 LoRA adaptation (extension) | adapter machinery demo | research extension only |
 
 ## Key Files

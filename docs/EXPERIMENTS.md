@@ -9,8 +9,60 @@ This document is the **single source of truth** for all experiment definitions, 
 
 | Experiment ID | Name | Status | Description | Config | Results |
 |---------------|------|--------|-------------|--------|---------|
+| **EXP-FULL-CORPUS-99K** | Final Full-Corpus Protocol (Notebooks 01→05) | **FINAL FREEZE (Sept 2026)** | Complete corpus 197 recordings / 100 subjects, subject-level split, gap-aware sequences, train-only augmentation, batch 8, ≤50 epochs | notebooks 01→05, seed 42 | `results/final/` |
 | **EXP-BENCH-PERSON** | Person-Level 10-Fold CV Benchmark | **PRIMARY** | Person-level 10-fold CV over 52 persons, causal unique-epoch protocol | `configs/experiments/person_level_cv.yaml` | `results/research/EXP-BENCH-PERSON/` |
 | **EXP-STANDALONE-99K** | Standalone Notebooks 01→05 Run (supervised CE) | **DEPLOYED** | Fixed 70/15/15 subject split, all-position protocol, supervised class-weighted CE | notebooks 04/05, seed 42 | `results/standalone_99k/` |
+
+---
+
+## EXP-FULL-CORPUS-99K (Final Protocol — Project Freeze)
+
+### Overview
+- **Dataset:** Sleep-EDF Expanded v1.0.0 complete corpus — 197 recordings / 100 subjects
+  (age-effects 153/78, sleep-telemetry 44/22), all 394 EDF files SHA-1-verified against the
+  official MNE record tables
+- **Split:** Subject-level 70/15/15 drawn per cohort (seed 42): train 135 / val 30 / test 32 recordings;
+  all nights of a subject stay in one partition
+- **Protocol:** Gap-aware 10-epoch sequences (30 s each), train stride 5 / eval stride 10,
+  no tail padding, windows never cross annotation gaps
+- **Augmentation:** Train only — amplitude 0.90–1.10× per channel, Gaussian noise σ 0.005–0.03,
+  temporal masking (≤2 s @ 20%), channel dropout 5%
+- **Training:** Improved Student from scratch, supervised class-weighted CE (train-split weights),
+  AdamW 3e-4, wd 1e-4, grad clip 1.0, batch 8, ≤50 epochs, early stopping patience 10,
+  10% warmup + cosine decay
+- **Cache:** `data/cache_full/` — mmap-able per-recording `_epochs.npy` + `_meta.npz` sidecars;
+  457,652 epochs total
+
+### Results (16 held-out test subjects, 72,200 epochs)
+
+| Metric | Value |
+|--------|-------|
+| Accuracy | 90.50% |
+| Cohen's κ | 0.8284 |
+| Macro F1 | 0.7889 |
+| Weighted F1 | 0.9089 |
+| Macro Geometric Mean | 0.7896 |
+| Best validation | κ 0.7879 @ epoch 12 (early-stopped at 22/50) |
+| CPU latency (measured) | 11.1 ms per 5-minute window |
+
+### Per-Class (Precision / Recall / F1)
+
+| Stage | Precision | Recall | F1 |
+|-------|-----------|--------|-----|
+| Wake | 0.991 | 0.972 | 0.981 |
+| N1 | 0.457 | 0.647 | 0.535 |
+| N2 | 0.829 | 0.833 | 0.831 |
+| N3 | 0.802 | 0.726 | 0.762 |
+| REM | 0.864 | 0.809 | 0.835 |
+
+### Artifacts
+- Checkpoint: `artifacts/final/student_full_dataset_best.pt` (best epoch 12, val κ 0.7879),
+  verified and promoted to `artifacts/student_improved_best.pt`
+- Results: `results/final/final_metrics.json`, `final_metrics_full_dataset.json`,
+  `predictions*.csv`, `confusion_matrix*.csv`, `per_class_metrics*.csv`,
+  `training_history_full_dataset.csv`, `experiment_summary_full_dataset.json`
+- Dataset provenance: `data/manifests/dataset_audit.json` (197/100, SHA-1 verified, seed 42)
+- Audit: Notebook 05 ends with `FINAL PROTOCOL AUDIT PASSED`
 
 ---
 
@@ -101,6 +153,14 @@ This document is the **single source of truth** for all experiment definitions, 
 
 ## Protocol Definitions
 
+### Final Gap-Aware Holdout (`final_gap_aware_holdout`)
+- Sequence length: 10 epochs
+- Training stride: 5, evaluation stride: 10
+- Supervision: All positions (every epoch in a complete window gets a loss)
+- Gap handling: windows never cross annotation gaps (verified from cached onsets);
+  incomplete tails are dropped, never padded
+- Used by: EXP-FULL-CORPUS-99K
+
 ### Legacy All-Position (`legacy_all_position`)
 - Sequence length: 10 epochs
 - Training stride: 5
@@ -124,4 +184,5 @@ This document is the **single source of truth** for all experiment definitions, 
 |------|--------|
 | 2026-09-15 | Initial authoritative registry created. Split legacy and primary benchmarks. |
 | 2026-09-17 | Added EXP-STANDALONE-99K (standalone notebooks 01→05 supervised run, deployable checkpoint `artifacts/standalone_99k/student_99477_best.pt`). |
+| 2026-09-29 | Added EXP-FULL-CORPUS-99K (final full-corpus protocol freeze: 197 recordings / 100 subjects, `FINAL PROTOCOL AUDIT PASSED`, checkpoint promoted to `artifacts/student_improved_best.pt`). |
 | 2026-09-17 | Removed the historical distilled-student exhibition experiment (EXP-EXHIBITION-15SUBJ), teacher architecture, and its artifacts — the repository ships a single architecture. |

@@ -222,32 +222,34 @@ with col2:
     </table>
     """, unsafe_allow_html=True)
 
-    # Final metrics
+    # Final metrics (canonical NB05 artifact: flat scalar keys)
     if metrics:
         st.markdown("### Final Results")
-        acc = metrics.get("accuracy", {})
-        kappa = metrics.get("cohen_kappa", {})
-        macro = metrics.get("macro_f1", {})
+        acc = metrics.get("test_accuracy", 0.0)
+        kappa = metrics.get("cohen_kappa", 0.0)
+        macro = metrics.get("macro_f1", 0.0)
         st.markdown(f"""
         <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
             <tr><td style="padding:0.5rem 0; border-bottom:1px solid #e8e8e8;">Accuracy</td>
-            <td style="padding:0.5rem 0; border-bottom:1px solid #e8e8e8; font-weight:700;">{acc.get('mean', 0):.1%} &plusmn; {acc.get('std', 0):.1%}</td></tr>
+            <td style="padding:0.5rem 0; border-bottom:1px solid #e8e8e8; font-weight:700;">{acc:.1%}</td></tr>
             <tr><td style="padding:0.5rem 0; border-bottom:1px solid #e8e8e8;">Cohen's &kappa;</td>
-            <td style="padding:0.5rem 0; border-bottom:1px solid #e8e8e8; font-weight:700;">{kappa.get('mean', 0):.3f} &plusmn; {kappa.get('std', 0):.3f}</td></tr>
+            <td style="padding:0.5rem 0; border-bottom:1px solid #e8e8e8; font-weight:700;">{kappa:.3f}</td></tr>
             <tr><td style="padding:0.5rem 0;">Macro F1</td>
-            <td style="padding:0.5rem 0; font-weight:700;">{macro.get('mean', 0):.3f} &plusmn; {macro.get('std', 0):.3f}</td></tr>
+            <td style="padding:0.5rem 0; font-weight:700;">{macro:.3f}</td></tr>
         </table>
         """, unsafe_allow_html=True)
 
     # Provenance
     st.markdown("### Model Provenance")
-    st.markdown("""
+    st.markdown(f"""
     <div style="font-size:0.85rem; line-height:1.7; color:#555;">
         <strong>Architecture:</strong> Improved Student<br>
-        <strong>Training:</strong> Full Fine-Tuning<br>
-        <strong>Dataset:</strong> Sleep-EDF Expanded (15 subjects)<br>
-        <strong>Evaluation:</strong> 4-fold subject-level CV<br>
-        <strong>Parameters:</strong> 99,477
+        <strong>Training:</strong> From scratch, supervised class-weighted cross-entropy (seed 42)<br>
+        <strong>Checkpoint:</strong> artifacts/standalone_99k/student_99477_best.pt<br>
+        <strong>Parameters:</strong> 99,477<br>
+        <strong>Full-corpus reference run:</strong> Sleep-EDF Expanded complete corpus — 197 recordings / 100 subjects,
+        subject-level split → held-out test κ 0.828, accuracy 90.50% (see docs/guide.md)<br>
+        <strong>Note:</strong> the benchmark table above reports the person-level research tier from docs/RESULTS.md
     </div>
     """, unsafe_allow_html=True)
 

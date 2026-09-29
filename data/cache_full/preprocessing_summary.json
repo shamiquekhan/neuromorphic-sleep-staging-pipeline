@@ -1,0 +1,42 @@
+{
+  "protocol": "FINAL full-corpus v1",
+  "n_recordings": 197,
+  "n_subjects": 100,
+  "total_epochs": 457652,
+  "total_epochs_flagged": 355322,
+  "channels": [
+    "EEG Fpz-Cz",
+    "EEG Pz-Oz",
+    "EOG horizontal",
+    "EMG submental"
+  ],
+  "samples_per_epoch": 3000,
+  "sampling_rate_hz": 100.0,
+  "bandpass_hz": [
+    0.5,
+    35.0
+  ],
+  "notch_requested_hz": 50.0,
+  "notch_applied": false,
+  "notch_reason": "50 Hz == Nyquist at 100 Hz sampling; bandpass 0.5-35 Hz already excludes it",
+  "stages": [
+    "Wake",
+    "N1",
+    "N2",
+    "N3",
+    "REM"
+  ],
+  "recordings_per_cohort": {
+    "AGE": 153,
+    "TEZ": 44
+  },
+  "epochs_per_cohort": {
+    "AGE": 414961,
+    "TEZ": 42691
+  },
+  "recordings_per_split": {
+    "train": 135,
+    "test": 32,
+    "val": 30
+  }
+}

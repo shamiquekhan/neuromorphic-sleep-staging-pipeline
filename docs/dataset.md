@@ -2,6 +2,14 @@
 
 ## Overview
 
+> **Final protocol (Sept 2026 freeze):** the project now uses the
+> **complete** Sleep-EDF Expanded v1.0.0 corpus — **197 recordings from
+> 100 subjects** (age-effects cassette cohort 153/78 + sleep-telemetry
+> cohort 44/22), SHA-1-verified against the official MNE record tables,
+> with a per-cohort subject-level 70/15/15 split (seed 42). The 92-record
+> / 52-person eligible cohort below remains the scope of the person-level
+> research benchmark (EXP-BENCH-PERSON).
+
 | Property | Value |
 |----------|-------|
 | Source | PhysioNet Sleep-EDF Expanded (SC cassette study) |
@@ -199,8 +207,25 @@ SC4002,0,data/raw/sleep_edf/SC4002E0-PSG.edf,data/raw/sleep_edf/SC4002EC-Hypnogr
 ```
 
 ### Cache Files
+
+Final-protocol cache (`data/cache_full/`, 197 recordings, mmap-able layout):
+
 ```python
-# Per subject-night .npz file
+# Per recording: one mmap-able epochs file + one small metadata sidecar
+# <stem>_epochs.npy  — np.ndarray [n_epochs, 4, 3000] float32 (memory-mappable)
+# <stem>_meta.npz    — sidecar with:
+{
+    "labels": np.ndarray,      # [n_epochs] int64, values 0-4
+    "onsets": np.ndarray,      # [n_epochs] int64, sample onsets (gap detection)
+    "qc_flag": np.ndarray,     # [n_epochs] bool
+    "fs": float,               # 100.0
+}
+# recording identity (subject_id, night, cohort, split) lives in cache_index.csv
+```
+
+Legacy development cache (`data/cache/`, per subject-night `.npz`, retained for provenance):
+
+```python
 {
     "epochs": np.ndarray,      # [n_epochs, 4, 3000] float32
     "labels": np.ndarray,      # [n_epochs] int64, values 0-4

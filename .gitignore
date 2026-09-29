@@ -59,6 +59,16 @@ files (1)/
 # Large data files (use DVC or external storage)
 *.npz
 *.edf
+*.npy
+
+# Datasets are regenerable by Notebooks 01-02 (keep manifests/index/summary only)
+data/raw/
+data/cache_full/*
+!data/cache_full/cache_index.csv
+!data/cache_full/preprocessing_summary.json
+
+# Agent skill/worktree dirs (never commit)
+.agents/
 
 # Model checkpoints (use release assets)
 # *.pt  -- allow final checkpoint for Streamlit Cloud

@@ -1,5 +1,6 @@
 {
   "protocol": "FINAL full-corpus v1",
+  "generated_at": "2026-09-29T07:16:29.745986+00:00",
   "model": "Improved Student \u2014 final full-corpus training (supervised CE + train-only augmentation)",
   "parameters": 99477,
   "dataset": {
@@ -23,18 +24,20 @@
     "best_validation_kappa": 0.7878621887585876,
     "seed": 42
   },
-  "test_accuracy": 0.9050138504155124,
-  "cohen_kappa": 0.8284053804943622,
-  "macro_f1": 0.7889091389052493,
-  "weighted_f1": 0.9088578962269678,
-  "macro_gmean": 0.7896308549203023,
-  "cpu_latency_ms_per_window": 11.080501999822445,
-  "manifest_sha256": "45ddd5774d7a737039cc76038dd77c15f4e854a843ed5f82f3430063327a95e3",
+  "test_metrics": {
+    "accuracy": 0.9050138504155124,
+    "cohen_kappa": 0.8284053804943622,
+    "macro_f1": 0.7889091389052493,
+    "weighted_f1": 0.9088578962269678,
+    "macro_geometric_mean": 0.7896308549203023
+  },
   "per_class_recall": {
     "Wake": 0.9715518549838461,
     "N1": 0.6465064899199117,
     "N2": 0.8326934435912581,
     "N3": 0.7256612267867192,
     "REM": 0.808839985080194
-  }
+  },
+  "inference_seconds": 15.524573212009273,
+  "cpu_latency_ms_per_window": 11.080501999822445
 }
