@@ -8,7 +8,7 @@
 ```
 docs/
 ├── index.md             # This file
-├── RESULTS.md           # Authoritative results (EXP-BENCH-PERSON + standalone 99k)
+├── RESULTS.md           # Authoritative results (final submission + standalone 99k)
 ├── EXPERIMENTS.md       # Authoritative experiment registry
 ├── REPRODUCIBILITY.md   # Reproduction guide
 ├── methodology.md       # Experimental protocol & research approach
@@ -30,12 +30,9 @@ docs/
 1. **Final protocol freeze (Sept 2026):** complete-corpus run, 197
    recordings / 100 subjects, `FINAL PROTOCOL AUDIT PASSED` —
    `RESULTS.md`, `results/final/`
-2. **Primary research benchmark:** person-level from-scratch benchmark
-   (EXP-BENCH-PERSON, 52 persons, seeds 42/43/44) — `RESULTS.md`,
-   `results/research/EXP-BENCH-PERSON/`
-3. **Standalone notebook pipeline:** single 70/15/15 subject split,
+2. **Standalone notebook pipeline:** single 70/15/15 subject split,
    supervised CE (seed 42) — `results/standalone_99k/`
-4. **Quarantined:** adaptation study — `adaptation.md`
+3. **Quarantined:** adaptation study — `adaptation.md`
 
 ## Documentation by Audience
 
@@ -78,7 +75,7 @@ docs/
 | Tier | Experiment | Status |
 |------|-----------|--------|
 | Final freeze | EXP-FULL-AUG30 (complete corpus, 197 rec / 100 subj, person-level holdout) | **Complete**: 90.48% (κ 0.8283) |
-| Historical | EXP-BENCH-PERSON (person-level CV, 52 persons, seeds 42/43/44) | **Complete**: 87.30% ± 0.33% |
+| Historical | EXP-BENCH-PERSON (person-level CV, 52 persons, seeds 42/43/44) | Complete — archived (results not published) |
 | Standalone | Notebooks 01→05 supervised run (seed 42) | Complete: 90.57% (κ 0.808) |
 | Quarantined | EXP-ADAPT-* | Contaminated base + leaky folds |
 | Archived | EXP-DEV-15SUBJ (93.0%) | Historical |
@@ -98,17 +95,6 @@ Held-out test: 16 subjects / 7,220 windows (stride-10). Train/val/test accuracy
 92.50% / 87.37% / 90.48% (max gap 5.12 pp — mild, controlled generalization gap;
 `results/final/fit_diagnosis.json`).
 
-### Historical Result (Person-Level, 30 folds / 3 seeds)
-
-```
-Improved Student — from scratch, person-level folds (52 persons)
-Accuracy   = 87.30% ± 0.33%  (95% CI [85.80, 88.79]%)
-Kappa      = 0.738 ± 0.010   (95% CI [0.691, 0.785])
-Macro F1   = 0.724 ± 0.005   (95% CI [0.693, 0.755])
-Weighted F1 = 0.880 ± 0.003  (95% CI [0.860, 0.900])
-Parameters = 99,477
-```
-
 > Do **not** cite the archived 15-record result (93.0%) or the
 > quarantined adaptation numbers as final.
 
@@ -117,9 +103,6 @@ Parameters = 99,477
 ```bash
 # Verify protocol integrity (record + person level)
 python scripts/verify_protocol.py
-
-# Regenerate result tables + CIs from fold evidence
-python scripts/summarize_person_benchmark.py --results-dir results/research/EXP-BENCH-PERSON
 
 # Run the notebook pipeline (raw EDFs → metrics)
 jupyter nbconvert --to notebook --execute notebooks/04_student_99k_complete_training.ipynb --inplace

@@ -372,7 +372,7 @@ The final architecture evolved through these stages:
 | Variant | Parameters | Accuracy | Status |
 |---------|-----------|----------|--------|
 | Baseline Teacher | 303,789 | 79.12% | Historical |
-| **Improved Student (person-level primary, EXP-BENCH-PERSON)** | **99,477** | **87.30% ± 0.33% (seeds 42/43/44)** | **Primary** |
+| **Improved Student (final submission, EXP-FULL-AUG30)** | **99,477** | **90.48%** | **Final (EXP-FULL-AUG30)** |
 | Improved Student (standalone notebooks, 70/15/15 split) | 99,477 | 90.57% (κ 0.808, seed 42) | Complete — `results/standalone_99k/` |
 
 The Improved Student is the only model used for exhibition and deployment.

@@ -13,8 +13,9 @@ test subjects.
 > nights per person (`SC4ss1`/`SC4ss2` = same person). The "92-subject"
 > cohort is **92 records from 52 persons**. The legacy record-level folds
 > leaked at person level in 10/10 folds, so all earlier numbers are
-> **record-level estimates**. The primary benchmark (EXP-BENCH-PERSON)
-> trains and evaluates under person-level 10-fold CV over 52 persons.
+> **record-level estimates**. The historical benchmark
+> (EXP-BENCH-PERSON) trained and evaluated under person-level 10-fold
+> CV over 52 persons (archived).
 
 Current status:
 
@@ -31,10 +32,6 @@ Current status:
   gap **+5.12 pp**; N1 is weak even on training data (F1 0.627) →
   mild, controlled generalization gap (label ambiguity, not
   memorization) → `results/final/fit_diagnosis.json`
-- **Person-level benchmark (EXP-BENCH-PERSON, historical research tier,
-  seeds 42/43/44, 30 folds):** accuracy **87.30% ± 0.33%**, κ
-  **0.738 ± 0.010**, macro-F1 **0.724 ± 0.005** — the honest
-  person-generalization estimate
 - **Standalone notebook run (deployed checkpoint, single 70/15/15
   subject split, supervised CE):** accuracy **90.57%**, κ **0.808**,
   macro-F1 **0.749** on 15 held-out test subjects — per-epoch training
@@ -130,16 +127,6 @@ Gaps: train−val **+5.12 pp**, train−test **+2.01 pp**, test above val by
 3.11 pp. Weakest train class N1 (F1 0.627) — weak on training data too,
 so residual errors are label ambiguity, not memorization (mild,
 controlled generalization gap).
-
-### Historical Benchmark — EXP-BENCH-PERSON (person-level 10-fold CV)
-
-| Metric | Mean ± Std | 95% CI |
-|--------|------------|--------|
-| Accuracy | 87.30% ± 0.33% | [85.80%, 88.79%] |
-| Cohen's κ | 0.738 ± 0.010 | [0.691, 0.785] |
-| Macro F1 | 0.724 ± 0.005 | [0.693, 0.755] |
-| Weighted F1 | 0.880 ± 0.003 | [0.860, 0.900] |
-| MGm | 0.772 ± 0.006 | [0.721, 0.823] |
 
 ### Standalone notebook run (deployed checkpoint, single split, 15 test subjects)
 

@@ -18,7 +18,7 @@ on the same 10 subject-level folds (92-subject eligible cohort):
 | **2C Full fine-tuning** | unfrozen | 99,477 | all parameters |
 
 "Full fine-tuning" = pretrained base checkpoint + all parameters unfrozen.
-"From-scratch training" = random initialization (the primary benchmark).
+"From-scratch training" = random initialization (the reference benchmark).
 The initialization point is part of the experiment definition and must be
 reported with every number.
 
@@ -103,10 +103,9 @@ Full-FT 87.7%) are quarantined as contaminated evidence. They:
   explicit caveats.
 
 The README previously quoted the contaminated Full-FT number
-(87.7% ± 2.7%) as the primary result. This is corrected: the primary
+(87.7% ± 2.7%) as the primary result. This is corrected: the referenced
 result is the **person-level from-scratch benchmark**
-(EXP-BENCH-PERSON, seed 42 complete: 85.47% ± 3.99%, κ 0.705,
-macro-F1 0.697 — see [`docs/results.md`](results.md)).
+(EXP-BENCH-PERSON — see [`docs/results.md`](results.md)).
 The record-level 92-record benchmark (87.66% ± 2.22%) is itself only a
 record-level estimate — its folds leak at person level.
 
@@ -168,7 +167,7 @@ unit of analysis with Wilcoxon signed-rank tests, effect sizes, and 95% CIs.
 |-----------|---------|--------|
 | Historical adaptation runs | Frozen / LoRA / Full-FT from contaminated base | **Quarantined** (evidence removed in cleanup) |
 | `results/LORA_RESULTS.md` + `results/lora_*.json` | 15-subject-era LoRA study (4-fold, head-only) | Archived (small cohort) |
-| `results/benchmark_person_level/` | From-scratch person-level benchmark, seeds 42/43/44 | **Clean, primary** |
+| `results/benchmark_person_level/` | From-scratch person-level benchmark, seeds 42/43/44 | **Clean (archive)** |
 | `results/final/` | 15-subject development benchmark raw folds | Archived (see `docs/archive/development_15_subject.md`) |
 
 ---

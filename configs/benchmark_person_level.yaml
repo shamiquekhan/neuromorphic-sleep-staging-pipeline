@@ -1,6 +1,7 @@
-# NeuroSleep — Person-Level 92-Record Benchmark (PRIMARY as of Sept 2026)
+# NeuroSleep — Person-Level 92-Record Benchmark (historical, archived Sept 2026)
 # =====================================================================
-# STATUS: PRIMARY benchmark configuration. Supersedes benchmark_92_subject.yaml
+# STATUS: Historical benchmark configuration (superseded by EXP-FULL-AUG30).
+# Supersedes benchmark_92_subject.yaml
 # (whose record-level folds leak at person level — see below).
 #
 # KEY FACT: SC4ss1 and SC4ss2 are TWO NIGHTS OF THE SAME PERSON

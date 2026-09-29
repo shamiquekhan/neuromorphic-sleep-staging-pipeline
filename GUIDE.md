@@ -22,20 +22,13 @@ per-epoch training logs.
    seed 42) → `results/final/final_metrics.json`,
    `artifacts/final/EXP-FULL-AUG30_seed42.pt`; fit diagnosis (train/
    val/test gap +5.12 pp) → `results/final/fit_diagnosis.json`
-2. **Historical research benchmark:** person-level benchmark
-   (EXP-BENCH-PERSON, 52-person 10-fold CV, seeds 42/43/44) —
-   **87.30% ± 0.33% accuracy, κ 0.738 ± 0.010, macro-F1 0.724 ± 0.005**
-   → `docs/RESULTS.md`, `results/research/EXP-BENCH-PERSON/`
-3. **Deployed standalone run:** notebooks 01→05, supervised CE,
+2. **Deployed standalone run:** notebooks 01→05, supervised CE,
    exhibition 70/15/15 split — **90.57% accuracy,
    κ 0.808, macro-F1 0.749** → `results/standalone_99k/`,
    `artifacts/standalone_99k/student_99477_best.pt`
-4. **Quarantined:** adaptation study (Frozen / LoRA / Full-FT) —
+3. **Quarantined:** adaptation study (Frozen / LoRA / Full-FT) —
    contaminated base checkpoint + record-level folds; internal
    comparison only → `docs/adaptation.md`
-
-All benchmark numbers regenerate from raw fold evidence:
-`python scripts/summarize_person_benchmark.py --results-dir results/research/EXP-BENCH-PERSON`.
 
 ## Final Submission Result — EXP-FULL-AUG30
 
@@ -61,9 +54,6 @@ memorization) → `results/final/fit_diagnosis.json` (Notebook 05 §14).
 |----------|-------|
 | Model | Improved Student (from scratch, supervised CE) |
 | Parameters | 99,477 |
-| Accuracy (person-level, 3 seeds × 10 folds) | 87.30% ± 0.33% |
-| Cohen's κ | 0.738 ± 0.010 |
-| Macro F1 | 0.724 ± 0.005 |
 | Accuracy (standalone exhibition split, seed 42) | 90.57% (κ 0.808) |
 | Accuracy (final submission, EXP-FULL-AUG30, 16 held-out subjects) | 90.48% (κ 0.8283, macro-F1 0.7899) |
 | CPU latency | 6.2 ms/batch (measured, standalone); 8.94 ms per 5-min window (EXP-FULL-AUG30) |
@@ -113,9 +103,6 @@ jupyter nbconvert --to notebook --execute notebooks/01_data_import_and_dataset_c
 
 # Dashboard
 streamlit run app/streamlit_app.py
-
-# Regenerate historical benchmark result tables from fold evidence
-python scripts/summarize_person_benchmark.py --results-dir results/research/EXP-BENCH-PERSON
 
 # Verify protocol integrity
 python scripts/verify_protocol.py

@@ -249,7 +249,7 @@ with col2:
         <strong>Parameters:</strong> 99,477<br>
         <strong>Full-corpus reference run:</strong> Sleep-EDF Expanded complete corpus — 197 recordings / 100 subjects,
         person-level holdout → held-out test κ 0.8283, accuracy 90.48% (EXP-FULL-AUG30, see docs/guide.md)<br>
-        <strong>Note:</strong> the benchmark table above reports the person-level research tier from docs/RESULTS.md
+        <strong>Note:</strong> the table above reports the final submission result (EXP-FULL-AUG30) from results/final/final_metrics.json
     </div>
     """, unsafe_allow_html=True)
 

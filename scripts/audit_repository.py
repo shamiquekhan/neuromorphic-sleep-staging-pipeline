@@ -174,13 +174,19 @@ def check_hardcoded_metrics():
                 # This is OK in RESULTS.md and EXPERIMENTS.md but not in README if inconsistent
                 pass
 
-    # Specific check: README vs RESULTS.md consistency
+    # Specific check: retired person-level benchmark (EXP-BENCH-PERSON)
+    # must not be displayed anywhere; both README and RESULTS.md must
+    # cite the final submission result (EXP-FULL-AUG30) instead.
     readme = (REPO / "README.md").read_text()
     results_md = (REPO / "docs" / "RESULTS.md").read_text()
 
-    # Check that primary benchmark numbers match
-    if "87.30" not in readme and "87.30" in results_md:
-        return False, "README missing primary benchmark (87.30%) found in RESULTS.md"
+    retired = ("87.30", "0.738 ± 0.010", "0.724 ± 0.005")
+    for label, text in (("README.md", readme), ("docs/RESULTS.md", results_md)):
+        for token in retired:
+            if token in text:
+                return False, f"{label} still shows retired benchmark value {token!r}"
+        if "90.48" not in text:
+            return False, f"{label} missing submission accuracy (90.48%)"
 
     if problems:
         return False, "; ".join(problems)

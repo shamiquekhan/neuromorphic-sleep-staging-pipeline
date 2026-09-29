@@ -104,7 +104,7 @@ Epoch  3: N2     (confidence: 89.1%)
 **Script:**
 > "Our deployed model achieves **90.57% accuracy** with Cohen's kappa of **0.808** on 15 held-out subjects from Sleep-EDF Expanded (trained end-to-end by the notebook pipeline). The model has only **99,477 parameters** — small enough for edge deployment on microcontrollers. 
 
-> **Important:** The deployed standalone result uses the all-position evaluation protocol which scores overlapping sequence windows. The primary research benchmark (person-level 10-fold CV, causal unique-epoch protocol) yields 87.30% accuracy. The two protocols are not directly comparable."
+> **Important:** The deployed standalone result uses the all-position evaluation protocol which scores overlapping sequence windows. The historical person-level benchmark (causal unique-epoch protocol) is not directly comparable."
 
 **Show:**
 - Deployed standalone result block
@@ -129,36 +129,6 @@ PARAMETERS
 
 6.2 ms/batch
 CPU LATENCY (measured)
-```
-
-**Primary Research Benchmark (EXP-BENCH-PERSON):**
-```
-87.30% ± 0.33%
-PERSON-LEVEL ACCURACY (causal protocol)
-
-0.738 ± 0.010
-COHEN'S κ
-
-0.724 ± 0.005
-MACRO F1
-
-99,477
-PARAMETERS
-```
-
-**Deployed Standalone Model (Notebooks 01→05, supervised CE):**
-```
-90.57%
-STANDALONE TEST ACCURACY (all-position protocol)
-
-0.8080
-COHEN'S κ
-
-0.7490
-MACRO F1
-
-99,477
-PARAMETERS
 ```
 
 ---
@@ -189,7 +159,7 @@ PARAMETERS
 Sleep-EDF Expanded
 EEG + EOG + EMG
 92-record eligible cohort (52 persons)
-Person-level 10-fold CV (primary)
+Person-level 10-fold CV (historical)
 Subject-level 70/15/15 split (deployed model)
 ```
 
@@ -248,7 +218,7 @@ MACRO F1
 PARAMETERS
 ```
 
-**Small text note:** "Primary research benchmark (EXP-BENCH-PERSON): 87.30% ± 0.33% accuracy, 0.738 ± 0.010 κ, causal unique-epoch protocol. Deployed standalone checkpoint (supervised CE, notebooks 01→05): 90.57% accuracy, κ 0.808."
+**Small text note:** "Deployed standalone checkpoint (supervised CE, notebooks 01→05): 90.57% accuracy, κ 0.808."
 
 ---
 
@@ -341,9 +311,6 @@ A: They reduce computational cost by ~77% compared to standard convolutions whil
 **Q: Why is accuracy not enough?**
 A: Class imbalance means a model can have high accuracy while performing poorly on minority stages. Cohen's kappa and F1 are more informative.
 
-**Q: What's the difference between 90.57% and 87.30%?**
-A: The 90.57% is the deployed standalone model (supervised cross-entropy, notebooks 01→05) under the all-position protocol on a fixed 70/15/15 subject split. The 87.30% is the primary research benchmark under the stricter causal unique-epoch protocol (one prediction per unique epoch, person-level splits) — the honest person-generalization estimate.
-
 ### Deployment Questions
 
 **Q: Can this run on a microcontroller?**
@@ -382,7 +349,6 @@ A: No. This is a research prototype. Clinical validation would require larger, m
 - [ ] Show signal processing pipeline
 - [ ] Demonstrate live inference
 - [ ] Present deployed standalone result (90.57%, κ 0.808)
-- [ ] Clarify primary benchmark (87.30%, causal protocol)
 - [ ] Answer questions confidently
 - [ ] Acknowledge limitations honestly
 

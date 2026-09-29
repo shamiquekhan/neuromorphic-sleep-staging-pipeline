@@ -13,7 +13,7 @@ Status legend: ☐ not started · ◐ partially done · ✔ done · ⛔ blocked
 | ID | Experiment | Status | Evidence |
 |----|-----------|--------|----------|
 | **EXP-FULL-AUG30** | Final submission protocol: complete corpus 197 rec / 100 subj, person-level 70/15/16 holdout, ≤30 epochs (patience 5, val macro F1) | ✔ **complete (seed 42): 90.48% acc, κ 0.8283, macro-F1 0.7899** | `results/final/final_metrics.json`, `artifacts/final/EXP-FULL-AUG30_seed42.pt` |
-| **EXP-BENCH-PERSON** | Person-level from-scratch benchmark, 52 persons / 92 records, causal unique-epoch protocol | ✔ **complete (seeds 42/43/44): 87.30% ± 0.33%, κ 0.738, macro-F1 0.724 — historical benchmark** | `results/research/EXP-BENCH-PERSON/` |
+| **EXP-BENCH-PERSON** | Person-level from-scratch benchmark, 52 persons / 92 records, causal unique-epoch protocol | ✔ complete — historical benchmark, superseded by EXP-FULL-AUG30 | `results/research/EXP-BENCH-PERSON/` |
 | **EXP-STANDALONE-99K** | Notebooks 01→05, supervised CE, exhibition 70/15/15 split | ✔ **complete (seed 42): 90.57% acc, κ 0.808 — deployed checkpoint** | `results/standalone_99k/`, `artifacts/standalone_99k/student_99477_best.pt` |
 | EXP-BENCH-92SUBJ | 92-record benchmark on record-level folds | ✔ complete — **superseded** (folds leak at person level) | removed; recorded in `docs/results.md` |
 | EXP-ADAPT-FROZEN / -LORA-R8-CNNHEAD / -FULLFT | Adaptation regimes from one base checkpoint | ⛔ **quarantined — contaminated base + record-level folds** | removed; recorded in `docs/adaptation.md` |
@@ -49,8 +49,8 @@ cohort is **52 persons**. Consequences:
   logs; Notebook 04 trains the standalone 99k student and saves its checkpoint
 - ✔ **Repository cleanup** — stale results/configs/scripts, duplicate
   notebooks, quarantined artifacts, and ~10 GB of legacy caches removed;
-  the notebooks + primary benchmark evidence are the single pipeline
-- ✔ **Person-level primary benchmark** — 3 seeds × 10 folds complete,
+  the notebooks + benchmark evidence are the single pipeline
+- ✔ **Person-level benchmark** — 3 seeds × 10 folds complete,
   CIs computed, `results/research/EXP-BENCH-PERSON/final_metrics.json` regenerated
 - ✔ **Experiment configs created** — `configs/experiments/person_level_cv.yaml`
 - ✔ **Authoritative docs created** — `docs/EXPERIMENTS.md`, `docs/RESULTS.md`, `docs/REPRODUCIBILITY.md`

@@ -15,20 +15,14 @@ Usage:
     python tests/test_documentation_metrics.py
 """
 
-import json
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 
-# Canonical source of truth
-PRIMARY_BENCHMARK = REPO / "results" / "research" / "EXP-BENCH-PERSON" / "final_metrics.json"
-
 # Header keywords used to isolate each named section within a document
 # (first matching '## '/'### ' header wins).
 SECTION_MARKERS = {
-    "primary": ["Primary Benchmark", "Person-Level Primary", "Primary benchmark",
-                "person-level CV", "Evidence Hierarchy", "EXP-BENCH-PERSON"],
     "standalone": ["Standalone", "standalone_99k", "Deployed"],
     "freeze": ["Final Submission", "EXP-FULL-AUG30", "Final Protocol",
                "Full Corpus", "full corpus", "FULL-CORPUS"],
@@ -36,12 +30,6 @@ SECTION_MARKERS = {
 
 # Canonical value variants per experiment tier (any substring counts).
 CANONICAL = {
-    "primary": {
-        "accuracy": ["87.30%", "0.8730", "0.87297"],
-        "kappa": ["0.738 ± 0.010", "0.7380", "0.73805"],
-        "macro_f1": ["0.724 ± 0.005", "0.7240", "0.72432"],
-        "weighted_f1": ["0.880 ± 0.003", "0.8803", "0.88028"],
-    },
     "standalone": {
         "accuracy": ["90.57%", "0.9057"],
         "kappa": ["0.8080", "0.808"],
@@ -61,9 +49,9 @@ CANONICAL = {
 }
 
 # Metrics that each file's tier section must quote (exactly what the
-# document publishes). README intentionally dropped the primary-benchmark
-# table in commit df8bf45 — the primary tier is pinned in docs/RESULTS.md,
-# docs/EXPERIMENTS.md, MODEL_REPORT.md and hf_model_card.md instead.
+# document publishes). Tiers: freeze = final submission EXP-FULL-AUG30,
+# standalone = deployed notebook-pipeline run. The historical
+# EXP-BENCH-PERSON benchmark results were removed from all docs.
 EXPECTED = {
     "README.md": {
         "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
@@ -71,18 +59,15 @@ EXPECTED = {
         "standalone": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
     },
     "MODEL_REPORT.md": {
-        "primary": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
         "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
                    "fit_train_accuracy", "fit_train_val_gap"],
         "standalone": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
     },
     "GUIDE.md": {
-        "primary": ["accuracy", "kappa", "macro_f1"],
         "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
                    "fit_train_accuracy", "fit_train_val_gap"],
     },
     "docs/RESULTS.md": {
-        "primary": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
         "standalone": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
         "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
                    "fit_train_accuracy", "fit_train_val_gap"],
@@ -92,29 +77,15 @@ EXPECTED = {
                    "fit_train_accuracy", "fit_train_val_gap"],
     },
     "docs/EXPERIMENTS.md": {
-        "primary": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
         "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
                    "fit_train_accuracy", "fit_train_val_gap"],
         "standalone": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
     },
     "hf_model_card.md": {
-        "primary": ["accuracy", "kappa", "macro_f1", "weighted_f1"],
         "freeze": ["accuracy", "kappa", "macro_f1", "weighted_f1",
                    "fit_train_accuracy", "fit_train_val_gap"],
     },
 }
-
-
-def load_primary_metrics():
-    """Load primary benchmark metrics from the canonical artifact."""
-    with open(PRIMARY_BENCHMARK) as f:
-        data = json.load(f)
-    return {
-        "accuracy": data["accuracy"]["mean"],
-        "kappa": data["cohen_kappa"]["mean"],
-        "macro_f1": data["macro_f1"]["mean"],
-        "weighted_f1": data["weighted_f1"]["mean"],
-    }
 
 
 def split_sections(text: str) -> list[tuple[str, str]]:
@@ -187,9 +158,6 @@ def main():
     print("=" * 70)
     print("  DOCUMENTATION METRICS SYNC TEST")
     print("=" * 70)
-
-    primary = load_primary_metrics()
-    print(f"\nCanonical primary: {primary}")
 
     all_errors = []
     for file_name, tier_metrics in EXPECTED.items():

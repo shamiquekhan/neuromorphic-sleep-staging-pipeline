@@ -19,8 +19,7 @@ Interactive demo for five-stage sleep classification from polysomnography signal
 - **Accuracy:** 90.48% (κ 0.8283) on 16 held-out subjects from the full
   Sleep-EDF Expanded corpus — 197 recordings / 100 subjects, September 2026
   protocol freeze (`results/final/final_metrics.json`); the deployed
-  standalone checkpoint reports 90.57% (κ 0.808) on its 15-subject holdout,
-  and the historical person-level benchmark reports 87.30% ± 0.33% —
+  standalone checkpoint reports 90.57% (κ 0.808) on its 15-subject holdout —
   see the source repository's `docs/RESULTS.md`
 
 ## Links

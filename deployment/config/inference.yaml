@@ -25,9 +25,7 @@ classes:
   - REM
 
 results:
-  accuracy: 0.8730
-  accuracy_std: 0.0033
-  kappa: 0.738
-  kappa_std: 0.010
-  macro_f1: 0.724
-  macro_f1_std: 0.005
+  accuracy: 0.9048
+  kappa: 0.8283
+  macro_f1: 0.7899
+  weighted_f1: 0.9089

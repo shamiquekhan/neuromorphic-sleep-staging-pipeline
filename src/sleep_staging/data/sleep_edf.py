@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 # ── Sleep-EDF Expanded subject list ──────────────────────────────────────
 # The full dataset has 197 recordings. The naming convention is:
 #   SC4xxxxG (healthy controls) and ST7xxxxG (insomniacs)
-# We use only healthy controls for the primary benchmark.
+# We use only healthy controls for the historical benchmark.
 
 SLEEP_EDF_SUBJECTS = [
     # Healthy controls (SC4xxxx) — 153 subjects from Sleep-EDF Expanded

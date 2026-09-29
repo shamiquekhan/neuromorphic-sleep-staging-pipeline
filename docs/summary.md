@@ -14,10 +14,10 @@ A compact deep-learning system that classifies 30-second sleep epochs into five 
 | **Venue** | VIT Bhopal University |
 | **Final Model** | Improved Student (trained from scratch, supervised CE) |
 | **Parameters** | 99,477 |
-| **Primary Benchmark** (person-level CV, 3 seeds × 10 folds) | **87.30% ± 0.33% acc · κ 0.738 · macro-F1 0.724** |
+| **Final Submission Run** (EXP-FULL-AUG30, person-level holdout) | **90.48% acc · κ 0.8283 · macro-F1 0.7899** |
 | **Deployed Standalone Run** (15 held-out test subjects, seed 42) | **90.57% acc · κ 0.808 · macro-F1 0.749** |
 | **CPU Latency** | 6.2 ms/batch (measured) |
-| **Dataset** | Sleep-EDF Expanded (92 records / 52 persons) |
+| **Dataset** | Sleep-EDF Expanded complete corpus (197 records / 100 persons) |
 | **Checkpoint** | `artifacts/standalone_99k/student_99477_best.pt` |
 
 ---
@@ -76,7 +76,7 @@ Raw PSG Signals (EEG + EOG + EMG)
 
 | Benchmark | Accuracy | Cohen's κ | Macro F1 | Evidence |
 |-----------|---------:|----------:|---------:|----------|
-| **Person-level primary** (10-fold CV over 52 persons, seeds 42/43/44) | 87.30% ± 0.33% | 0.738 ± 0.010 | 0.724 ± 0.005 | `results/research/EXP-BENCH-PERSON/` |
+| **Final submission EXP-FULL-AUG30** (person-level 70/15/15 holdout, seed 42) | 90.48% | 0.8283 | 0.7899 | `results/final/final_metrics.json` |
 | **Deployed standalone run** (single split, 15 test subjects, seed 42) | 90.57% | 0.808 | 0.749 | `results/standalone_99k/` |
 
 Per-class F1 (deployed standalone run): Wake 0.978 · N2 0.823 · REM 0.762 · N3 0.705 · N1 0.477.
@@ -113,8 +113,8 @@ app/                Streamlit dashboard
 tests/              92 passing tests
 docs/               results.md is the numbers source of truth
 artifacts/          Deployed checkpoint (standalone_99k)
-results/            Primary benchmark evidence + notebook result
-configs/            benchmark_person_level.yaml (primary)
+results/            Final submission evidence + historical benchmark results
+configs/            benchmark_person_level.yaml (historical)
 data/               Manifests (tracked) + cache/raw (local only)
 deployment/         Docker deployment
 huggingface/        Hub model card + demo space assets

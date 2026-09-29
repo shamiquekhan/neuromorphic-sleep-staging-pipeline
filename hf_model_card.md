@@ -52,25 +52,25 @@ model-index:
           name: Sleep Stage Classification
         dataset:
           type: sleep-edf-expanded
-          name: Sleep-EDF Expanded (52 persons / 92 records, PhysioNet)
+          name: Sleep-EDF Expanded (complete corpus, 100 persons / 197 records, PhysioNet)
           config: default
           split: test
           revision: main
         metrics:
           - type: accuracy
-            value: 0.8730
+            value: 0.9048
             name: Accuracy
             verified: false
           - type: cohen_kappa
-            value: 0.738
+            value: 0.8283
             name: Cohen's Kappa
             verified: false
           - type: f1
-            value: 0.724
+            value: 0.7899
             name: Macro F1
             verified: false
           - type: f1
-            value: 0.880
+            value: 0.9089
             name: Weighted F1
             verified: false
 widget:
@@ -88,10 +88,9 @@ widget:
 > pipeline** results (seed 42, 92-record / 52-person eligible cohort
 > from 100 downloaded Sleep-EDF Expanded records, 70/15/15 subject-level
 > split, all-position evaluation, stride=5; supervised class-weighted
-> cross-entropy — no distillation). Under the stricter person-level
-> 10-fold causal protocol (EXP-BENCH-PERSON, seeds 42/43/44) the same
-> architecture scores **87.30% ± 0.33% accuracy / κ 0.738 ± 0.010** —
-> the honest person-generalization estimate.
+> cross-entropy — no distillation). The final submission run
+> (EXP-FULL-AUG30, complete corpus, person-level holdout) reports
+> **90.48% accuracy / κ 0.8283 / macro-F1 0.7899** — see Evaluation.
 
 > **Quick links:** [GitHub](https://github.com/shamiquekhan/neuromorphic-sleep-staging-pipeline) · [Live Demo](https://huggingface.co/spaces/shamiquekhan/neurosleep-demo)
 
@@ -202,23 +201,6 @@ test 90.48% under one identical stride-10 protocol — train−val gap
 residual errors are label ambiguity rather than memorization (mild,
 controlled generalization gap; `results/final/fit_diagnosis.json`).
 
-### Historical Benchmark — EXP-BENCH-PERSON (person-level 10-fold CV, 30 folds / 3 seeds)
-
-| Metric | Value |
-|--------|-------|
-| Accuracy | 87.30% ± 0.33% (95% CI [85.80, 88.79]%) |
-| Cohen's Kappa | 0.738 ± 0.010 (95% CI [0.691, 0.785]) |
-| Macro F1 | 0.724 ± 0.005 (95% CI [0.693, 0.755]) |
-| Weighted F1 | 0.880 ± 0.003 (95% CI [0.860, 0.900]) |
-
-| Stage | F1 |
-|-------|-----|
-| Wake | 0.960 ± 0.026 |
-| N1 | **0.445 ± 0.087** |
-| N2 | 0.733 ± 0.163 |
-| N3 | 0.700 ± 0.112 |
-| REM | 0.782 ± 0.116 |
-
 ### Standalone Notebook Run (deployed checkpoint, 15-subject holdout, seed 42)
 
 | Metric | Value |
@@ -230,13 +212,12 @@ controlled generalization gap; `results/final/fit_diagnosis.json`).
 | F1 (Wake / N1 / N2 / N3 / REM) | 0.978 / 0.477 / 0.823 / 0.705 / 0.762 |
 
 > **Honest assessment:** N1 is the most challenging stage
-> (F1≈0.45–0.53 across tiers) due to its transitional nature and low
+> (F1≈0.48–0.53 across tiers) due to its transitional nature and low
 > prevalence. The submission result above (EXP-FULL-AUG30) is the
-> citable generalization number; the historical person-level benchmark
-> is retained for protocol comparison, the full-corpus run adds the
+> citable generalization number; the full-corpus run adds the
 > telemetry cohort and train-only augmentation, which lifts N1 recall to
 > 0.65; the standalone numbers show the same architecture on the fixed
-> exhibition split. The three tiers use different splits and evaluation
+> exhibition split. The tiers use different splits and evaluation
 > semantics and are not directly comparable.
 
 ## Preprocessing

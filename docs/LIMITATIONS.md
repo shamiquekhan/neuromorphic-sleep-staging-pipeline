@@ -19,10 +19,10 @@ This document provides a transparent, evidence-based assessment of every sleep s
 > 92-record cohort is **52 persons**, and the legacy record-level folds
 > leak at person level in 10/10 folds (a test record's same-person mate
 > sits in train). The 87.66% ± 2.22% record-level number is therefore
-> an optimistic, record-level estimate. The person-level primary
+> an optimistic, record-level estimate. The person-level
 > benchmark (EXP-BENCH-PERSON, `person_folds_52subj.json`, seeds
-> 42/43/44) is complete: **87.30% ± 0.33%** accuracy, κ 0.738 ± 0.010
-> — the honest person-generalization estimate.
+> 42/43/44) is complete and clean — the honest person-generalization
+> estimate, archived at `results/research/EXP-BENCH-PERSON/`.
 > See [`results.md`](results.md).
 
 ---
@@ -474,7 +474,7 @@ Total N1 epochs: 1,388 (vs 318 original) — 4.4x increase
 ### For Exhibition
 Present the expanded results honestly:
 
-> "The model achieves 87.5% overall accuracy (κ=0.763) across 15 subjects from Sleep-EDF Expanded, with strong performance on all stages: Wake (F1=0.96), N1 (F1=0.72), N2 (F1=0.85), N3 (F1=0.96), and REM (F1=0.92). Through all-position supervision, minority-class weighting, and expanded subject diversity, we improved N1 from 0% to 72% F1 and REM from 0% to 92% F1. These results demonstrate that subject diversity is the primary bottleneck for minority-class sleep staging, and that targeted training strategies combined with adequate data achieve research-grade benchmark performance across all sleep stages." (Historical result — 15-record development cohort; do not cite as final. The current primary benchmark is in `docs/results.md`.)
+> "The model achieves 87.5% overall accuracy (κ=0.763) across 15 subjects from Sleep-EDF Expanded, with strong performance on all stages: Wake (F1=0.96), N1 (F1=0.72), N2 (F1=0.85), N3 (F1=0.96), and REM (F1=0.92). Through all-position supervision, minority-class weighting, and expanded subject diversity, we improved N1 from 0% to 72% F1 and REM from 0% to 92% F1. These results demonstrate that subject diversity is the primary bottleneck for minority-class sleep staging, and that targeted training strategies combined with adequate data achieve research-grade benchmark performance across all sleep stages." (Historical result — 15-record development cohort; do not cite as final. The current submission result is in `docs/results.md`.)
 
 ### For Future Work
 1. **Expand to full cohort** (183 subjects) for final benchmark.
@@ -489,7 +489,7 @@ Present the expanded results honestly:
 
 | File | Description |
 |------|-------------|
-| `results/research/EXP-BENCH-PERSON/final_metrics.json` | Person-level primary benchmark (30 folds / 3 seeds) |
+| `results/research/EXP-BENCH-PERSON/final_metrics.json` | Person-level benchmark archive (30 folds / 3 seeds) |
 | `results/standalone_99k/` | Standalone notebook-pipeline run (seed 42) |
 | `results/final/final_metrics.json` | Final submission metrics (EXP-FULL-AUG30, person-level holdout) |
 | `results/final/fit_diagnosis.json` | Train/val/test generalization-gap diagnosis |

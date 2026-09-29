@@ -81,12 +81,9 @@ Parametric Gabor Feature Extraction
 > **Evidence status:** the deployed checkpoint is the **standalone
 > notebook-pipeline model** (seed 42, exhibition 70/15/15 subject split,
 > all-position protocol): **90.57% accuracy, κ 0.808, macro-F1 0.749**
-> on 15 held-out test subjects. Under the stricter person-level 10-fold
-> causal protocol (EXP-BENCH-PERSON, seeds 42/43/44, 30 folds) the same
-> architecture reports **87.30% ± 0.33% accuracy, κ 0.738 ± 0.010,
-> macro-F1 0.724** — the honest person-generalization estimate. The
-> three tiers use different splits/protocols and are not directly
-> comparable. See the source repository's `docs/RESULTS.md`.
+> on 15 held-out test subjects. The tiers use different
+> splits/protocols and are not directly comparable. See the source
+> repository's `docs/RESULTS.md`.
 
 - **Accuracy (final submission run, EXP-FULL-AUG30):** 90.48% (κ 0.8283, macro-F1 0.7899)
 - **Accuracy (deployed standalone checkpoint):** 90.57%
@@ -103,16 +100,6 @@ Parametric Gabor Feature Extraction
 | N2 | 0.823 |
 | N3 | 0.705 |
 | REM | 0.762 |
-
-### Person-Level Primary Benchmark (same architecture, stricter protocol)
-
-| Stage | F1 |
-|-------|-----|
-| Wake | 0.960 |
-| N1 | 0.445 |
-| N2 | 0.733 |
-| N3 | 0.700 |
-| REM | 0.782 |
 
 ## Intended Use
 

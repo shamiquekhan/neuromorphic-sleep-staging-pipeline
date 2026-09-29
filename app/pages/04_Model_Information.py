@@ -75,53 +75,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ── Primary Benchmark (92-Subject, from scratch, seed 42) ─────────────────
-from app.state import load_primary_benchmark
-
-primary_metrics = load_primary_benchmark()
-if primary_metrics:
-    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-
-    o = primary_metrics
-    acc, kappa = o.get("accuracy", {}), o.get("cohen_kappa", {})
-    macro, weighted = o.get("macro_f1", {}), o.get("weighted_f1", {})
-
-    section_title("Person-Level Primary Benchmark — From Scratch (Seed 42)")
-    st.caption(
-        "EXP-BENCH-PERSON · 92-record eligible cohort (52 persons; 100 "
-        "downloaded, 8 wake-only excluded) · 10-fold person-level CV · "
-        "seeds 42/43/44 (30 folds). Authoritative numbers: docs/results.md"
-    )
-    st.markdown(
-        f'<div class="swiss-grid-4">'
-        f'<div><div class="sz-label">Accuracy</div><div class="sz-display">{acc.get("mean",0):.1%}</div>'
-        f'<div class="sz-caption">&plusmn; {acc.get("std",0):.1%}</div></div>'
-        f'<div><div class="sz-label">Cohen&rsquo;s &kappa;</div><div class="sz-display">{kappa.get("mean",0):.3f}</div>'
-        f'<div class="sz-caption">&plusmn; {kappa.get("std",0):.3f}</div></div>'
-        f'<div><div class="sz-label">Macro F1</div><div class="sz-display">{macro.get("mean",0):.3f}</div>'
-        f'<div class="sz-caption">&plusmn; {macro.get("std",0):.3f}</div></div>'
-        f'<div><div class="sz-label">Weighted F1</div><div class="sz-display">{weighted.get("mean",0):.3f}</div>'
-        f'<div class="sz-caption">&plusmn; {weighted.get("std",0):.3f}</div></div>'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
-    if "per_class" in o:
-        section_title("Per-Class Performance (Primary Benchmark)")
-        rows = (
-            '<table class="swiss-table">'
-            '<tr><th>Stage</th><th>F1 (mean &plusmn; std)</th></tr>'
-        )
-        for stage in ["Wake", "N1", "N2", "N3", "REM"]:
-            s = o["per_class"].get(stage) or {}
-            if "f1_mean" in s:
-                rows += (
-                    f'<tr><td>{stage}</td>'
-                    f'<td>{s["f1_mean"]:.3f} &plusmn; {s["f1_std"]:.3f}</td></tr>'
-                )
-        rows += "</table>"
-        st.markdown(rows, unsafe_allow_html=True)
-
 # ── Final Submission (EXP-FULL-AUG30, person-level holdout) ──────────────────
 from app.state import load_final_metrics, load_submission_per_class
 
@@ -168,7 +121,7 @@ if submission:
         rows += "</table>"
         st.markdown(rows, unsafe_allow_html=True)
 
-if not primary_metrics and not submission:
+if not submission:
     st.warning(
         "No results found. Run the notebooks (01→05) first."
     )
@@ -194,10 +147,9 @@ st.markdown(
     '<div class="sz-body" style="margin-top:1rem;">'
     "<strong>Dataset:</strong> Sleep-EDF Expanded complete corpus — 197 recordings / 100 subjects (PhysioNet)<br>"
     "<strong>Training window:</strong> 10 &times; 30 s epochs (300 s context)<br>"
-    "<strong>Primary model:</strong> Improved Student (from scratch, 99,477 params)<br>"
+    "<strong>Model:</strong> Improved Student (from scratch, 99,477 params)<br>"
     "<strong>Training:</strong> Supervised class-weighted cross-entropy (from scratch)<br>"
-    "<strong>Evaluation:</strong> Final: person-level 70/15/16 holdout, seed 42 &middot; "
-    "Historical: 10-fold person-level CV, seeds 42/43/44"
+    "<strong>Evaluation:</strong> person-level 70/15/16 holdout, seed 42, stride-10 test scoring"
     "</div>",
     unsafe_allow_html=True,
 )

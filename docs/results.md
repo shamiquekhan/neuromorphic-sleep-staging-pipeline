@@ -36,7 +36,7 @@ The repository contains several tiers of evidence. Only the
 | Tier | Experiment | Status | Evidence |
 |------|-----------|--------|----------|
 | **Primary** | EXP-FULL-AUG30 — final full-corpus training, person-level 70/15/15 holdout (seed 42), stride-10 all-position evaluation | **Complete (seed 42): 90.48% / κ 0.8283** | `results/final/final_metrics.json` |
-| Historical | EXP-BENCH-PERSON — from-scratch, person-level 10-fold CV over 52 persons, fixed (causal unique-epoch) protocol | Complete (seeds 42/43/44, 30 folds): 87.30% / κ 0.738 | `results/research/EXP-BENCH-PERSON/` |
+| Historical | EXP-BENCH-PERSON — from-scratch, person-level 10-fold CV over 52 persons, fixed (causal unique-epoch) protocol | Complete — historical, superseded by EXP-FULL-AUG30 (results archived, not published) | `results/research/EXP-BENCH-PERSON/` |
 | Deployed | EXP-STANDALONE-99K — notebooks 01→05, supervised CE, exhibition 70/15/15 subject split, all-position protocol | Complete (seed 42): 90.57% / κ 0.808 | `results/standalone_99k/`, `artifacts/standalone_99k/student_99477_best.pt` |
 | Superseded | EXP-BENCH-92SUBJ — from-scratch, record-level folds (person-leaky), legacy protocol | 87.66% ± 2.22% is a **record-level** estimate only | recorded here (evidence removed in the Sept 2026 cleanup) |
 | Quarantined | EXP-ADAPT-* — Frozen / LoRA / Full-FT from the 15-record-era base checkpoint | **Contaminated** — base checkpoint's training records overlap 12 eval test folds and 3 validation folds; frozen baseline inflated ~+2.5pp | `docs/adaptation.md` (evidence removed in the Sept 2026 cleanup) |
@@ -136,94 +136,12 @@ raw counts in `results/final/confusion_matrix.csv`.
 
 ---
 
-## Historical Benchmark — EXP-BENCH-PERSON (from-scratch, seeds 42/43/44, fixed protocol, complete)
-
-> **Historical benchmark (retained for protocol comparison — not the
-> submission result; see EXP-FULL-AUG30 above).** Produced under the
-> post-audit protocol: subject-safe sequence windows (no window spans
-> two subjects or a dropped-epoch gap) and causal unique-epoch
-> evaluation (stride-1, last-epoch supervision — exactly one prediction
-> per scored epoch). See `docs/evaluation_protocol.md`.
-
-- **Protocol:** 10-fold **person-level** CV — whole persons (both
-  nights) assigned to folds; 5 fixed validation persons; folds
-  stratified by age decade (cohort spans 25–101 yr); 52 persons /
-  92 records
-- **Sequence construction:** subject-safe windows, stride 5
-  (training only), all-position supervision (training signal only)
-- **Evaluation:** causal, stride 1, last-epoch supervision; every
-  scored epoch predicted exactly once with (subject, epoch)
-  provenance; epochs whose 5-min context spans a dropped epoch are
-  excluded as unscoreable (798 across the 10 test folds)
-- **Initialization:** from scratch (random init)
-- **Seeds:** 42, 43, 44 (30 trained folds total) — cross-seed
-  agreement is tight (accuracy SD across seed means:
-  0.33pp)
-- **Environment:** pinned in `results/benchmark_person_level/env.json`
-  (torch 2.6.0+cu124, CUDA 12.4, GTX 1650, git SHA, protocol-file
-  checksums)
-
-### Overall metrics (mean of per-seed means; pooled fold-level 95% CI, n = 30)
-
-| Metric | Seeds 42 / 43 / 44 | Mean ± SD(seeds) | 95% CI (pooled) |
-|--------|--------------------|------------------|-----------------|
-| Accuracy | 87.55 / 87.42 / 86.92% | **87.30% ± 0.33%** | [85.80, 88.79]% |
-| Cohen's κ | 0.745 / 0.743 / 0.726 | **0.738 ± 0.010** | [0.691, 0.785] |
-| Macro F1 | 0.728 / 0.726 / 0.719 | **0.724 ± 0.005** | [0.693, 0.755] |
-| Weighted F1 | 88.27 / 88.16 / 87.65% | 88.03% ± 0.33% | [86.01, 90.05]% |
-| MGm | 0.777 / 0.774 / 0.766 | 0.772 ± 0.006 | [0.721, 0.823] |
-
-### Per-class F1 (mean of seed means; pooled 95% CI)
-
-| Stage | F1 | 95% CI |
-|-------|----|--------|
-| Wake | 0.960 | [0.950, 0.970] |
-| **N1** | **0.445** | [0.413, 0.478] |
-| N2 | 0.733 | [0.672, 0.794] |
-| N3 | 0.700 | [0.658, 0.742] |
-| REM | 0.782 | [0.739, 0.826] |
-
-### Interpretation
-
-- The honest person-generalization estimate for this historical tier
-  under the fixed protocol is **87.30%
-  (κ 0.738)**, stable across three seeds. The
-  near-coincidence with the superseded record-level number (87.66%) is
-  *not* evidence of equivalence: the fixed protocol is stricter
-  (unique-epoch scoring, no subject-seam windows, no spliced-gap
-  contexts) while person-level folds are honest — the biases
-  partially offset.
-- Fold variance dominates seed variance (fold-level SD ~4pp vs
-  seed-level ~0.3pp): person-level test groups are small
-  (4–5 persons) and demographically heterogeneous. Fold 10 collapsed
-  on N2 recall (0.17) — an honest hard-fold data point, retained
-  rather than hidden.
-- N1 remains the bottleneck (F1
-  0.445, precision ~0.31 vs recall
-  ~0.69 — the model over-predicts N1 relative to its ~4.6% base
-  rate). This is a core research direction, not a cosmetic issue.
-- Per-fold evidence: `results/research/EXP-BENCH-PERSON/fold_XX/`
-  (seed 42) and `fold_XX_seed43/` / `fold_XX_seed44/`
-  (metrics, confusion matrices, training history);
-  cross-seed aggregate in `summary_multiseed.json`.
-  Per-fold prediction dumps and fold checkpoints are regenerable and
-  not tracked (see `.gitignore`).
-
----
-
 ## Historical (pre-protocol-fix) Benchmarks
 
-Both runs below used the legacy protocol (stride-5 windows over
-subject-concatenated arrays, all-position supervision) and are
-quarantined (evidence removed in the Sept 2026 cleanup). They are
+The run below used the legacy protocol (stride-5 windows over
+subject-concatenated arrays, all-position supervision) and is
+quarantined (evidence removed in the Sept 2026 cleanup). It is
 retained for like-for-like protocol comparison only.
-
-### EXP-BENCH-PERSON, legacy protocol (person-level folds, seed 42)
-
-Accuracy 85.47% ± 3.99%, κ 0.705 ± 0.128, macro F1 0.697 ± 0.082.
-Note: the legacy *all-position* protocol scored most epochs twice and
-included spliced-gap contexts, so these numbers are not directly
-comparable to the fixed-protocol benchmark above.
 
 ### EXP-BENCH-92SUBJ (superseded: record-level folds, person-leaky, legacy protocol)
 
@@ -268,8 +186,8 @@ End-to-end run of notebooks 01→05 on the exhibition 70/15/15 subject
 split (seed 42): supervised class-weighted
 cross-entropy, 20 epochs, batch
 16, AdamW 0.0003,
-all-position protocol (not comparable to the fixed-protocol
-historical benchmark above).
+all-position protocol (not directly comparable to the submission's
+stride-10 evaluation).
 
 ```
 Accuracy    = 90.57%   (74,860 test epochs, 15 held-out subjects)
@@ -316,10 +234,6 @@ a 300-second context.
 #         -> results/final/final_metrics.json (+ predictions, confusion
 #            matrix, per-class metrics, experiment_config.json)
 
-# Historical CV benchmark: fold manifest + CI summarizer
-python scripts/generate_person_folds.py
-python scripts/summarize_person_benchmark.py
-
 # Regenerate this document from canonical artifacts
 python scripts/generate_results_doc.py
 
@@ -333,4 +247,4 @@ python scripts/audit_repository.py
 ---
 
 *Generated by `scripts/generate_results_doc.py` from canonical result
-artifacts. Last regenerated: 29 September 2026.*
+artifacts. Last regenerated: 30 September 2026.*

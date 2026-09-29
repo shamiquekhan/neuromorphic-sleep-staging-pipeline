@@ -77,5 +77,5 @@ comparable to the 92-subject benchmark numbers.
 
 ---
 
-*Archived September 2026. Primary benchmark: 92-subject eligible cohort,
+*Archived September 2026. Historical benchmark: 92-subject eligible cohort,
 10-fold subject-level CV (`docs/results.md`).*

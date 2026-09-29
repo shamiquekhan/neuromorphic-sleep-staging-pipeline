@@ -30,7 +30,7 @@ The methodology centers on three commitments:
 |----|-----------|--------|
 | EXP-DEV-15SUBJ | 15-record development benchmark, 4-fold CV | Archived (historical) |
 | EXP-BENCH-92SUBJ | 92-record from-scratch benchmark, record-level folds | Complete (seed 42) — **superseded** (person leakage) |
-| **EXP-BENCH-PERSON** | Person-level from-scratch benchmark, 10-fold CV over 52 persons | **Complete** (seeds 42/43/44): 87.30% ± 0.33% — **primary** |
+| **EXP-BENCH-PERSON** | Person-level from-scratch benchmark, 10-fold CV over 52 persons | ✔ complete — historical, superseded by EXP-FULL-AUG30 |
 | EXP-STANDALONE-99K | Notebooks 01→05 supervised run on the exhibition 70/15/15 split | Complete (seed 42): 90.57% acc, κ 0.808 — `results/standalone_99k/` |
 | EXP-ADAPT-FROZEN / -LORA-R8-CNNHEAD / -FULLFT | Three adaptation regimes from one base checkpoint | Quarantined (contaminated base + record-level folds) — re-run pending |
 | EXP-LORA-R{2,4,16}-CNNHEAD | LoRA rank ablation | Pending leak-free base + person-level folds |
@@ -47,7 +47,7 @@ runner's refusal guard.
 Definitions the matrix depends on:
 
 - **From-scratch training:** random initialization → all parameters
-  trained (the primary benchmark).
+  trained (the historical benchmark).
 - **Full fine-tuning:** pretrained base checkpoint → all 99,477
   parameters unfrozen → task adaptation.
 - **LoRA:** base weights frozen; low-rank A/B adapters trainable in
@@ -113,9 +113,9 @@ the causal one-prediction-per-epoch protocol (see
 > teacher-distillation phase was removed from the codebase in the
 > September 2026 cleanup and is not part of the reported pipeline.
 
-## Phase 4 — Benchmarks (record-level superseded; person-level primary)
+## Phase 4 — Benchmarks (record-level superseded; person-level historical)
 
-- **EXP-BENCH-PERSON (primary, in progress):** 10-fold **person-level**
+- **EXP-BENCH-PERSON (historical, complete):** 10-fold **person-level**
   CV over 52 persons — whole persons (both nights) per fold role, 5
   fixed validation persons, stratified by age decade
   (`configs/benchmark_person_level.yaml`)
@@ -132,8 +132,8 @@ the causal one-prediction-per-epoch protocol (see
 - The runner refuses person-leaky folds unless `--allow-record-level` is
   passed explicitly
 
-Current evidence: person-level seeds 42/43/44 complete — **87.30% ± 0.33%,
-κ 0.738, macro-F1 0.724** (primary); the standalone notebook run adds a
+Current evidence: person-level seeds 42/43/44 complete (historical,
+superseded by EXP-FULL-AUG30); the standalone notebook run adds a
 single-split reference point (90.57%, κ 0.808) — see
 [`RESULTS.md`](RESULTS.md) for numbers, evidence tiers, and caveats.
 
@@ -181,7 +181,7 @@ parameters), alpha and dropout ablations, paired fold-level statistics
 
 | Aspect | Implementation |
 |--------|---------------|
-| Seeds | Seeded Python/NumPy/Torch; primary benchmark protocol uses seeds 42/43/44 (43/44 pending) |
+| Seeds | Seeded Python/NumPy/Torch; historical benchmark protocol uses seeds 42/43/44 (archived) |
 | Folds | Canonical, manifest-pinned subject-level folds |
 | Configs | One YAML per experiment ID under `configs/` |
 | Integrity | `scripts/verify_protocol.py` gate |

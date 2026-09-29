@@ -185,6 +185,10 @@ sha256sum data/manifests/sleep_edf_full.csv
 
 ## Person-Level Benchmark Reproduction (EXP-BENCH-PERSON)
 
+> **Archive only.** This benchmark is historical and superseded by
+> EXP-FULL-AUG30; the steps below remain for reproducing the archived
+> artifacts under `results/research/EXP-BENCH-PERSON/`.
+
 ### 1. Generate Person-Level Folds (if not present)
 ```bash
 python scripts/generate_person_folds.py
@@ -220,9 +224,6 @@ done
 python scripts/summarize_person_benchmark.py --results-dir results/research/EXP-BENCH-PERSON
 ```
 **Outputs:** `results/research/EXP-BENCH-PERSON/summary_with_ci.json`, markdown table
-
-**Expected (30 folds × 3 seeds):** accuracy 87.30% ± 0.33%, κ 0.738 ± 0.010,
-macro-F1 0.724 ± 0.005
 
 ---
 
@@ -276,9 +277,6 @@ pytest tests/ -v
 
 ### Notebook 05 Test Metrics (other tiers, for cross-checks)
 **EXP-STANDALONE-99K (deployed checkpoint):** accuracy 90.57%, κ 0.8080, macro-F1 0.7490
-
-**EXP-BENCH-PERSON (historical benchmark):** accuracy 87.30% ± 0.33%, κ 0.738 ± 0.010,
-macro-F1 0.724 ± 0.005
 
 ---
 

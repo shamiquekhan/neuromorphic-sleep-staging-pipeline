@@ -105,28 +105,10 @@ three splits (Notebook 05 §14; artifact `results/final/fit_diagnosis.json`):
 
 ![Held-out test confusion matrix — EXP-FULL-AUG30](results/final/confusion_matrix.png)
 
-> **Protocol distinction:** the sections below are **historical benchmarks** on different
-> cohorts and evaluation semantics — their numbers are not directly comparable to the final
-> submission result above. Quarantined legacy results are recorded in
+> **Protocol distinction:** the section below is a **historical** result on a
+> different cohort and evaluation semantics — its numbers are not directly comparable
+> to the final submission result above. Quarantined legacy results are recorded in
 > `docs/RESULTS.md` and `docs/adaptation.md` only.
-
-### Historical Benchmark: Person-Level 10-Fold CV (EXP-BENCH-PERSON)
-
-**Dataset:** Sleep-EDF Expanded — 92-record eligible cohort (52 persons), 10-fold person-level CV
-**Seeds:** 3 seeds × 10 folds = 30 folds per method
-**Model:** Improved Student — Trained from Scratch (99,477 params)
-**Protocol:** Causal unique-epoch evaluation (stride=1, last-epoch supervision)
-
-
-#### Per-Class Performance (Person-Level, 30 Folds)
-
-| Stage | F1 | 95% CI |
-|-------|-----|--------|
-| Wake | 0.960 ± 0.026 | [0.950, 0.970] |
-| N1 | **0.445 ± 0.087** | [0.413, 0.478] |
-| N2 | 0.733 ± 0.163 | [0.672, 0.794] |
-| N3 | 0.700 ± 0.112 | [0.658, 0.742] |
-| REM | 0.782 ± 0.116 | [0.739, 0.826] |
 
 ### Historical Standalone Result (EXP-STANDALONE-99K — Notebooks 01→05, supervised CE)
 
@@ -248,7 +230,7 @@ neurosleep/
 │
 ├── configs/                              # YAML configuration files
 │   ├── experiments/
-│   │   └── person_level_cv.yaml          # Primary benchmark (EXP-BENCH-PERSON)
+│   │   └── person_level_cv.yaml          # Historical benchmark config (archive)
 │   └── model/
 │       └── improved_student.yaml         # Model architecture spec
 │
@@ -259,7 +241,7 @@ neurosleep/
 │
 ├── results/                              # Evaluation results
 │   ├── research/
-│   │   └── EXP-BENCH-PERSON/             # Historical CV benchmark results
+│   │   └── EXP-BENCH-PERSON/             # Historical benchmark archive (not published)
 │   ├── standalone_99k/                   # Deployed standalone run results
 │   └── final/
 │       ├── final_metrics.json            # Final submission metrics (primary)
@@ -394,21 +376,6 @@ jupyter nbconvert --to notebook --execute notebooks/04_student_99k_complete_trai
 jupyter nbconvert --to notebook --execute notebooks/05_evaluation_and_benchmarking.ipynb --inplace
 ```
 
-### Run Person-Level Benchmark (Primary)
-
-```bash
-# Verify protocol first
-python scripts/verify_protocol.py
-
-# The benchmark is complete (seeds 42/43/44, 30 folds) and its evidence
-# lives in results/research/EXP-BENCH-PERSON/. To regenerate the summary:
-python scripts/summarize_person_benchmark.py --results-dir results/research/EXP-BENCH-PERSON
-```
-
-The fold runner used for this benchmark is preserved in the project
-history (`scripts/run_person_level_benchmark.py`); the completed result
-evidence is authoritative.
-
 ---
 
 ## Dataset
@@ -535,15 +502,15 @@ model = apply_lora(model, lora_config)
 
 ### Per-Stage Analysis
 
-**N1 (F1=0.445):** Most challenging stage due to:
+**N1 (F1=0.532):** Most challenging stage due to:
 - Brief, transitional nature (1-7 minutes)
 - Low prevalence (~4.6% of epochs)
 - Physiological overlap with Wake and N2
 
 **Strengths:**
-- High Wake F1 (0.960) — excellent awake detection
-- Reliable N2 detection (0.733) — the most prevalent sleep stage
-- Strong REM (0.782) and N3 (0.700) performance despite low support
+- High Wake F1 (0.980) — excellent awake detection
+- Reliable N2 detection (0.832) — the most prevalent sleep stage
+- Strong REM (0.842) and N3 (0.763) performance despite low support
 
 ---
 
@@ -618,12 +585,6 @@ jupyter nbconvert --to notebook --execute notebooks/03_exploratory_data_analysis
 jupyter nbconvert --to notebook --execute notebooks/04_student_99k_complete_training.ipynb --inplace
 jupyter nbconvert --to notebook --execute notebooks/05_evaluation_and_benchmarking.ipynb --inplace
 ```
-
-### Primary Benchmark
-
-Already complete — see `results/research/EXP-BENCH-PERSON/` and
-`docs/RESULTS.md`. Regenerate the summary with
-`python scripts/summarize_person_benchmark.py --results-dir results/research/EXP-BENCH-PERSON`.
 
 ### Adaptation study (quarantined — do not cite as generalization)
 

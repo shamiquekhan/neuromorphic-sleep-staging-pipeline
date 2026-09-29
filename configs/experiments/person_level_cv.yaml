@@ -1,6 +1,6 @@
-# NeuroSleep — Person-Level 10-Fold CV (Primary Research Benchmark)
+# NeuroSleep — Person-Level 10-Fold CV (Historical Research Benchmark)
 # ==================================================================
-# This is the PRIMARY benchmark configuration as of September 2026.
+# This is the historical benchmark configuration (completed, archived Sept 2026).
 # It uses person-level splits (52 persons, 92 records) with causal evaluation.
 #
 # KEY DISTINCTION FROM LEGACY:

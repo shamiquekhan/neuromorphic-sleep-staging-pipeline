@@ -25,16 +25,6 @@ def load_final_metrics() -> dict:
 
 
 @st.cache_data
-def load_primary_benchmark() -> dict:
-    """Load the historical person-level benchmark (mean/std schema)."""
-    path = RESULTS_PATH.parent.parent / "research" / "EXP-BENCH-PERSON" / "final_metrics.json"
-    if path.exists():
-        with open(path) as f:
-            return json.load(f)
-    return {}
-
-
-@st.cache_data
 def load_submission_per_class() -> dict:
     """Load per-class precision/recall/F1 for the final submission test set."""
     path = RESULTS_PATH.parent / "per_class_metrics.csv"

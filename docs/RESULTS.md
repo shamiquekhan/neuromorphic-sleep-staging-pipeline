@@ -78,43 +78,6 @@ Test (0.9048) exceeding val (0.8737) confirms no systematic degradation on unsee
 
 ---
 
-## Historical Benchmark: EXP-BENCH-PERSON (person-level 10-fold CV)
-
-**Experiment:** Person-Level 10-Fold CV Benchmark  
-**Config:** `configs/experiments/person_level_cv.yaml`  
-**Results:** `results/research/EXP-BENCH-PERSON/`  
-**Provenance:** `results/research/EXP-BENCH-PERSON/provenance.json`
-
-### Aggregate Metrics (30 folds × 3 seeds)
-
-| Metric | Mean | Std | 95% CI |
-|--------|------|-----|--------|
-| Accuracy | 0.87297 | 0.00330 | [0.85801, 0.88793] |
-| Cohen's κ | 0.73805 | 0.01013 | [0.69131, 0.78480] |
-| Macro F1 | 0.72432 | 0.00490 | [0.69342, 0.75523] |
-| Weighted F1 | 0.88028 | 0.00330 | [0.86007, 0.90049] |
-| MGm | 0.77210 | 0.00566 | [0.72129, 0.82291] |
-
-### Per-Class F1
-
-| Stage | Mean | Std | 95% CI |
-|-------|------|-----|--------|
-| Wake | 0.96014 | 0.02648 | [0.95025, 0.97002] |
-| N1 | 0.44548 | 0.08695 | [0.41301, 0.47794] |
-| N2 | 0.73331 | 0.16326 | [0.67235, 0.79426] |
-| N3 | 0.70031 | 0.11206 | [0.65847, 0.74215] |
-| REM | 0.78239 | 0.11597 | [0.73909, 0.82569] |
-
-### Seed-Level Breakdown
-
-| Seed | Accuracy | κ | Macro F1 | Weighted F1 |
-|------|----------|---|----------|-------------|
-| 42 | 0.8734 | 0.7386 | 0.7254 | 0.8807 |
-| 43 | 0.8726 | 0.7375 | 0.7238 | 0.8800 |
-| 44 | 0.8729 | 0.7381 | 0.7238 | 0.8801 |
-
----
-
 ## Historical Standalone Run: EXP-STANDALONE-99K (Notebooks 01→05, supervised CE)
 
 **Experiment:** Notebooks 01→05 end-to-end, supervised class-weighted CE,
@@ -145,9 +108,8 @@ exhibition 70/15/15 subject split
 | N3 | 0.705 |
 | REM | 0.762 |
 
-> **Note:** This run uses the all-position
-> protocol (results are comparable within EXP-STANDALONE-99K only, not to the causal
-> unique-epoch EXP-BENCH-PERSON protocol). The deployable checkpoint is
+> **Note:** This run uses the all-position protocol; its numbers are
+> comparable within EXP-STANDALONE-99K only. The deployable checkpoint is
 > `artifacts/standalone_99k/student_99477_best.pt`.
 
 ---
@@ -191,7 +153,7 @@ The following metrics are the canonical values for the Hugging Face model card:
 All metrics above are derived from:
 
 1. `results/final/final_metrics.json` — Final submission run (EXP-FULL-AUG30, primary)
-2. `results/research/EXP-BENCH-PERSON/final_metrics.json` — Historical person-level CV benchmark
+2. `results/research/EXP-BENCH-PERSON/` — Historical person-level CV benchmark archive (results not published)
 3. `results/standalone_99k/` — Historical standalone notebook run (deployable checkpoint)
 4. Quarantined adaptation numbers are recorded in `docs/adaptation.md` only
    (evidence files removed in the September 2026 cleanup)

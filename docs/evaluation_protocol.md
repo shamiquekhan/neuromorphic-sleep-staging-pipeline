@@ -70,7 +70,7 @@ protocols are now separate by construction: train windows come from
 
 ## Splits
 
-All primary numbers come from 10-fold **person-level** cross
+All benchmark numbers come from 10-fold **person-level** cross
 validation over the 92-record / 52-person eligible cohort
 (``data/manifests/person_folds_52subj.json``): whole persons (both
 nights) are assigned to train/test, with 5 fixed validation persons per
