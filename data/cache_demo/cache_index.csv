@@ -1,0 +1,4 @@
+subject_id,night,cohort,split,n_epochs,n_flagged,n_skipped_windows,cache_path
+AGE_001,N1,AGE,train,300,2705,0,/home/shamique/projects/sleep/data/cache_demo/AGE_001_N1.npz
+TEZ_002,N1,TEZ,train,300,303,0,/home/shamique/projects/sleep/data/cache_demo/TEZ_002_N1.npz
+AGE_002,N1,AGE,train,300,2730,0,/home/shamique/projects/sleep/data/cache_demo/AGE_002_N1.npz

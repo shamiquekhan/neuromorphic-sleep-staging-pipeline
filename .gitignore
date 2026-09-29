@@ -67,6 +67,11 @@ data/cache_full/*
 !data/cache_full/cache_index.csv
 !data/cache_full/preprocessing_summary.json
 
+# Demo cache subset committed for Streamlit Cloud (regenerate:
+# python scripts/build_demo_cache.py) — negations must follow *.npy/*.npz
+!data/cache_demo/*.npy
+!data/cache_demo/*.npz
+
 # Agent skill/worktree dirs (never commit)
 .agents/
 

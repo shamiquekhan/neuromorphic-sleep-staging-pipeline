@@ -13,10 +13,12 @@ RESULTS_PATH = PROJECT_ROOT / "results" / "final" / "final_metrics.json"
 def _resolve_cache_dir() -> Path:
     """Resolve the default epoch cache directory.
 
-    Prefers the canonical Notebook 02 output (``data/cache_full`` — 197
-    recordings, ``*_epochs.npy`` + ``*_meta.npz`` sidecars). Falls back to
-    the legacy night-1 cache (``data/cache``, ``*_nightE0.npz``) when the
-    canonical cache has not been built yet.
+    Order:
+    1. ``data/cache_full`` — canonical Notebook 02 output (197 recordings,
+       ``*_epochs.npy`` + ``*_meta.npz`` sidecars).
+    2. ``data/cache`` — legacy night-1 cache (``*_nightE0.npz``).
+    3. ``data/cache_demo`` — small committed subset so the deployed
+       Streamlit Cloud app has data without the full cache.
     """
     full = PROJECT_ROOT / "data" / "cache_full"
     if (full / "cache_index.csv").exists():
@@ -24,6 +26,9 @@ def _resolve_cache_dir() -> Path:
     legacy = PROJECT_ROOT / "data" / "cache"
     if legacy.exists() and any(legacy.glob("*_night*.npz")):
         return legacy
+    demo = PROJECT_ROOT / "data" / "cache_demo"
+    if any(demo.glob("*_meta.npz")):
+        return demo
     return full
 
 
