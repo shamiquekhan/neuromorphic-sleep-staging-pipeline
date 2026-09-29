@@ -30,7 +30,8 @@ subjects = available_subjects()
 if not subjects:
     st.warning(
         f"No cached data found in `{CACHE_DIR}`. "
-        "Run Notebook 02 first to build `data/cache_full/`."
+        "Run Notebook 02 first to build `data/cache_full/`, or restore "
+        "the committed `data/cache_demo/` subset."
     )
     st.stop()
 

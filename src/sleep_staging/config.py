@@ -15,13 +15,19 @@ def _resolve_cache_dir() -> Path:
 
     Order:
     1. ``data/cache_full`` — canonical Notebook 02 output (197 recordings,
-       ``*_epochs.npy`` + ``*_meta.npz`` sidecars).
+       ``*_epochs.npy`` + ``*_meta.npz`` sidecars). Requires actual epoch
+       files: the committed ``cache_index.csv`` alone must not claim the
+       directory on a clean checkout (Streamlit Cloud), or the demo
+       fallback would never be reached and the app would find zero
+       subjects.
     2. ``data/cache`` — legacy night-1 cache (``*_nightE0.npz``).
     3. ``data/cache_demo`` — small committed subset so the deployed
        Streamlit Cloud app has data without the full cache.
+
+    Falls back to ``data/cache_full`` when nothing is populated yet.
     """
     full = PROJECT_ROOT / "data" / "cache_full"
-    if (full / "cache_index.csv").exists():
+    if any(full.glob("*_meta.npz")):
         return full
     legacy = PROJECT_ROOT / "data" / "cache"
     if legacy.exists() and any(legacy.glob("*_night*.npz")):

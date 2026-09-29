@@ -82,7 +82,7 @@ Definitions the matrix depends on:
 | Normalization | z-score per channel | Amplitude invariance |
 | QC flags | clipping / flatline / NaN | Stored; not used to filter training |
 
-Deliverable: cached per-subject `.npz` epochs (`data/cache/sleep_edf/`).
+Deliverable: cached per-subject epochs (`data/cache_full/`).
 
 ## Phase 3 — Model Development
 
