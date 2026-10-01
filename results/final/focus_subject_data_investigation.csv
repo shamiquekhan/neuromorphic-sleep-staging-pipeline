@@ -1,0 +1,27 @@
+Subject,Metric,Value,Source
+TEZ_000,Recordings,2,data/cache_full/cache_index.csv
+TEZ_000,"Epochs (scored, cache)",2132,data/cache_full/cache_index.csv
+TEZ_000,Annotation span (scored epochs x 30 s),17.8 h (9.1 + 8.7),data/cache_full/cache_index.csv
+TEZ_000,Annotation span (full hypnogram onsets),NOT AVAILABLE FROM COMMITTED ARTIFACTS,raw hypnogram EDFs (not in repository)
+TEZ_000,QC-flagged epochs,145 (6.7% mean of per-night rates),data/cache_full/cache_index.csv
+TEZ_000,Labels scored,2130,results/final/predictions_full_dataset.csv
+TEZ_000,"Sleep-stage labels (true, scored)","Wake=305, N1=163, N2=1115, N3=245, REM=302",results/final/predictions_full_dataset.csv
+TEZ_000,Hypnogram annotations (total / unknown / movement),NOT AVAILABLE FROM COMMITTED ARTIFACTS,raw hypnogram EDFs (not in repository)
+TEZ_000,Movement-time annotations,NOT AVAILABLE FROM COMMITTED ARTIFACTS,raw hypnogram EDFs (not in repository)
+TEZ_000,Windows (no-gap theoretical),213,data/cache_full/cache_index.csv + stride-10 rule
+TEZ_000,"Windows (actual, gap-aware)",213,notebook 05 section 5 sample list (test_ds)
+TEZ_000,Windows dropped by gap-aware protocol,0 of 213,theoretical minus actual
+TEZ_000,Accuracy by night,N1 69.08% (n=1090) | N2 80.19% (n=1040),results/final/predictions_full_dataset.csv + notebook 05 section 5 sample list (test_ds)
+TEZ_008,Recordings,2,data/cache_full/cache_index.csv
+TEZ_008,"Epochs (scored, cache)",2022,data/cache_full/cache_index.csv
+TEZ_008,Annotation span (scored epochs x 30 s),16.9 h (8.7 + 8.2),data/cache_full/cache_index.csv
+TEZ_008,Annotation span (full hypnogram onsets),NOT AVAILABLE FROM COMMITTED ARTIFACTS,raw hypnogram EDFs (not in repository)
+TEZ_008,QC-flagged epochs,189 (9.3% mean of per-night rates),data/cache_full/cache_index.csv
+TEZ_008,Labels scored,1950,results/final/predictions_full_dataset.csv
+TEZ_008,"Sleep-stage labels (true, scored)","Wake=180, N1=93, N2=551, N3=599, REM=527",results/final/predictions_full_dataset.csv
+TEZ_008,Hypnogram annotations (total / unknown / movement),NOT AVAILABLE FROM COMMITTED ARTIFACTS,raw hypnogram EDFs (not in repository)
+TEZ_008,Movement-time annotations,NOT AVAILABLE FROM COMMITTED ARTIFACTS,raw hypnogram EDFs (not in repository)
+TEZ_008,Windows (no-gap theoretical),202,data/cache_full/cache_index.csv + stride-10 rule
+TEZ_008,"Windows (actual, gap-aware)",195,notebook 05 section 5 sample list (test_ds)
+TEZ_008,Windows dropped by gap-aware protocol,7 of 202,theoretical minus actual
+TEZ_008,Accuracy by night,N1 79.41% (n=1010) | N2 80.53% (n=940),results/final/predictions_full_dataset.csv + notebook 05 section 5 sample list (test_ds)

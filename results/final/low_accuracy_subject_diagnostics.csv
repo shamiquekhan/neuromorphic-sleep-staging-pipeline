@@ -1,0 +1,7 @@
+Subject,Accuracy,Weakest Class,Weakest-Class Recall,Main Confusion,Main Confusion Errors,Pct Of Subject,Pct Of True Class,Mean Confidence Correct,Mean Confidence Incorrect
+AGE_022,89.21,N1,47.6,Wake -> N1,125,2.29,3.5,0.952,0.738
+AGE_033,90.04,N2,71.8,N2 -> N1,141,2.55,13.0,0.958,0.752
+TEZ_000,74.51,N3,65.3,N2 -> N1,222,10.42,19.9,0.882,0.734
+TEZ_005,86.53,N1,53.1,N3 -> N2,59,3.41,20.2,0.936,0.766
+TEZ_008,79.95,N3,71.5,N3 -> N2,166,8.51,27.7,0.936,0.803
+TEZ_013,83.16,Wake,57.6,N3 -> N2,161,8.34,30.4,0.927,0.773
