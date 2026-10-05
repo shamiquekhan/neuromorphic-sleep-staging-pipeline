@@ -1,58 +1,58 @@
 {
   "protocol": "Fit diagnosis for EXP-FULL-AUG30 (train/val/test gap, no retraining)",
-  "generated_at": "2026-09-29T17:26:28.857869+00:00",
+  "generated_at": "2026-10-05T08:54:20.564911+00:00",
   "method": "Frozen checkpoint evaluated on clean stride-10 windows of all three splits (augmentation off)",
   "splits": {
     "train": {
       "windows": 31285,
       "labels_scored": 312850,
-      "accuracy": 0.924957647434873,
-      "cohen_kappa": 0.8652677041343044,
-      "macro_f1": 0.8328011179459223,
+      "accuracy": 0.9245165414735497,
+      "cohen_kappa": 0.8646702637954335,
+      "macro_f1": 0.8323795363262914,
       "per_class_f1": {
-        "Wake": 0.9833867454845342,
-        "N1": 0.6267363390489195,
-        "N2": 0.8714446139148215,
-        "N3": 0.7872120021432398,
-        "REM": 0.8952258891380968
+        "Wake": 0.9829180770111725,
+        "N1": 0.6263565086453087,
+        "N2": 0.8726511131137145,
+        "N3": 0.784115368058545,
+        "REM": 0.8958566148027164
       }
     },
     "val": {
       "windows": 7008,
       "labels_scored": 70080,
-      "accuracy": 0.8737442922374429,
-      "cohen_kappa": 0.7781778916992217,
-      "macro_f1": 0.764512526372738,
+      "accuracy": 0.8749001141552512,
+      "cohen_kappa": 0.7804882712633755,
+      "macro_f1": 0.7666558936883077,
       "per_class_f1": {
-        "Wake": 0.9577347491151363,
-        "N1": 0.5210379406595679,
-        "N2": 0.7867609903991916,
-        "N3": 0.7408077154912598,
-        "REM": 0.8162212361985347
+        "Wake": 0.9572398137638692,
+        "N1": 0.5211281946848589,
+        "N2": 0.79552566269827,
+        "N3": 0.7426481791863477,
+        "REM": 0.8167376181081923
       }
     },
     "test": {
       "windows": 7220,
       "labels_scored": 72200,
-      "accuracy": 0.9048199445983379,
-      "cohen_kappa": 0.8283245889712245,
-      "macro_f1": 0.7898514856404757,
+      "accuracy": 0.9028947368421053,
+      "cohen_kappa": 0.8251742199872384,
+      "macro_f1": 0.787349243272226,
       "per_class_f1": {
-        "Wake": 0.9800418671430607,
-        "N1": 0.5315478892419429,
-        "N2": 0.8322464168601009,
-        "N3": 0.7631460674157303,
-        "REM": 0.8422751875415441
+        "Wake": 0.9791282591519621,
+        "N1": 0.5228353422536769,
+        "N2": 0.8323494687131051,
+        "N3": 0.76313033068981,
+        "REM": 0.8393028155525761
       }
     }
   },
   "gaps": {
-    "train_minus_val_accuracy": 0.05121335519743009,
-    "train_minus_test_accuracy": 0.020137702836535043,
-    "val_minus_test_accuracy": -0.031075652360895045
+    "train_minus_val_accuracy": 0.04961642731829852,
+    "train_minus_test_accuracy": 0.021621804631444363,
+    "val_minus_test_accuracy": -0.027994622686854154
   },
   "checkpoint_best_epoch": 12,
-  "checkpoint_best_val_macro_f1": 0.764512526372738,
+  "checkpoint_best_val_macro_f1": 0.7666558936883077,
   "weakest_train_class": "N1",
-  "verdict": "Mild, controlled generalization gap (5.12 pp train-val): train accuracy 0.9250 is not saturated and the weakest train class (N1, F1 0.627) is weak even on training data \u2014 errors are dominated by label ambiguity, not memorization. Test (0.9048) exceeding val (0.8737) confirms no systematic degradation on unseen subjects."
+  "verdict": "Mild, controlled generalization gap (4.96 pp train-val): train accuracy 0.9245 is not saturated and the weakest train class (N1, F1 0.626) is weak even on training data \u2014 errors are dominated by label ambiguity, not memorization. Test (0.9029) exceeding val (0.8749) confirms no systematic degradation on unseen subjects."
 }

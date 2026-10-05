@@ -11,7 +11,7 @@ TEZ_000,Movement-time annotations,NOT AVAILABLE FROM COMMITTED ARTIFACTS,raw hyp
 TEZ_000,Windows (no-gap theoretical),213,data/cache_full/cache_index.csv + stride-10 rule
 TEZ_000,"Windows (actual, gap-aware)",213,notebook 05 section 5 sample list (test_ds)
 TEZ_000,Windows dropped by gap-aware protocol,0 of 213,theoretical minus actual
-TEZ_000,Accuracy by night,N1 69.08% (n=1090) | N2 80.19% (n=1040),results/final/predictions_full_dataset.csv + notebook 05 section 5 sample list (test_ds)
+TEZ_000,Accuracy by night,N1 67.80% (n=1090) | N2 79.71% (n=1040),results/final/predictions_full_dataset.csv + notebook 05 section 5 sample list (test_ds)
 TEZ_008,Recordings,2,data/cache_full/cache_index.csv
 TEZ_008,"Epochs (scored, cache)",2022,data/cache_full/cache_index.csv
 TEZ_008,Annotation span (scored epochs x 30 s),16.9 h (8.7 + 8.2),data/cache_full/cache_index.csv
@@ -24,4 +24,4 @@ TEZ_008,Movement-time annotations,NOT AVAILABLE FROM COMMITTED ARTIFACTS,raw hyp
 TEZ_008,Windows (no-gap theoretical),202,data/cache_full/cache_index.csv + stride-10 rule
 TEZ_008,"Windows (actual, gap-aware)",195,notebook 05 section 5 sample list (test_ds)
 TEZ_008,Windows dropped by gap-aware protocol,7 of 202,theoretical minus actual
-TEZ_008,Accuracy by night,N1 79.41% (n=1010) | N2 80.53% (n=940),results/final/predictions_full_dataset.csv + notebook 05 section 5 sample list (test_ds)
+TEZ_008,Accuracy by night,N1 79.90% (n=1010) | N2 81.38% (n=940),results/final/predictions_full_dataset.csv + notebook 05 section 5 sample list (test_ds)
