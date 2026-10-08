@@ -6,7 +6,7 @@ Supports training on:
 3. Sleep-EDF + SHHS N1 enrichment
 4. SHHS pretraining → Sleep-EDF LoRA adaptation
 
-All experiments use the same Improved Student architecture.
+All experiments use the same NeuroSleep Model architecture.
 """
 
 import logging
@@ -259,8 +259,8 @@ def run_experiment(
 
     # Build model
     config = StudentConfig()
-    from ..models.improved_student import ImprovedStudent
-    model = ImprovedStudent(config).to(device)
+    from ..models.neurosleep_model import NeuroSleepModel
+    model = NeuroSleepModel(config).to(device)
 
     # Loss with class weights
     train_epochs, train_labels, _ = load_subjects(train_subjects, cache_dir)

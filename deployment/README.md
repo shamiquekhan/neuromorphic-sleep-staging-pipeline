@@ -25,7 +25,7 @@ deployment/app.py
     ↓
 sleep_staging.inference.predictor
     ↓
-sleep_staging.models.student
+sleep_staging.models.neurosleep_model
     ↓
 student_99477_best.pt (99,477 params)
     ↓

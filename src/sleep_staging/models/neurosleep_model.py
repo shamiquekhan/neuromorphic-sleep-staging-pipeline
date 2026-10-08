@@ -1,4 +1,4 @@
-"""Improved Student — final lightweight sleep-stage classifier.
+"""NeuroSleep Model — final lightweight sleep-stage classifier.
 
 99,477 parameters | 300s context | 5-class output
 Multi-Res Stem → Depthwise-Separable CNN → Gabor FEB → 2-layer GRU
@@ -39,7 +39,7 @@ GABOR_FREQ_MIN_HZ = 0.5
 GABOR_FREQ_MAX_HZ = 30.0
 
 
-class ImprovedStudent(nn.Module):
+class NeuroSleepModel(nn.Module):
     """Final lightweight student network for sleep-stage classification."""
 
     def __init__(self, config: StudentConfig | None = None):

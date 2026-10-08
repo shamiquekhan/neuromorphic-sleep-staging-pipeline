@@ -20,17 +20,17 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
 from sleep_staging.config import StudentConfig
-from sleep_staging.models.improved_student import (
+from sleep_staging.models.neurosleep_model import (
     GABOR_FREQ_MAX_HZ,
     GABOR_FREQ_MIN_HZ,
-    ImprovedStudent,
+    NeuroSleepModel,
     count_parameters,
 )
 
 
 @pytest.fixture
 def model():
-    return ImprovedStudent()
+    return NeuroSleepModel()
 
 
 class TestConfigContract:
@@ -40,7 +40,7 @@ class TestConfigContract:
 
     def test_layers_follow_config(self):
         cfg = StudentConfig(stem_width=12, gabor_out_dim=24)
-        m = ImprovedStudent(cfg)
+        m = NeuroSleepModel(cfg)
         # Stem widths
         assert m.stem_s[0].out_channels == 12
         assert m.stem_l[0].out_channels == 12
@@ -53,13 +53,13 @@ class TestConfigContract:
 
     def test_config_change_changes_architecture(self):
         """The pre-fix bug: config edits did nothing. Now they must."""
-        base = ImprovedStudent(StudentConfig())
-        wide = ImprovedStudent(StudentConfig(stem_width=16))
+        base = NeuroSleepModel(StudentConfig())
+        wide = NeuroSleepModel(StudentConfig(stem_width=16))
         assert count_parameters(wide) != count_parameters(base)
 
     def test_config_defaults_describe_trained_model(self):
         """Defaults must equal the trained architecture so a bare
-        ImprovedStudent() loads canonical checkpoints."""
+        NeuroSleepModel() loads canonical checkpoints."""
         cfg = StudentConfig()
         assert cfg.stem_width == 8
         assert cfg.gabor_out_dim == 16
@@ -75,7 +75,7 @@ class TestGaborConstraint:
 
     def test_band_survives_training(self):
         """Even extreme optimization cannot escape the band."""
-        m = ImprovedStudent()
+        m = NeuroSleepModel()
         opt = torch.optim.SGD(m.parameters(), lr=100.0)
         x = torch.randn(1, 10, 4, 3000)
         for _ in range(3):
@@ -105,7 +105,7 @@ class TestGaborConstraint:
     def test_legacy_out_of_band_checkpoint_is_clamped(self):
         """Legacy checkpoints with drifted frequencies must load and
         land inside the band, with the clamp recorded."""
-        m = ImprovedStudent()
+        m = NeuroSleepModel()
         # Simulate a legacy state dict with the observed drift:
         # −4.8 Hz and +39.4 Hz (normalized by fs=100).
         sd = m.state_dict()
@@ -115,14 +115,14 @@ class TestGaborConstraint:
             [-0.048, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.394]
         )
         sd["gabor_sigma"] = torch.full((8,), 0.02)
-        m2 = ImprovedStudent()
+        m2 = NeuroSleepModel()
         m2.load_state_dict(sd)
         assert m2.gabor_freq_hz.min() >= GABOR_FREQ_MIN_HZ - 1e-6
         assert m2.gabor_freq_hz.max() <= GABOR_FREQ_MAX_HZ + 1e-6
         assert getattr(m2, "_legacy_gabor_clamped", False)
 
     def test_legacy_in_band_checkpoint_loads_unclamped(self):
-        m = ImprovedStudent()
+        m = NeuroSleepModel()
         sd = m.state_dict()
         sd.pop("gabor_freq_raw")
         sd.pop("gabor_sigma_raw")
@@ -131,7 +131,7 @@ class TestGaborConstraint:
         freq_hz = torch.linspace(1.0, 29.0, 8)
         sd["gabor_freq"] = freq_hz / 100.0
         sd["gabor_sigma"] = torch.full((8,), 0.02)
-        m2 = ImprovedStudent()
+        m2 = NeuroSleepModel()
         m2.load_state_dict(sd)
         assert not getattr(m2, "_legacy_gabor_clamped", False)
         torch.testing.assert_close(m2.gabor_freq_hz, freq_hz, rtol=1e-5, atol=1e-5)

@@ -29,7 +29,7 @@ This document provides a transparent, evidence-based assessment of every sleep s
 
 ## 1. Executive Summary
 
-The NeuroSleep Improved Student model (99,477 parameters) achieves strong overall accuracy on the 92-record cohort (record-level estimate — see the evidence-status header). The adaptation-era comparison below (full fine-tuning best, frozen transfer high) is **quarantined evidence**.
+The NeuroSleep Model (99,477 parameters) achieves strong overall accuracy on the 92-record cohort (record-level estimate — see the evidence-status header). The adaptation-era comparison below (full fine-tuning best, frozen transfer high) is **quarantined evidence**.
 
 | Stage | Frozen F1 | LoRA CNN+Head F1 | Full FT F1 | Status |
 |-------|-----------|------------------|------------|--------|

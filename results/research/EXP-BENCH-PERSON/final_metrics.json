@@ -1,5 +1,5 @@
 {
-  "model": "Improved Student (from scratch)",
+  "model": "NeuroSleep Model (from scratch)",
   "parameters": 99477,
   "dataset": "Sleep-EDF Expanded",
   "cohort": "92-record eligible cohort from 100 downloaded records (8 wake-only excluded); 52 persons",

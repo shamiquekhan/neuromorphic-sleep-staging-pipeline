@@ -12,7 +12,7 @@ tags:
   - neuromorphic
 ---
 
-# NeuroSleep — Improved Student
+# NeuroSleep Model
 
 ## Model Summary
 
@@ -20,7 +20,7 @@ NeuroSleep is a compact PyTorch model for five-stage sleep-stage classification 
 
 ## Architecture
 
-- **Name:** Improved Student
+- **Name:** NeuroSleep Model
 - **Parameters:** 99,477
 - **Input:** `[batch, 10, 4, 3000]` (10 epochs, 4 channels, 3000 samples each)
 - **Output:** `[batch, 10, 5]` (5 sleep stage probabilities per epoch)

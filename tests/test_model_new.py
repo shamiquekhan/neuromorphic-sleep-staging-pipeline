@@ -1,4 +1,4 @@
-"""Tests for the Improved Student model."""
+"""Tests for the NeuroSleep Model model."""
 
 import sys
 from pathlib import Path
@@ -10,7 +10,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
 from sleep_staging.config import StudentConfig
-from sleep_staging.models import ImprovedStudent, count_parameters
+from sleep_staging.models import NeuroSleepModel, count_parameters
 
 
 @pytest.fixture
@@ -20,7 +20,7 @@ def config():
 
 @pytest.fixture
 def model(config):
-    return ImprovedStudent(config)
+    return NeuroSleepModel(config)
 
 
 class TestArchitecture:

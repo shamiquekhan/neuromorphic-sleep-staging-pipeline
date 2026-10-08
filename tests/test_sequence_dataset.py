@@ -29,7 +29,7 @@ def make_subject(subject_id, n_epochs, gap_after=None, n_channels=4, seq_seed=0,
     """Synthetic subject; ``gap_after`` simulates a dropped epoch.
 
     Defaults match the real input contract (4 channels × 3000 samples
-    per 30 s epoch) so windows feed the actual ImprovedStudent in
+    per 30 s epoch) so windows feed the actual NeuroSleepModel in
     end-to-end protocol tests.
     """
     rng = np.random.RandomState(seq_seed)
@@ -257,11 +257,11 @@ class TestEvaluateCausal:
         """A deterministic model + the protocol library must produce
         exactly one prediction per (subject, epoch) pair."""
         from sleep_staging.evaluation.protocol import evaluate_causal
-        from sleep_staging.models.improved_student import ImprovedStudent
+        from sleep_staging.models.neurosleep_model import NeuroSleepModel
 
         subjects = [make_subject("A", 15), make_subject("B", 15)]
         ds = CausalEvalDataset(subjects, seq_len=10)
-        model = ImprovedStudent()
+        model = NeuroSleepModel()
         metrics = evaluate_causal(model, ds, device="cpu", batch_size=4)
 
         preds = metrics["predictions"]
@@ -273,10 +273,10 @@ class TestEvaluateCausal:
 
     def test_metrics_complete(self):
         from sleep_staging.evaluation.protocol import evaluate_causal
-        from sleep_staging.models.improved_student import ImprovedStudent
+        from sleep_staging.models.neurosleep_model import NeuroSleepModel
 
         ds = CausalEvalDataset([make_subject("A", 15)], seq_len=10)
-        metrics = evaluate_causal(ImprovedStudent(), ds, device="cpu")
+        metrics = evaluate_causal(NeuroSleepModel(), ds, device="cpu")
         for key in ("accuracy", "kappa", "macro_f1", "weighted_f1", "mgm",
                     "per_class_accuracy", "confusion_matrix"):
             assert key in metrics, f"missing {key}"

@@ -1,7 +1,7 @@
 {
   "protocol": "Final Full-Dataset Person-Level Holdout Experiment (EXP-FULL-AUG30)",
   "generated_at": "2026-10-05T08:53:15.087342+00:00",
-  "model": "Improved Student \u2014 final full-corpus training (supervised CE + train-only augmentation)",
+  "model": "NeuroSleep Model \u2014 final full-corpus training (supervised CE + train-only augmentation)",
   "parameters": 99477,
   "dataset": {
     "name": "Sleep-EDF Expanded v1.0.0 (complete corpus)",

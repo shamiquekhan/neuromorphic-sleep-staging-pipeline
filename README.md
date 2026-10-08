@@ -56,7 +56,7 @@ NeuroSleep is a lightweight sleep-stage classification system that scores five s
 
 > **Protocol:** the complete Sleep-EDF Expanded corpus — **197 recordings / 100 subjects**
 > (age-effects 153/78 + sleep-telemetry 44/22), SHA-1-verified downloads, person-level
-> 70/15/15 split (seed 42): train 69 / val 15 / test 16 subjects. Improved Student (99,477
+> 70/15/15 split (seed 42): train 69 / val 15 / test 16 subjects. NeuroSleep Model (99,477
 > params) trained with 10×30 s context, train-only augmentation, batch 8, ≤30 epochs with
 > early stopping (patience 5) on best validation **Macro F1**, AdamW 3e-4 + cosine-warmup.
 > All metrics below are computed from the **held-out test subjects only** (16 subjects,
@@ -188,7 +188,7 @@ neurosleep/
 │
 ├── src/sleep_staging/                    # Core Python package
 │   ├── models/
-│   │   ├── improved_student.py           # ImprovedStudent architecture (99,477 params)
+│   │   ├── neurosleep_model.py           # NeuroSleepModel architecture (99,477 params)
 │   │   └── components.py                 # Stem, depthwise-separable blocks, Gabor FEB
 │   ├── adaptation/
 │   │   └── lora.py                       # LoRA implementation
@@ -233,7 +233,7 @@ neurosleep/
 │   ├── experiments/
 │   │   └── person_level_cv.yaml          # Historical benchmark config (archive)
 │   └── model/
-│       └── improved_student.yaml         # Model architecture spec
+│       └── neurosleep_model.yaml         # Model architecture spec
 │
 ├── artifacts/                            # Model checkpoints
 │   ├── standalone_99k/
@@ -333,7 +333,7 @@ streamlit run app/streamlit_app.py
 import torch
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
-from sleep_staging.models.improved_student import ImprovedStudent
+from sleep_staging.models.neurosleep_model import NeuroSleepModel
 
 # Download checkpoint (single-file safetensors — see hf_model_card.md)
 path = hf_hub_download(
@@ -342,7 +342,7 @@ path = hf_hub_download(
 )
 
 # Load model (strict loading verifies all 99,477 parameters)
-model = ImprovedStudent()
+model = NeuroSleepModel()
 model.load_state_dict(load_file(path, device="cpu"))
 model.eval()
 
@@ -596,11 +596,11 @@ See `docs/adaptation.md` for the contamination record. The runner
 
 ## Configuration
 
-The model configuration is in `configs/model/improved_student.yaml`:
+The model configuration is in `configs/model/neurosleep_model.yaml`:
 
 ```yaml
 model:
-  name: ImprovedStudent
+  name: NeuroSleepModel
   params: 99477
 
 data:

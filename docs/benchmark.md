@@ -1,12 +1,12 @@
-# Benchmark: ImprovedStudent Lightweight Sleep-Staging Model
+# Benchmark: NeuroSleepModel Lightweight Sleep-Staging Model
 
 **Project:** `shamiquekhan/neuromorphic-sleep-staging-pipeline`\
 **Benchmark date:** 2026-10-01\
-**Model:** `ImprovedStudent`
+**Model:** `NeuroSleepModel`
 
 ## 1. Executive summary
 
-`ImprovedStudent` is a compact multimodal sleep-staging model with
+`NeuroSleepModel` is a compact multimodal sleep-staging model with
 **99,477 trainable parameters**. It combines:
 
 -   4-channel PSG input: Fpz-Cz EEG, Pz-Oz EEG, EOG, EMG
@@ -20,7 +20,7 @@
 
 The project's final holdout run reports:
 
-  Metric          ImprovedStudent
+  Metric          NeuroSleepModel
   ------------- -----------------
   Parameters           **99,477**
   Accuracy             **90.50%**
@@ -44,7 +44,7 @@ preprocessing and evaluation protocols differ.
   Model                   Modality            Parameters   Published/Project       Macro-F1              κ Comparison
                                                                     Accuracy                               status
   ----------------------- ------------ ----------------- ------------------- -------------- -------------- ------------
-  **ImprovedStudent**     4-ch PSG             **99.5K**        **90.50%**\*   **78.89%**\*   **0.8284**\* Project
+  **NeuroSleepModel**     4-ch PSG             **99.5K**        **90.50%**\*   **78.89%**\*   **0.8284**\* Project
                                                                                                            holdout
 
   **ULW-SleepNet**        Multimodal           **13.3K**               86.9%          80.7%           0.82 Contextual
@@ -172,10 +172,10 @@ Parameter ratio:
 99,477 / 13,300 ≈ 7.48×
 ```
 
-Therefore `ImprovedStudent` uses roughly 7.5× as many parameters.
+Therefore `NeuroSleepModel` uses roughly 7.5× as many parameters.
 
 This does **not** establish that ULW-SleepNet is more efficient or that
-ImprovedStudent is more accurate in a fair comparison. A controlled
+NeuroSleepModel is more accurate in a fair comparison. A controlled
 reimplementation under the project's exact input, split and training
 protocol is required.
 
@@ -198,7 +198,7 @@ Reported:
 The architectural comparison is:
 
 ``` text
-ImprovedStudent:
+NeuroSleepModel:
 Gabor → GRU
 
 GamSleepNet:
@@ -241,7 +241,7 @@ The paper reports approximately 2.8 ms inference per EEG epoch on a
 Qualcomm Snapdragon 865 and approximately 100 KB memory footprint.
 
 However, it processes a 30-second single-channel epoch, while
-ImprovedStudent processes a 300-second four-channel context. Latency and
+NeuroSleepModel processes a 300-second four-channel context. Latency and
 FLOPs therefore require a common benchmark harness before direct
 comparison.
 
@@ -276,7 +276,7 @@ Reported:
 -   Sleep-EDF-20 accuracy: 83.5%
 -   Sleep-EDF-20 Macro-F1: 75.2%
 
-**Critical distinction:** ImprovedStudent is currently a conventional
+**Critical distinction:** NeuroSleepModel is currently a conventional
 ANN (`CNN + Gabor + GRU`), not an SNN. Therefore the current project
 should not claim that the model itself demonstrates neuromorphic
 computing.
@@ -302,12 +302,12 @@ PicoSleepNet       14–25.8K
 GamSleepNet        30.86K
 Micro SleepNet     48.2K
 EfficientSleepNet  83.8K
-ImprovedStudent    99.5K
+NeuroSleepModel    99.5K
 ```
 
 Therefore:
 
-> ImprovedStudent is lightweight, but it is not the smallest model in
+> NeuroSleepModel is lightweight, but it is not the smallest model in
 > the current comparison set.
 
 Its justification is the combination of:
@@ -394,7 +394,7 @@ Tests whether explicit frequency-aware features improve staging.
 A3 + GRU
 ```
 
-This is the complete ImprovedStudent.
+This is the complete NeuroSleepModel.
 
 ### A5 --- Replace GRU
 
@@ -627,7 +627,7 @@ statistical significance.
 
   \+ Gabor                      TBD      TBD            TBD            TBD            TBD           TBD       TBD      TBD
 
-  **ImprovedStudent**     **99.5K**      TBD   **90.50%**\*   **78.89%**\*   **0.8284**\*   **53.5%**\*       TBD      TBD
+  **NeuroSleepModel**     **99.5K**      TBD   **90.50%**\*   **78.89%**\*   **0.8284**\*   **53.5%**\*       TBD      TBD
 
   CNN + Mamba                \~100K      TBD            TBD            TBD            TBD           TBD       TBD      TBD
 
@@ -695,7 +695,7 @@ PSG → accuracy
 
 ### Supported
 
-> ImprovedStudent is a sub-100K-parameter multimodal sleep-staging
+> NeuroSleepModel is a sub-100K-parameter multimodal sleep-staging
 > model.
 
 ### Supported

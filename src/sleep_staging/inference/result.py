@@ -13,7 +13,7 @@ class PredictionResult:
     probabilities: dict[str, float]
     latency_ms: float
     target_epoch: int
-    model_name: str = "Improved Student"
+    model_name: str = "NeuroSleep Model"
 
     def __str__(self) -> str:
         return (

@@ -72,7 +72,7 @@ The revised Notebook 05 does not treat either number as the new final benchmark.
 
 ### Parameter-count mismatch
 
-The executable Improved Student implementation in the revised notebook currently instantiates to 53,989 parameters, while older documentation repeatedly states 99,477. This is an internal inconsistency in the previous project material.
+The executable NeuroSleep Model implementation in the revised notebook currently instantiates to 53,989 parameters, while older documentation repeatedly states 99,477. This is an internal inconsistency in the previous project material.
 
 The revised notebook treats the instantiated model as the source of truth and writes the actual parameter count into the checkpoint and final results. No benchmark document should continue to hard-code 99,477 after the new run.
 
@@ -309,7 +309,7 @@ artifacts/final/EXP-FULL-AUG30_seed42.pt
 and, after strict verification, promotes the same verified checkpoint to the historical canonical path:
 
 ```text
-artifacts/student_improved_best.pt
+artifacts/neurosleep_model_best.pt
 ```
 
 The checkpoint contains:

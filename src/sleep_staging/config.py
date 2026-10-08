@@ -57,12 +57,12 @@ STAGE_COLORS = {
 
 @dataclass(frozen=True)
 class StudentConfig:
-    """Configuration for the Improved Student model.
+    """Configuration for the NeuroSleep Model model.
 
     Defaults describe the trained architecture exactly (99,477
     parameters; matches the deployed standalone_99k checkpoint).
     Changing any of these values changes the architecture and
-    invalidates existing checkpoints — `ImprovedStudent` now builds
+    invalidates existing checkpoints — `NeuroSleepModel` now builds
     every layer from this config, so the mismatch between documented
     and actual widths that existed pre-fix (hardcoded 8/16/272 vs
     config 10/32/32) can no longer occur silently.

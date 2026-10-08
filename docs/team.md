@@ -9,7 +9,7 @@ This document describes individual contributions to the NeuroSleep project.
 | Param Kaushik | Dataset & Data Governance, Streamlit Dashboard | Dataset acquisition, PhysioNet data pipeline, data versioning, Streamlit web application development |
 | Suha Vora | Signal Preprocessing | MNE preprocessing pipeline, signal filtering, quality control |
 | Shailendra Bhatt | Exploratory Data Analysis | EDA notebooks, class distribution analysis, visualization |
-| Shamique Khan | Model Development & Training | ImprovedStudent architecture, LoRA adaptation, training loops, code consolidation |
+| Shamique Khan | Model Development & Training | NeuroSleepModel architecture, LoRA adaptation, training loops, code consolidation |
 | Aasir Jaffer Lone | Evaluation & Performance | Metrics implementation, cross-validation design, performance analysis |
 | Prachi Kamboj | Documentation | Project documentation |
 

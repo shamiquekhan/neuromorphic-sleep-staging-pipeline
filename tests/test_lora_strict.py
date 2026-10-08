@@ -29,13 +29,13 @@ from sleep_staging.adaptation.lora import (
     save_adapter,
     load_adapter,
 )
-from sleep_staging.models.improved_student import ImprovedStudent
+from sleep_staging.models.neurosleep_model import NeuroSleepModel
 
 
 @pytest.fixture
 def base_model():
     torch.manual_seed(0)
-    return ImprovedStudent()
+    return NeuroSleepModel()
 
 
 class TestExactTargetMatching:
@@ -69,7 +69,7 @@ class TestAdapterLoadWithoutDataAssignment:
         model = apply_lora(base_model, cfg)
         save_adapter(model, tmp_path)
 
-        fresh = ImprovedStudent()
+        fresh = NeuroSleepModel()
         fresh = apply_lora(fresh, LoRAConfig(rank=4, target_modules=["head"]))
         before = fresh.head.lora_A.detach().clone()
         load_adapter(fresh, tmp_path)
@@ -93,7 +93,7 @@ class TestAdapterLoadWithoutDataAssignment:
             model.head.lora_B.normal_()
         save_adapter(model, tmp_path)
 
-        fresh = apply_lora(ImprovedStudent(), cfg)
+        fresh = apply_lora(NeuroSleepModel(), cfg)
         load_adapter(fresh, tmp_path)
         torch.testing.assert_close(
             fresh.head.lora_A, model.head.lora_A,

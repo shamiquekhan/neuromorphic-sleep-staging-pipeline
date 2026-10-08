@@ -2,7 +2,7 @@
 """
 Person-Level Benchmark — Subject-Safe Sequences + Causal Unique-Epoch Eval
 
-Trains the Improved Student (99,477 params) on the 92-record / 52-person
+Trains the NeuroSleep Model (99,477 params) on the 92-record / 52-person
 Sleep-EDF cohort using 10-fold person-level CV.
 
 Protocol (post-audit, supersedes the stride-5 / all-position protocol):
@@ -32,7 +32,7 @@ from torch.utils.data import DataLoader
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from sleep_staging.models.improved_student import ImprovedStudent, count_parameters
+from sleep_staging.models.neurosleep_model import NeuroSleepModel, count_parameters
 from sleep_staging.data.loader import load_cached_subject
 from sleep_staging.data.sequence_dataset import (
     SubjectSequenceDataset, CausalEvalDataset, make_subject_list,
@@ -249,7 +249,7 @@ def run_fold(fold_num, fold_data, seed, device, output_dir, out_suffix=""):
     )
 
     # Build model
-    model = ImprovedStudent().to(device)
+    model = NeuroSleepModel().to(device)
     print(f"  Model parameters: {count_parameters(model):,}")
 
     # Loss

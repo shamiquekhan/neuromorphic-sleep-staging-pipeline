@@ -79,7 +79,7 @@ training:
   supervision: all_position_train_only
 
 model:
-  name: ImprovedStudent
+  name: NeuroSleepModel
   parameters: 99477
   n_classes: 5
   architecture:

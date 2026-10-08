@@ -4,7 +4,7 @@
 
 NeuroSleep investigates compact multi-resolution convolutional-recurrent
 sleep staging under a strict parameter budget. The final deployable model
-— the **Improved Student** (99,477 parameters) — is trained from scratch
+— the **NeuroSleep Model** (99,477 parameters) — is trained from scratch
 with supervised class-weighted cross-entropy in the notebook pipeline
 (Notebooks 01→05), and evaluated on held-out
 test subjects.
@@ -50,7 +50,7 @@ Current status:
 | Input | 10 × 30 s epochs × 4 channels @ 100 Hz (300 s context) |
 | Output | Per-epoch probabilities over {Wake, N1, N2, N3, REM} |
 | Training | Supervised class-weighted cross-entropy (from scratch), AdamW 3e-4, cosine schedule with 10% warmup; final protocol: batch 8, ≤30 epochs with early stopping (patience 5) on validation macro-F1, train-only augmentation |
-| Deployment | CPU inference 6.2 ms per 10-epoch batch (measured, standalone); 8.94 ms per 5-minute window (EXP-FULL-AUG30); checkpoints `artifacts/standalone_99k/student_99477_best.pt` and `artifacts/final/EXP-FULL-AUG30_seed42.pt` (promoted: `artifacts/student_improved_best.pt`) |
+| Deployment | CPU inference 6.2 ms per 10-epoch batch (measured, standalone); 8.94 ms per 5-minute window (EXP-FULL-AUG30); checkpoints `artifacts/standalone_99k/student_99477_best.pt` and `artifacts/final/EXP-FULL-AUG30_seed42.pt` (promoted: `artifacts/neurosleep_model_best.pt`) |
 
 ### Parameter budget
 
@@ -79,7 +79,7 @@ Final protocol (complete corpus, Sept 2026 freeze):
 3. **03 — EDA:** class imbalance, artifact burden, per-cohort
    distributions, per-stage spectral fingerprints, stage-transition
    structure — motivating multi-scale features + temporal context.
-4. **04 — Training:** Improved Student from scratch, supervised
+4. **04 — Training:** NeuroSleep Model from scratch, supervised
    class-weighted cross-entropy, train-only augmentation (amplitude
    0.90–1.10×, noise σ 0.005–0.03, temporal masking, channel dropout).
    **Per-epoch logs**; best-validation-macro-F1 checkpointing; best val
@@ -89,7 +89,7 @@ Final protocol (complete corpus, Sept 2026 freeze):
    κ 0.8283, macro-F1 0.7899, weighted-F1 0.9089**; CPU latency 8.94
    ms/window; fit diagnosis (train/val/test gap) written to
    `results/final/fit_diagnosis.json`; verified checkpoint promoted to
-   `artifacts/student_improved_best.pt`.
+   `artifacts/neurosleep_model_best.pt`.
 
 ## Evaluation Results
 
@@ -106,7 +106,7 @@ Final protocol (complete corpus, Sept 2026 freeze):
 | Recall (Wake / N1 / N2 / N3 / REM) | 0.969 / 0.647 / 0.834 / 0.717 / 0.827 |
 | Best validation | Macro F1 0.7645 @ epoch 12 (early-stopped 17/30) |
 | CPU latency | 8.94 ms per 5-minute window (measured) |
-| Checkpoint | `artifacts/final/EXP-FULL-AUG30_seed42.pt` → promoted to `artifacts/student_improved_best.pt` |
+| Checkpoint | `artifacts/final/EXP-FULL-AUG30_seed42.pt` → promoted to `artifacts/neurosleep_model_best.pt` |
 | Evidence | `results/final/final_metrics.json`, `results/final/fit_diagnosis.json` |
 
 > Protocol note: person-level 70/15/15 holdout (seed 42), gap-aware

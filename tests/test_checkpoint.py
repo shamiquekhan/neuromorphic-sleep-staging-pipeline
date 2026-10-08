@@ -10,7 +10,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
 from sleep_staging.config import CHECKPOINT_PATH, StudentConfig
-from sleep_staging.models import ImprovedStudent, count_parameters
+from sleep_staging.models import NeuroSleepModel, count_parameters
 
 
 @pytest.fixture(scope="module")
@@ -30,19 +30,19 @@ class TestCheckpoint:
 
     def test_state_dict_loads(self, checkpoint):
         config = StudentConfig()
-        model = ImprovedStudent(config)
+        model = NeuroSleepModel(config)
         model.load_state_dict(checkpoint, strict=True)
 
     def test_parameter_count_matches(self, checkpoint):
         config = StudentConfig()
-        model = ImprovedStudent(config)
+        model = NeuroSleepModel(config)
         model.load_state_dict(checkpoint, strict=True)
         n = count_parameters(model)
         assert n == 99_477
 
     def test_forward_pass_with_checkpoint(self, checkpoint):
         config = StudentConfig()
-        model = ImprovedStudent(config)
+        model = NeuroSleepModel(config)
         model.load_state_dict(checkpoint, strict=True)
         model.eval()
         x = torch.randn(*config.input_shape)

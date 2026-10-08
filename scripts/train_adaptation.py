@@ -46,7 +46,7 @@ def load_folds_from_path(path):
         return json.load(f)["folds"]
 
 
-from sleep_staging.models.improved_student import ImprovedStudent, count_parameters
+from sleep_staging.models.neurosleep_model import NeuroSleepModel, count_parameters
 from sleep_staging.adaptation.lora import (
     LoRAConfig, apply_lora, count_lora_parameters, get_lora_targets,
     assert_lora_targets, freeze_norm_layers,
@@ -110,7 +110,7 @@ def run_fold(mode, fold_num, fold_data, args):
         train_subjects, val_subjects, test_subjects, CACHE_DIR,
     )
 
-    model = ImprovedStudent()
+    model = NeuroSleepModel()
     load_base(model, args.base_checkpoint)
     print(f"  Loaded base checkpoint: {args.base_checkpoint}")
 

@@ -17,7 +17,7 @@ batch 8, ≤30 epochs with early stopping (patience 5) on best validation **Macr
 train-only augmentation, AdamW 3e-4, wd 1e-4, grad clip 1.0, cosine + 10% warmup,
 log-frequency class weights  
 **Checkpoint:** `artifacts/final/EXP-FULL-AUG30_seed42.pt` — verified and promoted to
-`artifacts/student_improved_best.pt`  
+`artifacts/neurosleep_model_best.pt`  
 **Results:** `results/final/final_metrics.json` + `results/final/*`  
 **Audit:** `FINAL PROTOCOL AUDIT PASSED` (197/100 scope, batch 8, ≤30 epochs, selection
 metric val_macro_f1, augmentation, manifest hash, disjoint splits, strict load,
@@ -136,7 +136,7 @@ The following metrics are the canonical values for the Hugging Face model card:
 
 | Field | Value |
 |-------|-------|
-| Model | Improved Student |
+| Model | NeuroSleep Model |
 | Parameters | 99,477 |
 | Dataset | Sleep-EDF Expanded (full corpus: 197 recordings, 100 persons) |
 | Protocol | Person-level 70/15/15 holdout (seed 42), stride-10 all-position evaluation |

@@ -1,4 +1,4 @@
-"""Inference engine for the Improved Student model."""
+"""Inference engine for the NeuroSleep Model model."""
 
 from .engine import SleepStagePredictor
 from .result import PredictionResult

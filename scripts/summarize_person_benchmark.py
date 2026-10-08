@@ -113,7 +113,7 @@ def write_dashboard_metrics(results_dir: Path, out: dict) -> None:
         get = lambda s: {"mean": s["mean"], "std": s["std"], "ci95": s["ci95"]}
         per_class = fold_per_class_stats(results_dir, out["n_folds"])
     dash = {
-        "model": "Improved Student (from scratch)",
+        "model": "NeuroSleep Model (from scratch)",
         "parameters": 99477,
         "dataset": "Sleep-EDF Expanded",
         "cohort": "92-record eligible cohort from 100 downloaded records "

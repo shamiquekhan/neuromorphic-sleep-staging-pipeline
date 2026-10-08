@@ -13,7 +13,7 @@ Interactive demo for five-stage sleep classification from polysomnography signal
 
 ## Model
 
-- **Architecture:** Improved Student (99,477 parameters)
+- **Architecture:** NeuroSleep Model (99,477 parameters)
 - **Input:** 10 x 4 x 3000 (10 epochs, 4 channels, 3000 samples)
 - **Output:** Wake, N1, N2, N3, REM
 - **Accuracy:** 90.48% (κ 0.8283) on 16 held-out subjects from the full

@@ -86,7 +86,7 @@ Deliverable: cached per-subject epochs (`data/cache_full/`).
 
 ## Phase 3 — Model Development
 
-**Improved Student** (99,477 parameters):
+**NeuroSleep Model** (99,477 parameters):
 
 | Module | Parameters | Share |
 |--------|-----------:|------:|
@@ -109,7 +109,7 @@ the causal one-prediction-per-epoch protocol (see
 [`evaluation_protocol.md`](evaluation_protocol.md)).
 
 > Single-architecture note: the repository ships only the 99,477-parameter
-> Improved Student trained directly with supervised cross-entropy. An early
+> NeuroSleep Model trained directly with supervised cross-entropy. An early
 > teacher-distillation phase was removed from the codebase in the
 > September 2026 cleanup and is not part of the reported pipeline.
 

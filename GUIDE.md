@@ -40,7 +40,7 @@ writing per-epoch training logs as CSV artifacts alongside the results.
 | Weighted F1 | 0.9089 |
 | Best validation | Macro F1 0.7645 @ epoch 12 (early-stopped 17/30) |
 | CPU latency | 8.94 ms per 5-minute window (measured) |
-| Checkpoint | `artifacts/final/EXP-FULL-AUG30_seed42.pt` → promoted to `artifacts/student_improved_best.pt` |
+| Checkpoint | `artifacts/final/EXP-FULL-AUG30_seed42.pt` → promoted to `artifacts/neurosleep_model_best.pt` |
 
 **Fit diagnosis (train/val/test gap):** train 92.50% · val 87.37% ·
 test 90.48% (identical stride-10 protocol) — train−val **+5.12 pp**,
@@ -52,12 +52,12 @@ memorization) → `results/final/fit_diagnosis.json` (Notebook 05 §14).
 
 | Property | Value |
 |----------|-------|
-| Model | Improved Student (from scratch, supervised CE) |
+| Model | NeuroSleep Model (from scratch, supervised CE) |
 | Parameters | 99,477 |
 | Accuracy (standalone exhibition split, seed 42) | 90.57% (κ 0.808) |
 | Accuracy (final submission, EXP-FULL-AUG30, 16 held-out subjects) | 90.48% (κ 0.8283, macro-F1 0.7899) |
 | CPU latency | 6.2 ms/batch (measured, standalone); 8.94 ms per 5-min window (EXP-FULL-AUG30) |
-| Checkpoint | `artifacts/standalone_99k/student_99477_best.pt`; submission: `artifacts/final/EXP-FULL-AUG30_seed42.pt` (promoted: `artifacts/student_improved_best.pt`) |
+| Checkpoint | `artifacts/standalone_99k/student_99477_best.pt`; submission: `artifacts/final/EXP-FULL-AUG30_seed42.pt` (promoted: `artifacts/neurosleep_model_best.pt`) |
 | Dataset | Sleep-EDF Expanded — 92 records / 52 persons (research tier); complete corpus 197 records / 100 subjects (final freeze) |
 | Config | `configs/benchmark_person_level.yaml` |
 
@@ -69,7 +69,7 @@ memorization) → `results/final/fit_diagnosis.json` (Notebook 05 §14).
 | 02 data preprocessing | filter → epoch → QC → normalize → cache (mmap layout) | `data/cache_full/*_epochs.npy` + `cache_index.csv` |
 | 03 exploratory data analysis | class balance, QC burden, spectra, transitions | diagnostics (in-notebook) |
 | 04 student 99k complete training | supervised CE student (from scratch), augmentation, early stopping | `artifacts/final/EXP-FULL-AUG30_seed42.pt` |
-| 05 evaluation & benchmarking | held-out test metrics, fit diagnosis, audit gates, checkpoint promotion | `results/final/final_metrics.json`, `results/final/fit_diagnosis.json`, `artifacts/student_improved_best.pt` |
+| 05 evaluation & benchmarking | held-out test metrics, fit diagnosis, audit gates, checkpoint promotion | `results/final/final_metrics.json`, `results/final/fit_diagnosis.json`, `artifacts/neurosleep_model_best.pt` |
 | 06 LoRA adaptation (extension) | adapter machinery demo | research extension only |
 
 ## Key Files

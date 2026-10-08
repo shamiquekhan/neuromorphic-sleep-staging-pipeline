@@ -1,4 +1,4 @@
-# LoRA — Low-Rank Adaptation of the Improved Student
+# LoRA — Low-Rank Adaptation of the NeuroSleep Model
 
 This document specifies the LoRA implementation in
 [`src/sleep_staging/adaptation/lora.py`](../src/sleep_staging/adaptation/lora.py),
@@ -58,7 +58,7 @@ Wraps `nn.Linear`. Adapter path computes
 ### Convolutional layers (`LoRAConv1d`)
 
 Wraps `nn.Conv1d`. For the pointwise (`kernel_size=1`) convolutions used by
-the Improved Student (`enc.0.pw`, `enc.1.pw`), the layer is mathematically a
+the NeuroSleep Model (`enc.0.pw`, `enc.1.pw`), the layer is mathematically a
 linear map at each time position, and the adapter is applied as an exact
 low-rank linear update per position (`ΔW` has shape `[d_out, d_in]`).
 Non-1×1 kernels fall back to a low-rank 1×1 additive conv; all current
@@ -85,7 +85,7 @@ Implementing LoRA for the GRU weight matrices (`weight_ih_l0`,
 
 ## 3. Target Modules
 
-Available targets in the Improved Student (`named_modules()` paths):
+Available targets in the NeuroSleep Model (`named_modules()` paths):
 
 | Module path | Type | Shape | Role |
 |-------------|------|-------|------|

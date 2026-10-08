@@ -81,4 +81,4 @@ class TestPrediction:
 
     def test_metadata(self, predictor):
         assert "name" in predictor.model_info
-        assert predictor.model_info["name"] == "Improved Student"
+        assert predictor.model_info["name"] == "NeuroSleep Model"

@@ -8,7 +8,7 @@
 | Venue | VIT Bhopal University |
 | Duration | 3–5 minutes |
 | Format | Live demonstration + poster |
-| Final Model | Improved Student (99,477 parameters) |
+| Final Model | NeuroSleep Model (99,477 parameters) |
 
 ---
 
@@ -276,7 +276,7 @@ Edge / MCU deployment
 │  N3  ███                                            │
 │  REM ██                                             │
 │                                                     │
-│  Model: Improved Student                            │
+│  Model: NeuroSleep Model                            │
 │  Parameters: 99,477                                 │
 │                                                     │
 └─────────────────────────────────────────────────────┘

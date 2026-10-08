@@ -131,7 +131,7 @@ jupyter nbconvert --to notebook --execute --inplace notebooks/05_evaluation_and_
 - Canonical: `results/final/final_metrics.json`, `final_result.csv`, `predictions.csv`,
   `confusion_matrix.csv` (+ `confusion_matrix.png`), `per_class_metrics.csv`,
   `fit_diagnosis.json` (+ `*_full_dataset` variants)
-- Verified checkpoint promoted to `artifacts/student_improved_best.pt` (byte-checked copy)
+- Verified checkpoint promoted to `artifacts/neurosleep_model_best.pt` (byte-checked copy)
 
 **Must print:** `FINAL PROTOCOL AUDIT PASSED`
 
@@ -157,7 +157,7 @@ the audit gates, dataset scope (197/100), and protocol parameters must match exa
 - [ ] NB01 output contains `PASS: 197 recordings / 100 subjects / 0 split overlaps`
 - [ ] `data/manifests/dataset_audit.json` has `sha_verified: true`, `split_seed: 42`
 - [ ] NB05 output contains `FINAL PROTOCOL AUDIT PASSED`
-- [ ] `artifacts/student_improved_best.pt` exists and equals `artifacts/final/EXP-FULL-AUG30_seed42.pt`
+- [ ] `artifacts/neurosleep_model_best.pt` exists and equals `artifacts/final/EXP-FULL-AUG30_seed42.pt`
 - [ ] `results/final/final_metrics.json` matches the table in `docs/RESULTS.md`
 - [ ] `results/final/fit_diagnosis.json` reports train/val/test accuracy 0.9250 / 0.8737 / 0.9048
 
@@ -165,7 +165,7 @@ the audit gates, dataset scope (197/100), and protocol parameters must match exa
 ```bash
 python - <<'EOF'
 import torch
-a = torch.load("artifacts/student_improved_best.pt", map_location="cpu", weights_only=False)
+a = torch.load("artifacts/neurosleep_model_best.pt", map_location="cpu", weights_only=False)
 b = torch.load("artifacts/final/EXP-FULL-AUG30_seed42.pt", map_location="cpu", weights_only=False)
 assert all(torch.equal(a["model_state_dict"][k], b["model_state_dict"][k]) for k in a["model_state_dict"])
 print("promoted checkpoint == final checkpoint")

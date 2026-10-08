@@ -36,7 +36,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "scripts"))
 
-from sleep_staging.models.improved_student import ImprovedStudent, count_parameters
+from sleep_staging.models.neurosleep_model import NeuroSleepModel, count_parameters
 from sleep_staging.data.sequence_dataset import SubjectSequenceDataset, CausalEvalDataset, make_subject_list
 from sleep_staging.data.labels import CANONICAL_LIST, N_CLASSES
 from sleep_staging.evaluation.protocol import evaluate_causal
@@ -124,7 +124,7 @@ def main() -> int:
     )
 
     # 4. Train with the canonical benchmark hyperparameters.
-    model = ImprovedStudent().to(device)
+    model = NeuroSleepModel().to(device)
     print(f"Model parameters: {count_parameters(model):,}")
     train_labels = np.concatenate([s["labels"] for s in train_subjects])
     class_weights = compute_class_weights(train_labels, N1_WEIGHT, REM_WEIGHT).to(device)

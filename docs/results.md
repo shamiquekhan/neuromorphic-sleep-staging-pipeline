@@ -56,7 +56,7 @@ evaluation cohort is 52 persons / 92 records.
 > recordings / 100 subjects), person-level 70/15/15
 > split (seed 42): train 69 / val
 > 15 / test 16 subjects.
-> Improved Student (99,477 params), 10×30 s context,
+> NeuroSleep Model (99,477 params), 10×30 s context,
 > batch 8, ≤30 epochs with early
 > stopping (patience 5) on best
 > validation **Macro F1**, train-only augmentation, AdamW
@@ -70,7 +70,7 @@ evaluation cohort is 52 persons / 92 records.
 **0.8283 Cohen's kappa**, and **0.7899 macro F1** on a held-out
 person-level test set of 16 subjects from the
 complete Sleep-EDF Expanded corpus, using the
-99,477-parameter Improved Student model.
+99,477-parameter NeuroSleep Model model.
 
 **Evaluation semantics:** test evaluation used non-overlapping
 stride-10 windows, with each test epoch scored once.

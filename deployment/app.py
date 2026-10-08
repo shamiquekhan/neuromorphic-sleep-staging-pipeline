@@ -243,7 +243,7 @@ with col2:
     st.markdown("### Model Provenance")
     st.markdown(f"""
     <div style="font-size:0.85rem; line-height:1.7; color:#555;">
-        <strong>Architecture:</strong> Improved Student<br>
+        <strong>Architecture:</strong> NeuroSleep Model<br>
         <strong>Training:</strong> From scratch, supervised class-weighted cross-entropy (seed 42)<br>
         <strong>Checkpoint:</strong> artifacts/standalone_99k/student_99477_best.pt<br>
         <strong>Parameters:</strong> 99,477<br>

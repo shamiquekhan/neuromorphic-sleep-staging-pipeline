@@ -45,7 +45,7 @@ datasets:
   - siamakz/sleep_edf_expanded
   - physionet/sleep-edf
 model-index:
-  - name: NeuroSleep Improved Student
+  - name: NeuroSleep Model
     results:
       - task:
           type: other
@@ -109,11 +109,11 @@ path = hf_hub_download(
     filename="student_full_finetuned.safetensors",
 )
 
-# Load model (see source repo for ImprovedStudent class definition)
+# Load model (see source repo for NeuroSleepModel class definition)
 # https://github.com/shamiquekhan/neuromorphic-sleep-staging-pipeline
-from sleep_staging.models.improved_student import ImprovedStudent
+from sleep_staging.models.neurosleep_model import NeuroSleepModel
 
-model = ImprovedStudent()
+model = NeuroSleepModel()
 model.load_state_dict(load_file(path, device="cpu"))
 model.eval()
 
@@ -275,7 +275,7 @@ lora_config = LoRAConfig(
     dropout=0.05,
 )
 
-model = ImprovedStudent()
+model = NeuroSleepModel()
 model.load_state_dict(load_file(ckpt_path, device="cpu"))
 model = apply_lora(model, lora_config)
 # trainable params: 1,448 || all params: 99,477 || trainable%: 1.43%

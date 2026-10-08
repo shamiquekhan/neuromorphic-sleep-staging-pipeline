@@ -51,7 +51,7 @@ with col_side:
         "<tr><td>Dataset</td><td>Sleep-EDF Expanded (197 rec / 100 subj)</td></tr>"
         "<tr><td>Window</td><td>10 &times; 30 s</td></tr>"
         "<tr><td>Sampling</td><td>100 Hz</td></tr>"
-        "<tr><td>Model</td><td>Improved Student</td></tr>"
+        "<tr><td>Model</td><td>NeuroSleep Model</td></tr>"
         "<tr><td>Parameters</td><td>99,477</td></tr>"
         "<tr><td>Evaluation</td><td>Person-level holdout (seed 42)</td></tr>"
         "</table>",

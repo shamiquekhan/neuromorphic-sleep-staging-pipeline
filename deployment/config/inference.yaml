@@ -1,5 +1,5 @@
 model:
-  name: Improved Student
+  name: NeuroSleep Model
   parameters: 99477
   checkpoint: student_99477_best.pt
 

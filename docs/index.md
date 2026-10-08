@@ -83,7 +83,7 @@ docs/
 ### Final Submission Result — EXP-FULL-AUG30
 
 ```
-Improved Student — from scratch, seed 42, ≤30 epochs (17/30, patience 5)
+NeuroSleep Model — from scratch, seed 42, ≤30 epochs (17/30, patience 5)
 Accuracy    = 90.48%
 Kappa       = 0.8283
 Macro F1    = 0.7899

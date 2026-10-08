@@ -147,7 +147,7 @@ st.markdown(
     '<div class="sz-body" style="margin-top:1rem;">'
     "<strong>Dataset:</strong> Sleep-EDF Expanded complete corpus — 197 recordings / 100 subjects (PhysioNet)<br>"
     "<strong>Training window:</strong> 10 &times; 30 s epochs (300 s context)<br>"
-    "<strong>Model:</strong> Improved Student (from scratch, 99,477 params)<br>"
+    "<strong>Model:</strong> NeuroSleep Model (from scratch, 99,477 params)<br>"
     "<strong>Training:</strong> Supervised class-weighted cross-entropy (from scratch)<br>"
     "<strong>Evaluation:</strong> person-level 70/15/16 holdout, seed 42, stride-10 test scoring"
     "</div>",

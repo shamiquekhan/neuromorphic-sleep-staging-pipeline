@@ -52,17 +52,17 @@ def check_duplicate_model_defs():
     """Check for duplicate or extraneous model definitions.
 
     The repository ships a single architecture: the 99,477-parameter
-    ImprovedStudent. Any other model file (teacher, alternate students)
+    NeuroSleepModel. Any other model file (teacher, alternate students)
     or inline notebook definition is flagged.
     """
-    student_files = [f for f in REPO.rglob("*improved_student*.py")
+    student_files = [f for f in REPO.rglob("*neurosleep_model*.py")
                      if "__pycache__" not in str(f) and "quarantine" not in str(f)]
     teacher_files = [f for f in REPO.rglob("*improved_teacher*.py")
                      if "__pycache__" not in str(f) and "quarantine" not in str(f)]
 
     problems = []
     if len(student_files) != 1:
-        problems.append(f"Expected exactly 1 ImprovedStudent file, found: "
+        problems.append(f"Expected exactly 1 NeuroSleepModel file, found: "
                         f"{[str(f.relative_to(REPO)) for f in student_files]}")
     if teacher_files:
         problems.append(f"Teacher model files must not exist (single-architecture repo): "
@@ -73,13 +73,13 @@ def check_duplicate_model_defs():
     nb_teacher = 0
     for nb in REPO.glob("notebooks/*.ipynb"):
         content = nb.read_text()
-        if "class ImprovedStudent" in content:
+        if "class NeuroSleepModel" in content:
             nb_student += 1
         if "class ImprovedTeacher" in content:
             nb_teacher += 1
 
     if nb_student > 1:
-        problems.append(f"{nb_student} notebooks contain inline ImprovedStudent definition "
+        problems.append(f"{nb_student} notebooks contain inline NeuroSleepModel definition "
                         f"(only the standalone 04 training notebook may)")
     if nb_teacher > 0:
         problems.append(f"{nb_teacher} notebook(s) contain inline ImprovedTeacher definition")

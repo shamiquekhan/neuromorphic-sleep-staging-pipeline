@@ -182,7 +182,7 @@ evaluation cohort is 52 persons / 92 records.
 > recordings / {ds['n_subjects']} subjects), person-level 70/15/15
 > split (seed {cfg['seed']}): train {split_ds['train_subjects']} / val
 > {split_ds['val_subjects']} / test {ds['test_subjects']} subjects.
-> Improved Student ({fin['parameters']:,} params), 10×30 s context,
+> NeuroSleep Model ({fin['parameters']:,} params), 10×30 s context,
 > batch {cfg['batch_size']}, ≤{cfg['max_epochs']} epochs with early
 > stopping (patience {cfg['early_stopping_patience']}) on best
 > validation **Macro F1**, train-only augmentation, AdamW
@@ -196,7 +196,7 @@ evaluation cohort is 52 persons / 92 records.
 **{kap:.4f} Cohen's kappa**, and **{mf1:.4f} macro F1** on a held-out
 person-level test set of {ds['test_subjects']} subjects from the
 complete Sleep-EDF Expanded corpus, using the
-{fin['parameters']:,}-parameter Improved Student model.
+{fin['parameters']:,}-parameter NeuroSleep Model model.
 
 **Evaluation semantics:** test evaluation used non-overlapping
 stride-{cfg['eval_stride']} windows, with each test epoch scored once.

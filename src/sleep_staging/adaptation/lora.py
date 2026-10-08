@@ -1,9 +1,9 @@
-"""LoRA (Low-Rank Adaptation) for the Improved Student model.
+"""LoRA (Low-Rank Adaptation) for the NeuroSleep Model model.
 
 Implements parameter-efficient adaptation by freezing the base model
 and training low-rank adapter matrices on selected linear and conv layers.
 
-Target modules for the Improved Student:
+Target modules for the NeuroSleep Model:
     - ``head``: nn.Linear(64, 5) — classification head
     - ``gab_proj``: nn.Linear(8, 16) — Gabor feature projection
     - ``enc.0.pw``: nn.Conv1d(16, 32, 1) — CNN projection block 0
@@ -197,7 +197,7 @@ def apply_lora(
     replaced by ``LoRALinear``/``LoRAConv1d`` wrappers. Base weights are frozen.
 
     Args:
-        model: The base ImprovedStudent model.
+        model: The base NeuroSleepModel model.
         config: LoRA configuration.
 
     Returns:

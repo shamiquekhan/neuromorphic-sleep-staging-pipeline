@@ -11,13 +11,13 @@ sys.path.insert(0, str(REPO / "src"))
 
 from sleep_staging.adaptation import LoRAConfig, LoRALinear, apply_lora, count_lora_parameters
 from sleep_staging.config import CHECKPOINT_PATH, StudentConfig
-from sleep_staging.models import ImprovedStudent
+from sleep_staging.models import NeuroSleepModel
 
 
 @pytest.fixture(scope="module")
 def base_model():
     config = StudentConfig()
-    model = ImprovedStudent(config)
+    model = NeuroSleepModel(config)
     if CHECKPOINT_PATH.exists():
         sd = torch.load(CHECKPOINT_PATH, map_location="cpu", weights_only=False)
         if isinstance(sd, dict) and "model_state_dict" in sd:

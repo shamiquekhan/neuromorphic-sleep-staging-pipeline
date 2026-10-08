@@ -14,7 +14,7 @@ import torch.nn as nn
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from sleep_staging.models.improved_student import ImprovedStudent
+from sleep_staging.models.neurosleep_model import NeuroSleepModel
 from sleep_staging.adaptation.lora import (
     LoRAConfig,
     LoRALinear,
@@ -76,12 +76,12 @@ class TestLoRAConv1d:
 
 
 class TestConv1dLoRAIntegration:
-    """Integration tests for Conv1d LoRA with ImprovedStudent."""
+    """Integration tests for Conv1d LoRA with NeuroSleepModel."""
 
     @pytest.fixture
     def model_with_checkpoint(self):
         """Load model with checkpoint."""
-        model = ImprovedStudent()
+        model = NeuroSleepModel()
         ckpt = torch.load(
             "artifacts/standalone_99k/student_99477_best.pt",
             map_location="cpu",

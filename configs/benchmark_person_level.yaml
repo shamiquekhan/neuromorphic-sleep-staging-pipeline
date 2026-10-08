@@ -34,7 +34,7 @@ experiment:
   supersedes: EXP-BENCH-92SUBJ (record-level folds, person leakage)
 
 model:
-  name: ImprovedStudent
+  name: NeuroSleepModel
   parameters: 99477
   n_classes: 5
   architecture:

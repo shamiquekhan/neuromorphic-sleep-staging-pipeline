@@ -12,7 +12,7 @@ A compact deep-learning system that classifies 30-second sleep epochs into five 
 |----------|-------|
 | **Title** | Neuromorphic Sleep Stage Scoring |
 | **Venue** | VIT Bhopal University |
-| **Final Model** | Improved Student (trained from scratch, supervised CE) |
+| **Final Model** | NeuroSleep Model (trained from scratch, supervised CE) |
 | **Parameters** | 99,477 |
 | **Final Submission Run** (EXP-FULL-AUG30, person-level holdout) | **90.48% acc · κ 0.8283 · macro-F1 0.7899** |
 | **Deployed Standalone Run** (15 held-out test subjects, seed 42) | **90.57% acc · κ 0.808 · macro-F1 0.749** |

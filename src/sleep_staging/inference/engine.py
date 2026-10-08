@@ -10,7 +10,7 @@ import numpy as np
 import torch
 
 from ..config import CHECKPOINT_PATH, STAGE_NAMES, StudentConfig
-from ..models import ImprovedStudent, count_parameters
+from ..models import NeuroSleepModel, count_parameters
 from ..adaptation import LoRAConfig, apply_lora, count_lora_parameters, load_adapter
 from .result import PredictionResult
 
@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 class SleepStagePredictor:
-    """Deterministic inference engine for the Improved Student model.
+    """Deterministic inference engine for the NeuroSleep Model model.
 
     Args:
         checkpoint_path: Path to ``.pt`` checkpoint.
@@ -39,7 +39,7 @@ class SleepStagePredictor:
         self.device = torch.device(device)
         self.config = config or StudentConfig()
 
-        self.model = ImprovedStudent(self.config)
+        self.model = NeuroSleepModel(self.config)
         self._load_checkpoint(
             checkpoint_path or CHECKPOINT_PATH,
         )
@@ -88,7 +88,7 @@ class SleepStagePredictor:
 
     @property
     def model_name(self) -> str:
-        return "Improved Student"
+        return "NeuroSleep Model"
 
     @property
     def n_parameters(self) -> int:

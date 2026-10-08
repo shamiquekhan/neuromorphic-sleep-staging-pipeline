@@ -1,11 +1,11 @@
-# NeuroSleep — Improved Student Model Configuration
+# NeuroSleep Model Configuration
 # ================================================
-# This describes the trained Improved Student architecture exactly.
+# This describes the trained NeuroSleep Model architecture exactly.
 # Changing any value changes the architecture and invalidates existing checkpoints.
 
 model:
-  name: ImprovedStudent
-  class_path: sleep_staging.models.improved_student.ImprovedStudent
+  name: NeuroSleepModel
+  class_path: sleep_staging.models.neurosleep_model.NeuroSleepModel
   parameters: 99477
 
 architecture:

@@ -2,7 +2,7 @@
 
 ## Deployment Overview
 
-The final model (Improved Student, 99,477 parameters) is designed for edge deployment on resource-constrained devices. This guide covers export, optimization, and deployment strategies.
+The final model (NeuroSleep Model, 99,477 parameters) is designed for edge deployment on resource-constrained devices. This guide covers export, optimization, and deployment strategies.
 
 ---
 
@@ -57,7 +57,7 @@ from sleep_staging.adaptation import load_adapter
 save_adapter(model, "artifacts/lora/head_r8")
 
 # Load into fresh base
-model = ImprovedStudent(config)
+model = NeuroSleepModel(config)
 model.load_state_dict(base_checkpoint)
 model = apply_lora(model, lora_config)
 load_adapter(model, "artifacts/lora/head_r8")
@@ -120,10 +120,10 @@ PyTorch Checkpoint
 
 ```python
 import torch
-from src.models.improved_student import ImprovedStudent
+from src.models.neurosleep_model import NeuroSleepModel
 
 # Load model
-model = ImprovedStudent(n_classes=5)
+model = NeuroSleepModel(n_classes=5)
 checkpoint = torch.load("artifacts/standalone_99k/student_99477_best.pt", weights_only=False)
 if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
     model.load_state_dict(checkpoint["model_state_dict"])
@@ -138,14 +138,14 @@ dummy = torch.randn(1, 10, 4, 3000)
 torch.onnx.export(
     model,
     dummy,
-    "artifacts/student_improved.onnx",
+    "artifacts/neurosleep_model.onnx",
     opset_version=17,
     input_names=["psg_sequence"],
     output_names=["sleep_stages"],
     dynamic_axes=None,  # Fixed shapes for edge deployment
 )
 
-print("Exported to ONNX: artifacts/student_improved.onnx")
+print("Exported to ONNX: artifacts/neurosleep_model.onnx")
 ```
 
 ### Verify ONNX Export
@@ -155,7 +155,7 @@ import onnxruntime as ort
 import numpy as np
 
 # Load ONNX model
-session = ort.InferenceSession("artifacts/student_improved.onnx")
+session = ort.InferenceSession("artifacts/neurosleep_model.onnx")
 
 # Test inference
 dummy = np.random.randn(1, 10, 4, 3000).astype(np.float32)
@@ -175,12 +175,12 @@ print("PyTorch vs ONNX match:", np.allclose(outputs[0], pytorch_output, atol=1e-
 from onnxruntime.quantization import quantize_dynamic, QuantType
 
 quantize_dynamic(
-    model_input="artifacts/student_improved.onnx",
-    model_output="artifacts/student_improved_int8.onnx",
+    model_input="artifacts/neurosleep_model.onnx",
+    model_output="artifacts/neurosleep_model_int8.onnx",
     weight_type=QuantType.QInt8,
 )
 
-print("Quantized model saved to artifacts/student_improved_int8.onnx")
+print("Quantized model saved to artifacts/neurosleep_model_int8.onnx")
 ```
 
 ### Quantization Impact
@@ -212,7 +212,7 @@ pip install onnxruntime
 
 # Run inference
 python scripts/infer.py \
-    --checkpoint artifacts/student_improved_int8.onnx \
+    --checkpoint artifacts/neurosleep_model_int8.onnx \
     --input <path/to/subject_cache.npz>
 ```
 
@@ -225,7 +225,7 @@ from onnx_tf.backend import prepare
 import tensorflow as tf
 
 # ONNX to TF
-onnx_model = onnx.load("artifacts/student_improved_int8.onnx")
+onnx_model = onnx.load("artifacts/neurosleep_model_int8.onnx")
 tf_rep = prepare(onnx_model)
 tf_rep.export_graph("model_tf")
 

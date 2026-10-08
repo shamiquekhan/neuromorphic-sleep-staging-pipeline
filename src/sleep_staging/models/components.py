@@ -1,4 +1,4 @@
-"""Reusable building blocks for the Improved Student architecture."""
+"""Reusable building blocks for the NeuroSleep Model architecture."""
 
 import math
 
