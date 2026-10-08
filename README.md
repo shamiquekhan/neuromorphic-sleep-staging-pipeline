@@ -110,12 +110,6 @@ three splits (Notebook 05 §14; artifact `results/final/fit_diagnosis.json`):
 > comparable to the final submission result above. Quarantined legacy results
 > are recorded in `docs/RESULTS.md` and `docs/adaptation.md` only.
 
-### Historical Benchmark — EXP-BENCH-PERSON (archived)
-
-Person-level 10-fold CV over the 92-record / 52-person eligible cohort
-(seeds 42/43/44, causal unique-epoch protocol), completed and archived;
-superseded by EXP-FULL-AUG30. Result tables were removed from the published
-docs — raw evidence remains in `results/research/EXP-BENCH-PERSON/`.
 
 ### Historical Standalone Result (EXP-STANDALONE-99K — Notebooks 01→05, supervised CE)
 
